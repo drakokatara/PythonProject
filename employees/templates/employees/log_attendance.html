@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Καταχώρηση Παρουσίας | Attendance Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #1e293b;
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --bg-color: #f8fafc;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #334155;
+            padding: 40px 0;
+        }
+
+        .dashboard-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            border: none;
+        }
+
+        .card-header i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: var(--accent-color);
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            background-color: #fcfcfd;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            border-color: var(--accent-color);
+            background-color: white;
+        }
+
+        /* Weekend Warning Styling */
+        #weekend-warning {
+            display: none;
+            border: none;
+            background-color: #fffbeb;
+            color: #92400e;
+            border-left: 4px solid var(--warning-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-submit {
+            background-color: var(--success-color);
+            border: none;
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background-color: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-submit:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1.5rem;
+            transition: color 0.2s;
+        }
+
+        .btn-back:hover {
+            color: var(--primary-color);
+        }
+
+        .error-msg {
+            color: var(--danger-color);
+            font-size: 0.8rem;
+            margin-top: 0.4rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container dashboard-container">
+
+    {% for message in messages %}
+    <div class="alert alert-dismissible fade show border-0 shadow-sm bg-white mb-4" role="alert">
+        <div class="d-flex align-items-center text-success fw-bold">
+            <i class="fas fa-check-circle me-3"></i>
+            <div>{{ message }}</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-calendar-check"></i>
+            <h4 class="mb-0">Καταχώρηση Παρουσίας</h4>
+            <p class="mb-0 opacity-75 small">Επιλέξτε ημερομηνία και τύπο εργασίας</p>
+        </div>
+        <div class="card-body p-4 p-md-5">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label"><i class="fas fa-user"></i> Επιλογή Υπαλλήλου</label>
+                    {{ form.employee }}
+                    {% if form.employee.errors %}
+                        <div class="error-msg">{{ form.employee.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label"><i class="fas fa-calendar-day"></i> Ημερομηνία</label>
+                    {{ form.date }}
+
+                    <div id="weekend-warning">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span>Προσοχή: Η <strong><span id="day-name"></span></strong> είναι Σαββατοκύριακο.</span>
+                        </div>
+                    </div>
+
+                    {% if form.date.errors %}
+                        <div class="error-msg"><i class="fas fa-times-circle me-1"></i> {{ form.date.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label"><i class="fas fa-laptop-house"></i> Τρόπος Εργασίας</label>
+                    {{ form.work_type }}
+                    {% if form.work_type.errors %}
+                        <div class="error-msg">{{ form.work_type.errors|join:", " }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-submit w-100" id="submit-btn">
+                    <i class="fas fa-save me-2"></i>Ολοκλήρωση Καταχώρησης
+                </button>
+
+            </form>
+
+            <a href="{% url 'manage_employees' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Επιστροφή στο Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const dateInput  = document.querySelector('input[type="date"]');
+    const warning    = document.getElementById('weekend-warning');
+    const dayName    = document.getElementById('day-name');
+    const submitBtn  = document.getElementById('submit-btn');
+    const days       = ['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
+
+    dateInput.addEventListener('change', function () {
+        if (!this.value) return;
+        const parts = this.value.split('-');
+        const date  = new Date(parts[0], parts[1] - 1, parts[2]);
+        const dow   = date.getDay();
+
+        if (dow === 0 || dow === 6) {
+            dayName.textContent  = days[dow];
+            warning.style.display = 'block';
+            submitBtn.disabled    = true;
+            submitBtn.innerHTML = '<i class="fas fa-ban me-2"></i>Μη εργάσιμη ημέρα';
+        } else {
+            warning.style.display = 'none';
+            submitBtn.disabled    = false;
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Ολοκλήρωση Καταχώρησης';
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
