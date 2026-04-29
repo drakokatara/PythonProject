@@ -32,35 +32,36 @@ class Employee(models.Model):
         # Υπολογισμός εβδομάδων και αργιών που έπεσαν σε εργάσιμη μέρα (Δευ-Παρ)
         weeks_passed = 0
         holidays_on_weekdays = 0
-        current_day = first_day
 
-        while current_day <= today:
-            if current_day.weekday() == 0:  # 0 = Δευτέρα
-                weeks_passed += 1
+        curr = first_day
+        while curr <= today:
+            if curr.weekday() < 5:  # Δευτέρα έως Παρασκευή
+                if curr in gr_holidays:
+                    holidays_on_weekdays += 1
 
-            if current_day in gr_holidays and current_day.weekday() < 5:
-                holidays_on_weekdays += 1
-
-            current_day += timedelta(days=1)
-
-        if first_day.weekday() != 0:
-            weeks_passed += 1
+                # Κάθε Δευτέρα (ή αν είναι η 1η του μήνα) μετράμε μια εβδομάδα
+                if curr.weekday() == 0 or curr == first_day:
+                    weeks_passed += 1
+            curr += timedelta(days=1)
 
         # Στόχος: 2 παρουσίες/εβδομάδα ΜΕΙΟΝ τις αργίες
         required_office_so_far = (weeks_passed * 2) - holidays_on_weekdays
 
-        # Κόφτες ασφαλείας
+        # Κόφτες ασφαλείας για τον στόχο
         if required_office_so_far > 8:
             required_office_so_far = 8
         if required_office_so_far < 0:
             required_office_so_far = 0
 
-        debt = required_office_so_far - (office_days + leave_days)
+        # Υπολογισμός χρέους: Μόνο οι ημέρες γραφείου μειώνουν το χρέος.
+        # Οι άδειες (leave_days) δεν προσμετρώνται εδώ πλέον.
+        debt = required_office_so_far - office_days
+
         if debt < 0:
             debt = 0
 
-        # Status OK αν το άθροισμα (Γραφείο + Άδειες) καλύπτει τον στόχο
-        is_ok = ((office_days + leave_days) >= required_office_so_far)
+        # Η κατάσταση είναι OK μόνο αν οι ημέρες γραφείου καλύπτουν τον στόχο
+        is_ok = (office_days >= required_office_so_far)
 
         return {
             'office_days': office_days,
@@ -84,17 +85,17 @@ class Attendance(models.Model):
     ]
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(verbose_name="Ημερομηνία")
     work_type = models.CharField(
         max_length=10,
         choices=WORK_TYPE_CHOICES,
-        default='REMOTE',
-        verbose_name="Τρόπος Εργασίας"
+        verbose_name="Τύπος Εργασίας"
     )
 
     class Meta:
-        unique_together = ('employee', 'date')
-        ordering = ['-date']
+        unique_together = ('employee', 'date')  # Ένας υπάλληλος, μία καταχώρηση ανά ημέρα
+        verbose_name = "Παρουσία"
+        verbose_name_plural = "Παρουσίες"
 
     def __str__(self):
-        return f"{self.employee.full_name} — {self.date} ({self.get_work_type_display()})"
+        return f"{self.employee.full_name} - {self.date} ({self.get_work_type_display()})"

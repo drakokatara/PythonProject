@@ -58,7 +58,6 @@
             letter-spacing: 1px;
         }
 
-        /* PCS Style Work Options Grid */
         .work-type-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -83,7 +82,6 @@
 
         .work-option i { font-size: 1.4rem; margin-bottom: 5px; }
 
-        /* Active States */
         .work-option.active {
             color: white;
             transform: translateY(-2px);
@@ -91,7 +89,6 @@
             border-color: transparent;
         }
 
-        /* Colors for active types */
         .work-option.active#opt-office { background-color: var(--pcs-red); }
         .work-option.active#opt-remote { background-color: #0ea5e9; }
         .work-option.active#opt-leave  { background-color: #10b981; }
@@ -213,6 +210,54 @@
     const submitBtn = document.getElementById('submit-btn');
     const warning = document.getElementById('date-warning');
 
+    // Κεντρική συνάρτηση ελέγχου εγκυρότητας
+    function validateEntry() {
+        const selectedDate = dateInput.value;
+        const workType = realSelect.value;
+
+        if (!selectedDate) return;
+
+        const d = new Date(selectedDate);
+        const day = d.getDay(); // 0 = Κυριακή, 6 = Σάββατο
+
+        const isWeekend = (day === 0 || day === 6);
+        const isHoliday = greekHolidays.includes(selectedDate);
+
+        // Ο έλεγχος (Warning) εμφανίζεται ΜΟΝΟ αν ο τύπος εργασίας είναι OFFICE ή REMOTE
+        // Αν είναι LEAVE ή SICK, επιτρέπουμε την καταχώρηση κανονικά
+        if ((workType === 'OFFICE' || workType === 'REMOTE') && (isWeekend || isHoliday)) {
+            warning.style.display = 'block';
+            if (isHoliday) {
+                warning.innerHTML = '<i class="fas fa-umbrella-beach me-2"></i>Επίσημη Αργία: Δεν επιτρέπεται καταχώρηση για εργασία.';
+            } else {
+                warning.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Σαββατοκύριακο: Δεν επιτρέπεται καταχώρηση για εργασία.';
+            }
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+        } else {
+            // Σε κάθε άλλη περίπτωση (π.χ. ΑΔΕΙΑ ή καθημερινή), όλα ΟΚ
+            warning.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+        }
+    }
+
+    // Επιλογή τύπου εργασίας
+    function selectWork(val) {
+        realSelect.value = val;
+        document.querySelectorAll('.work-option').forEach(opt => opt.classList.remove('active'));
+        const activeOpt = document.getElementById(`opt-${val.toLowerCase()}`);
+        if (activeOpt) activeOpt.classList.add('active');
+
+        // Κάθε φορά που αλλάζει το κουμπί, ξαναελέγχουμε την εγκυρότητα
+        validateEntry();
+    }
+
+    // Όταν αλλάζει η ημερομηνία
+    if (dateInput) {
+        dateInput.addEventListener('change', validateEntry);
+    }
+
     // SweetAlert2 για μηνύματα από Django
     {% if messages %}
         {% for message in messages %}
@@ -227,48 +272,16 @@
         {% endfor %}
     {% endif %}
 
-    function selectWork(val) {
-        realSelect.value = val;
-        document.querySelectorAll('.work-option').forEach(opt => opt.classList.remove('active'));
-        const activeOpt = document.getElementById(`opt-${val.toLowerCase()}`);
-        if (activeOpt) activeOpt.classList.add('active');
-    }
-
-    if (dateInput) {
-        dateInput.addEventListener('change', function() {
-            const selectedDate = this.value;
-            if (!selectedDate) return;
-
-            const d = new Date(selectedDate);
-            const day = d.getDay();
-
-            const isWeekend = (day === 0 || day === 6);
-            const isHoliday = greekHolidays.includes(selectedDate);
-
-            if (isWeekend || isHoliday) {
-                warning.style.display = 'block';
-                warning.innerHTML = isHoliday ?
-                    '<i class="fas fa-umbrella-beach me-2"></i>Επίσημη Αργία: Μη εργάσιμη' :
-                    '<i class="fas fa-exclamation-triangle me-2"></i>Σαββατοκύριακο: Μη εργάσιμη';
-                submitBtn.disabled = true;
-                submitBtn.style.opacity = '0.5';
-            } else {
-                warning.style.display = 'none';
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
-            }
-        });
-    }
-
     window.onload = function() {
         // Smart Default: Σημερινή ημερομηνία
         const today = new Date().toISOString().split('T')[0];
         if (!dateInput.value) {
             dateInput.value = today;
-            dateInput.dispatchEvent(new Event('change'));
         }
 
+        // Default επιλογή OFFICE
         selectWork('OFFICE');
+
         document.querySelectorAll('select').forEach(s => s.classList.add('form-select'));
     };
 </script>
