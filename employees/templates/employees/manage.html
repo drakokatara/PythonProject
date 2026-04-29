@@ -18,23 +18,37 @@
         }
 
         body { background-color: #f1f1f1; font-family: 'Segoe UI', Roboto, sans-serif; color: var(--pcs-dark); }
+
+        /* Header */
         .dashboard-header { background: var(--pcs-white); color: var(--pcs-dark); padding: 1rem 0; border-bottom: 3px solid var(--pcs-red); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .company-logo { font-weight: 800; font-size: 1.8rem; color: var(--pcs-red); }
         .company-logo span { color: var(--pcs-dark); font-weight: 300; }
+
+        /* Cards & Sidebar */
         .card { border: none; border-radius: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 25px; background: var(--pcs-white); }
         .card-header { background-color: var(--pcs-white); border-bottom: 2px solid var(--pcs-red); font-weight: 700; color: var(--pcs-red); padding: 1rem; text-transform: uppercase; }
+
+        /* Stats Widget Styling */
+        .stat-item { transition: 0.3s; border-left: 4px solid transparent; }
+        .stat-item:hover { background: var(--pcs-light-gray); }
+
+        /* Table */
         .table thead th { background-color: var(--pcs-dark); color: white; font-weight: 600; border: none; padding: 12px; }
         .employee-row { cursor: pointer; transition: 0.2s; }
         .employee-row:hover { background-color: #fff5f5; }
         .avatar-circle { width: 38px; height: 38px; background: var(--pcs-red); color: white; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .stat-badge { padding: 5px 10px; font-weight: 700; border: 1px solid #eee; background: #fdfdfd; }
+
         .status-pill { font-weight: 800; font-size: 0.7rem; padding: 5px 12px; text-transform: uppercase; border-radius: 2px; }
         .status-ok { background-color: #d4edda; color: #155724; }
         .status-late { background-color: #f8d7da; color: #721c24; }
+
+        /* Calendar Detail */
         .calendar-detail-row { display: none; background-color: #ffffff; }
         .calendar-container { padding: 0; background: #fff; border: 1px solid #eee; border-top: none; }
         .range-filter-bar { background: var(--pcs-light-gray); padding: 15px; border-bottom: 1px solid #eee; }
         .results-box { background: white; border: 1px solid var(--pcs-red); padding: 10px; display: none; }
+
         .btn-pcs { background-color: var(--pcs-red); color: white; border: none; border-radius: 0; font-weight: 700; padding: 8px 15px; transition: 0.3s; }
         .btn-pcs:hover { background-color: var(--pcs-dark); color: white; }
         .btn-action-outline { border: 2px solid var(--pcs-red); color: var(--pcs-red); font-weight: 700; border-radius: 0; text-decoration: none; padding: 8px 15px; }
@@ -53,6 +67,15 @@
 </header>
 
 <div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 rounded-0 shadow-sm mb-4" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="row">
         <div class="col-lg-3">
             <div class="card shadow-sm">
@@ -70,6 +93,32 @@
                         </div>
                         <button type="submit" class="btn btn-pcs w-100">ΑΠΟΘΗΚΕΥΣΗ</button>
                     </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header" style="background-color: var(--pcs-dark); color: white;">
+                    ΣΗΜΕΡΙΝΗ ΕΙΚΟΝΑ
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 stat-item" style="border-left-color: var(--pcs-red);">
+                            <div><i class="fas fa-building text-danger me-2"></i><span class="small fw-bold">ΓΡΑΦΕΙΟ</span></div>
+                            <span class="badge bg-danger rounded-pill">{{ stats_today.office }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 stat-item" style="border-left-color: #0ea5e9;">
+                            <div><i class="fas fa-laptop-house text-info me-2"></i><span class="small fw-bold">ΤΗΛΕΡΓΑΣΙΑ</span></div>
+                            <span class="badge bg-info rounded-pill">{{ stats_today.remote }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 stat-item" style="border-left-color: #10b981;">
+                            <div><i class="fas fa-plane-departure text-success me-2"></i><span class="small fw-bold">ΑΔΕΙΑ/ΑΣΘ.</span></div>
+                            <span class="badge bg-success rounded-pill">{{ stats_today.leave }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 stat-item" style="border-left-color: var(--pcs-dark);">
+                            <div><i class="fas fa-users text-dark me-2"></i><span class="small fw-bold">ΣΥΝΟΛΟ</span></div>
+                            <span class="badge bg-dark rounded-pill">{{ stats_today.total_emps }}</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -162,6 +211,9 @@
         {% endfor %}
     };
 
+    // Λήψη Αργιών από το Django
+    const globalHolidays = JSON.parse('{{ holidays_events_json|safe }}');
+
     const initializedCalendars = {};
 
     function toggleCalendar(empId) {
@@ -181,12 +233,15 @@
 
     function renderCalendar(empId) {
         const calendarEl = document.getElementById(`calendar-${empId}`);
+        const employeeEvents = window.allEvents[empId] || [];
+
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'el',
             height: 380,
             headerToolbar: { left: 'prev,next', center: 'title', right: '' },
-            events: window.allEvents[empId] || [],
+            // Συνένωση παρουσιών υπαλλήλου + αργιών
+            events: employeeEvents.concat(globalHolidays),
         });
         calendar.render();
     }
@@ -210,8 +265,8 @@
         events.forEach(event => {
             const eventDate = new Date(event.start);
             if (eventDate >= startDate && eventDate <= endDate) {
-                if (event.title === 'Γραφείο') officeCount++;
-                else remoteCount++;
+                if (event.title === 'Στο Γραφείο') officeCount++;
+                else if (event.title === 'Τηλεργασία') remoteCount++;
             }
         });
 

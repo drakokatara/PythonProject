@@ -62,19 +62,19 @@
 
         .work-option i { font-size: 1.4rem; margin-bottom: 5px; }
 
-        /* Active States for different types */
+        /* Active States */
         .work-option.active {
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             border-color: transparent;
         }
 
-        /* Colors per type when active */
+        /* Colors for active types */
         .work-option.active#opt-office { background-color: var(--pcs-red); }
-        .work-option.active#opt-remote { background-color: #0ea5e9; } /* Blue */
-        .work-option.active#opt-leave  { background-color: #10b981; } /* Green */
-        .work-option.active#opt-sick   { background-color: #f59e0b; } /* Orange */
+        .work-option.active#opt-remote { background-color: #0ea5e9; }
+        .work-option.active#opt-leave  { background-color: #10b981; }
+        .work-option.active#opt-sick   { background-color: #f59e0b; }
 
         #id_work_type { display: none; }
 
@@ -87,7 +87,7 @@
             background-color: var(--pcs-light-gray);
         }
 
-        .form-control:focus {
+        .form-control:focus, select:focus {
             border-color: var(--pcs-red);
             box-shadow: none;
             background-color: white;
@@ -108,7 +108,6 @@
         }
 
         .btn-submit:hover:not(:disabled) { background: var(--pcs-red); }
-
         .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
 
         .alert-warning {
@@ -118,6 +117,7 @@
             font-weight: 600;
             font-size: 0.85rem;
             background-color: #fff3cd;
+            color: #856404;
         }
     </style>
 </head>
@@ -127,6 +127,15 @@
     <div class="text-center mb-4">
         <h2 style="font-weight: 800; color: var(--pcs-red);">PCS <span style="color: var(--pcs-dark); font-weight: 300;">Log</span></h2>
     </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4 border-0 shadow-sm rounded-0" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
 
     <div class="card shadow-lg">
         <div class="card-body p-4 p-md-5">
@@ -185,50 +194,63 @@
 </div>
 
 <script>
+    // Λήψη αργιών από το Django Template
     const greekHolidays = {{ holidays_js|safe }};
+
     const realSelect = document.getElementById('id_work_type');
     const dateInput = document.querySelector('input[type="date"]');
     const submitBtn = document.getElementById('submit-btn');
     const warning = document.getElementById('date-warning');
 
+    // Επιλογή τύπου εργασίας
     function selectWork(val) {
         realSelect.value = val;
 
-        // Αφαίρεση active από όλα
+        // Καθαρισμός active κλάσεων
         document.querySelectorAll('.work-option').forEach(opt => opt.classList.remove('active'));
 
-        // Προσθήκη active στο σωστό
+        // Ενεργοποίηση επιλεγμένου
         const activeOpt = document.getElementById(`opt-${val.toLowerCase()}`);
         if (activeOpt) activeOpt.classList.add('active');
     }
 
-    dateInput.addEventListener('change', function() {
-        const selectedDate = this.value;
-        if (!selectedDate) return;
+    // Έλεγχος Ημερομηνίας (Σαββατοκύριακα & Αργίες)
+    if (dateInput) {
+        dateInput.addEventListener('change', function() {
+            const selectedDate = this.value;
+            if (!selectedDate) return;
 
-        const d = new Date(selectedDate);
-        const day = d.getDay();
+            const d = new Date(selectedDate);
+            const day = d.getDay(); // 0 = Κυριακή, 6 = Σάββατο
 
-        const isWeekend = (day === 0 || day === 6);
-        const isHoliday = greekHolidays.includes(selectedDate);
+            const isWeekend = (day === 0 || day === 6);
+            const isHoliday = greekHolidays.includes(selectedDate);
 
-        if (isWeekend || isHoliday) {
-            warning.style.display = 'block';
-            if (isHoliday) {
-                warning.innerHTML = '<i class="fas fa-umbrella-beach me-2"></i>Επίσημη Αργία: Μη εργάσιμη';
+            if (isWeekend || isHoliday) {
+                warning.style.display = 'block';
+                if (isHoliday) {
+                    warning.innerHTML = '<i class="fas fa-umbrella-beach me-2"></i>Επίσημη Αργία: Μη εργάσιμη';
+                } else {
+                    warning.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Σαββατοκύριακο: Μη εργάσιμη';
+                }
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
             } else {
-                warning.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Σαββατοκύριακο: Μη εργάσιμη';
+                warning.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
             }
-            submitBtn.disabled = true;
-        } else {
-            warning.style.display = 'none';
-            submitBtn.disabled = false;
-        }
-    });
+        });
+    }
 
+    // Initialization
     window.onload = function() {
+        // Επιλογή Γραφείου εξ ορισμού
         selectWork('OFFICE');
-        document.querySelectorAll('select').forEach(s => s.classList.add('form-select'));
+
+        // Προσθήκη Bootstrap κλάσης στα select του Django
+        const selects = document.querySelectorAll('select');
+        selects.forEach(s => s.classList.add('form-select'));
     };
 </script>
 
