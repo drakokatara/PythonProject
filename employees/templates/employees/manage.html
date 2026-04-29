@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Pro | Dashboard</title>
+    <title>PCS Attendance System | Red Edition</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,95 +12,174 @@
 
     <style>
         :root {
-            --primary-color: #1e293b;
-            --accent-color: #3b82f6;
-            --bg-color: #f8fafc;
-            --office-color: #10b981;
-            --remote-color: #0ea5e9;
+            --pcs-red: #e30613; /* Το χαρακτηριστικό κόκκινο */
+            --pcs-dark: #2d2d2d;
+            --pcs-white: #ffffff;
+            --pcs-light-gray: #f8f9fa;
         }
 
-        body { background-color: var(--bg-color); font-family: 'Inter', sans-serif; color: #334155; }
+        body {
+            background-color: #f1f1f1;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            color: var(--pcs-dark);
+        }
 
-        .dashboard-header { background: var(--primary-color); color: white; padding: 2rem 0; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        /* PCS Red Header */
+        .dashboard-header {
+            background: var(--pcs-white);
+            color: var(--pcs-dark);
+            padding: 1rem 0;
+            border-bottom: 3px solid var(--pcs-red);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
 
-        .card { border: none; border-radius: 12px; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); margin-bottom: 20px; }
-        .card-header { background-color: white; border-bottom: 1px solid #e2e8f0; font-weight: 700; color: var(--primary-color); padding: 1.25rem; border-radius: 12px 12px 0 0 !important; }
+        .company-logo {
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: var(--pcs-red);
+        }
+
+        .company-logo span { color: var(--pcs-dark); font-weight: 300; }
+
+        .card {
+            border: none;
+            border-radius: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            background: var(--pcs-white);
+        }
+
+        .card-header {
+            background-color: var(--pcs-white);
+            border-bottom: 2px solid var(--pcs-red);
+            font-weight: 700;
+            color: var(--pcs-red);
+            padding: 1rem;
+            text-transform: uppercase;
+        }
 
         /* Table Styling */
-        .table thead th { background-color: #f1f5f9; color: #64748b; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; padding: 1rem; }
-        .table tbody td { padding: 1rem; vertical-align: middle; border-color: #f1f5f9; }
+        .table thead th {
+            background-color: var(--pcs-dark);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 12px;
+        }
 
-        /* Clickable Row */
-        .employee-row { cursor: pointer; transition: background 0.2s; }
-        .employee-row:hover { background-color: #f8fafc; }
+        .employee-row { cursor: pointer; transition: 0.2s; }
+        .employee-row:hover { background-color: #fff5f5; }
 
-        .avatar-circle { width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-weight: bold; }
+        .avatar-circle {
+            width: 38px;
+            height: 38px;
+            background: var(--pcs-red);
+            color: white;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
 
-        .stat-badge { padding: 0.5rem 0.75rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; }
-        .bg-office { background-color: #dcfce7; color: #166534; }
-        .bg-total { background-color: #f1f5f9; color: #475569; }
+        .stat-badge {
+            padding: 5px 10px;
+            font-weight: 700;
+            border: 1px solid #eee;
+            background: #fdfdfd;
+        }
 
-        .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+        .status-pill {
+            font-weight: 800;
+            font-size: 0.7rem;
+            padding: 5px 12px;
+            text-transform: uppercase;
+            border-radius: 2px;
+        }
 
-        /* Calendar Detail Row */
-        .calendar-detail-row { display: none; background-color: #ffffff; }
-        .calendar-container { padding: 2rem; border-top: 2px solid var(--accent-color); background: #fff; }
+        .status-ok { background-color: #d4edda; color: #155724; }
+        .status-late { background-color: #f8d7da; color: #721c24; }
 
-        #calendar { font-size: 0.85rem; max-width: 100%; }
-        .fc-header-toolbar { margin-bottom: 1rem !important; font-size: 0.9rem; }
+        /* Calendar Customization */
+        .calendar-container {
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #eee;
+        }
+
+        .fc .fc-button-primary {
+            background-color: var(--pcs-red) !important;
+            border-color: var(--pcs-red) !important;
+            border-radius: 0;
+        }
+
+        .btn-pcs {
+            background-color: var(--pcs-red);
+            color: white;
+            border: none;
+            border-radius: 0;
+            font-weight: 700;
+            padding: 12px;
+            transition: 0.3s;
+        }
+
+        .btn-pcs:hover { background-color: var(--pcs-dark); color: white; }
+
+        .btn-action-outline {
+            border: 2px solid var(--pcs-red);
+            color: var(--pcs-red);
+            font-weight: 700;
+            border-radius: 0;
+        }
+
+        .btn-action-outline:hover { background: var(--pcs-red); color: white; }
     </style>
 </head>
 <body>
 
-<header class="dashboard-header">
+<header class="dashboard-header mb-4">
     <div class="container d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="h3 mb-0"><i class="fas fa-chart-line me-2"></i> Attendance Pro</h1>
-            <p class="mb-0 opacity-75 small">Διαχείριση Προσωπικού & Quick Calendar</p>
-        </div>
-        <a href="{% url 'log_attendance' %}" class="btn btn-light fw-bold text-primary px-4">
-            <i class="fas fa-plus-circle me-2"></i>Νέα Παρουσία
+        <div class="company-logo">PCS <span>Attendance</span></div>
+        <a href="{% url 'log_attendance' %}" class="btn btn-action-outline">
+            <i class="fas fa-calendar-plus me-2"></i>ΚΑΤΑΧΩΡΗΣΗ
         </a>
     </div>
 </header>
 
 <div class="container">
     <div class="row">
-        <div class="col-lg-4">
-            <div class="card sticky-top" style="top: 20px;">
-                <div class="card-header"><i class="fas fa-user-plus me-2"></i>Εγγραφή</div>
+        <div class="col-lg-3">
+            <div class="card">
+                <div class="card-header">ΝΕΑ ΕΓΓΡΑΦΗ</div>
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-muted">Ονοματεπώνυμο</label>
+                            <label class="form-label small fw-bold">ΟΝΟΜΑΤΕΠΩΝΥΜΟ</label>
                             {{ form.full_name }}
                         </div>
                         <div class="mb-4">
-                            <label class="form-label small fw-bold text-muted">Email</label>
+                            <label class="form-label small fw-bold">EMAIL</label>
                             {{ form.email }}
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 fw-bold">Αποθήκευση</button>
+                        <button type="submit" class="btn btn-pcs w-100">ΑΠΟΘΗΚΕΥΣΗ</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-8">
+        <div class="col-lg-9">
             <div class="card">
-                <div class="card-header d-flex justify-content-between">
-                    <span><i class="fas fa-users me-2"></i>Υπάλληλοι</span>
-                    <small class="text-muted">Κλικ στη σειρά για ημερολόγιο</small>
-                </div>
+                <div class="card-header">ΛΙΣΤΑ ΠΡΟΣΩΠΙΚΟΥ</div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table mb-0">
+                        <table class="table table-hover mb-0 border-top-0">
                             <thead>
                                 <tr>
-                                    <th>Υπάλληλος</th>
-                                    <th class="text-center">🏢 Γραφείο</th>
-                                    <th class="text-center">📅 Σύνολο</th>
-                                    <th class="text-center">Status</th>
+                                    <th>ΥΠΑΛΛΗΛΟΣ</th>
+                                    <th class="text-center">ΓΡΑΦΕΙΟ</th>
+                                    <th class="text-center">ΣΥΝΟΛΟ</th>
+                                    <th class="text-center">ΚΑΤΑΣΤΑΣΗ</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -111,37 +190,34 @@
                                             <div class="avatar-circle">{{ emp.name|slice:":1" }}</div>
                                             <div>
                                                 <div class="fw-bold">{{ emp.name }}</div>
-                                                <small class="text-muted">{{ emp.email }}</small>
+                                                <small class="text-muted small">{{ emp.email }}</small>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-center"><span class="stat-badge bg-office">{{ emp.office }}</span></td>
-                                    <td class="text-center"><span class="stat-badge bg-total">{{ emp.total }}</span></td>
+                                    <td class="text-center"><span class="stat-badge">{{ emp.office }}</span></td>
+                                    <td class="text-center"><span class="stat-badge text-muted">{{ emp.total }}</span></td>
                                     <td class="text-center">
                                     {% if emp.is_ok %}
-                                        <div class="status-pill bg-success bg-opacity-10 text-success border border-success border-opacity-25">
-                                            <i class="fas fa-check-circle"></i> Εντάξει
-                                        </div>
+                                        <span class="status-pill status-ok">ΕΝΤΑΞΕΙ</span>
                                     {% else %}
-                                        <div class="status-pill bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">
-                                            <i class="fas fa-exclamation-triangle"></i> Ελλιπής
-                                        </div>
+                                        <span class="status-pill status-late">ΕΛΛΙΠΗΣ</span>
                                         <div class="mt-1">
-                                            <small class="text-danger fw-bold" style="font-size: 0.7rem; display: block;">
-                                                ⚠️ Πρέπει να έρθεις άλλες {{ emp.debt }} φορές στο γραφείο!
+                                            <small class="text-danger fw-bold" style="font-size: 0.65rem;">
+                                                -{{ emp.debt }} ΗΜΕΡΕΣ
                                             </small>
                                         </div>
                                     {% endif %}
-                                </td>
+                                    </td>
+                                </tr>
                                 <tr id="calendar-row-{{ emp.id }}" class="calendar-detail-row">
                                     <td colspan="4" class="p-0">
                                         <div class="calendar-container">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <h6 class="fw-bold mb-0">Παρουσίες: {{ emp.name }}</h6>
-                                                <div>
-                                                    <span class="badge bg-office text-dark me-2">● Γραφείο</span>
-                                                    <span class="badge bg-info text-dark">● Τηλεργασία</span>
-                                                </div>
+                                            <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                                                <span class="fw-bold"><i class="fas fa-info-circle me-1 text-danger"></i> Παρουσίες: {{ emp.name }}</span>
+                                                <span class="small">
+                                                    <i class="fas fa-square text-success"></i> Γραφείο
+                                                    <i class="fas fa-square text-info ms-2"></i> Τηλεργασία
+                                                </span>
                                             </div>
                                             <div id="calendar-{{ emp.id }}"></div>
                                         </div>
@@ -158,20 +234,16 @@
 </div>
 
 <script>
-    // Αντικείμενο για να κρατάμε τα ημερολόγια που έχουν αρχικοποιηθεί
     const initializedCalendars = {};
 
     function toggleCalendar(empId) {
         const row = document.getElementById(`calendar-row-${empId}`);
         const isVisible = row.style.display === 'table-row';
 
-        // Κλείνουμε όλα τα άλλα ανοιχτά ημερολόγια (προαιρετικό)
         document.querySelectorAll('.calendar-detail-row').forEach(r => r.style.display = 'none');
 
         if (!isVisible) {
             row.style.display = 'table-row';
-
-            // Αρχικοποίηση FullCalendar μόνο αν δεν έχει γίνει ήδη
             if (!initializedCalendars[empId]) {
                 renderCalendar(empId);
                 initializedCalendars[empId] = true;
@@ -181,34 +253,16 @@
 
     function renderCalendar(empId) {
         const calendarEl = document.getElementById(`calendar-${empId}`);
-
-        // Εδώ χρειαζόμαστε τα events. Επειδή είμαστε στο manage view,
-        // θα πρέπει να βεβαιωθείς ότι το views.py στέλνει τα events για κάθε emp.
-        // Για την ώρα, θα το συνδέσουμε με ένα API ή θα το περάσουμε μέσω data-attributes.
-
-        // ΣΗΜΑΝΤΙΚΟ: Στο views.py σου, πρόσθεσε στο 'data.append' τα events του κάθε υπαλλήλου!
-
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'el',
-            height: 400,
+            height: 380,
             headerToolbar: { left: 'prev,next', center: 'title', right: '' },
-            // Αυτό το κομμάτι θα τραβάει τα δεδομένα που στέλνει το Django
-            events: getEmployeeEvents(empId),
-            eventDidMount: function(info) {
-                info.el.style.fontSize = '0.7rem';
-            }
+            events: window.allEvents[empId] || [],
         });
         calendar.render();
     }
 
-    // Συνάρτηση "γέφυρα" για να παίρνει τα events από το Django
-    function getEmployeeEvents(empId) {
-        // Θα ψάξει στο global object που θα φτιάξουμε παρακάτω
-        return window.allEvents[empId] || [];
-    }
-
-    // Προετοιμασία των δεδομένων από το Django για την Javascript
     window.allEvents = {
         {% for emp in employees %}
             "{{ emp.id }}": {{ emp.events_json|safe }},
@@ -216,6 +270,5 @@
     };
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
