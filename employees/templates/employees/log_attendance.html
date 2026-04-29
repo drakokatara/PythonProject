@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PCS Attendance | Quick Log</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -21,7 +22,27 @@
             padding: 40px 0;
         }
 
-        .dashboard-container { max-width: 480px; margin: 0 auto; }
+        .dashboard-container { max-width: 480px; margin: 0 auto; position: relative; }
+
+        /* Floating Back Button */
+        .floating-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--pcs-dark);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        .floating-back:hover { background: var(--pcs-red); color: white; transform: scale(1.1); }
 
         .card {
             border: none;
@@ -123,19 +144,14 @@
 </head>
 <body>
 
+<a href="{% url 'manage_employees' %}" class="floating-back">
+    <i class="fas fa-arrow-left"></i>
+</a>
+
 <div class="container dashboard-container">
     <div class="text-center mb-4">
         <h2 style="font-weight: 800; color: var(--pcs-red);">PCS <span style="color: var(--pcs-dark); font-weight: 300;">Log</span></h2>
     </div>
-
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4 border-0 shadow-sm rounded-0" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
 
     <div class="card shadow-lg">
         <div class="card-body p-4 p-md-5">
@@ -183,56 +199,57 @@
                     Ολοκληρωση & Αποθηκευση
                 </button>
             </form>
-
-            <div class="text-center mt-4 border-top pt-3">
-                <a href="{% url 'manage_employees' %}" class="text-muted text-decoration-none small fw-bold">
-                    <i class="fas fa-arrow-left me-1"></i> ΕΠΙΣΤΡΟΦΗ ΣΤΟ DASHBOARD
-                </a>
-            </div>
         </div>
     </div>
 </div>
 
-<script>
-    // Λήψη αργιών από το Django Template
-    const greekHolidays = {{ holidays_js|safe }};
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script>
+    const greekHolidays = {{ holidays_js|safe }};
     const realSelect = document.getElementById('id_work_type');
     const dateInput = document.querySelector('input[type="date"]');
     const submitBtn = document.getElementById('submit-btn');
     const warning = document.getElementById('date-warning');
 
-    // Επιλογή τύπου εργασίας
+    // SweetAlert2 για μηνύματα από Django
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "success" %}success{% elif message.tags == "error" %}error{% else %}info{% endif %}',
+                title: '{% if message.tags == "success" %}Επιτυχία!{% else %}Προσοχή!{% endif %}',
+                text: '{{ message }}',
+                confirmButtonColor: '#e30613',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        {% endfor %}
+    {% endif %}
+
     function selectWork(val) {
         realSelect.value = val;
-
-        // Καθαρισμός active κλάσεων
         document.querySelectorAll('.work-option').forEach(opt => opt.classList.remove('active'));
-
-        // Ενεργοποίηση επιλεγμένου
         const activeOpt = document.getElementById(`opt-${val.toLowerCase()}`);
         if (activeOpt) activeOpt.classList.add('active');
     }
 
-    // Έλεγχος Ημερομηνίας (Σαββατοκύριακα & Αργίες)
     if (dateInput) {
         dateInput.addEventListener('change', function() {
             const selectedDate = this.value;
             if (!selectedDate) return;
 
             const d = new Date(selectedDate);
-            const day = d.getDay(); // 0 = Κυριακή, 6 = Σάββατο
+            const day = d.getDay();
 
             const isWeekend = (day === 0 || day === 6);
             const isHoliday = greekHolidays.includes(selectedDate);
 
             if (isWeekend || isHoliday) {
                 warning.style.display = 'block';
-                if (isHoliday) {
-                    warning.innerHTML = '<i class="fas fa-umbrella-beach me-2"></i>Επίσημη Αργία: Μη εργάσιμη';
-                } else {
-                    warning.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Σαββατοκύριακο: Μη εργάσιμη';
-                }
+                warning.innerHTML = isHoliday ?
+                    '<i class="fas fa-umbrella-beach me-2"></i>Επίσημη Αργία: Μη εργάσιμη' :
+                    '<i class="fas fa-exclamation-triangle me-2"></i>Σαββατοκύριακο: Μη εργάσιμη';
                 submitBtn.disabled = true;
                 submitBtn.style.opacity = '0.5';
             } else {
@@ -243,17 +260,17 @@
         });
     }
 
-    // Initialization
     window.onload = function() {
-        // Επιλογή Γραφείου εξ ορισμού
-        selectWork('OFFICE');
+        // Smart Default: Σημερινή ημερομηνία
+        const today = new Date().toISOString().split('T')[0];
+        if (!dateInput.value) {
+            dateInput.value = today;
+            dateInput.dispatchEvent(new Event('change'));
+        }
 
-        // Προσθήκη Bootstrap κλάσης στα select του Django
-        const selects = document.querySelectorAll('select');
-        selects.forEach(s => s.classList.add('form-select'));
+        selectWork('OFFICE');
+        document.querySelectorAll('select').forEach(s => s.classList.add('form-select'));
     };
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

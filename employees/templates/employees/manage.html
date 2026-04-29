@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -53,6 +54,9 @@
         .btn-pcs:hover { background-color: var(--pcs-dark); color: white; }
         .btn-action-outline { border: 2px solid var(--pcs-red); color: var(--pcs-red); font-weight: 700; border-radius: 0; text-decoration: none; padding: 8px 15px; }
         .btn-action-outline:hover { background: var(--pcs-red); color: white; }
+
+        .btn-delete { color: #ccc; transition: 0.3s; border: none; background: none; }
+        .btn-delete:hover { color: var(--pcs-red); }
     </style>
 </head>
 <body>
@@ -67,15 +71,6 @@
 </header>
 
 <div class="container">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 rounded-0 shadow-sm mb-4" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-
     <div class="row">
         <div class="col-lg-3">
             <div class="card shadow-sm">
@@ -135,6 +130,7 @@
                                     <th class="text-center">ΓΡΑΦΕΙΟ</th>
                                     <th class="text-center">ΣΥΝΟΛΟ</th>
                                     <th class="text-center">ΚΑΤΑΣΤΑΣΗ</th>
+                                    <th class="text-center">ΕΝΕΡΓΕΙΕΣ</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -163,9 +159,14 @@
                                             </div>
                                         {% endif %}
                                     </td>
+                                    <td class="text-center" onclick="event.stopPropagation();">
+                                        <button class="btn-delete" onclick="confirmDelete('{{ emp.id }}', '{{ emp.name }}')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                                 <tr id="calendar-row-{{ emp.id }}" class="calendar-detail-row">
-                                    <td colspan="4" class="p-0">
+                                    <td colspan="5" class="p-0">
                                         <div class="calendar-container">
                                             <div class="range-filter-bar row g-2 mx-0 align-items-end">
                                                 <div class="col-md-3">
@@ -204,6 +205,19 @@
 </div>
 
 <script>
+    // Μηνύματα SweetAlert2 από Django
+    {% if messages %}
+        {% for message in messages %}
+            Swal.fire({
+                icon: '{% if message.tags == "success" %}success{% elif message.tags == "error" %}error{% else %}info{% endif %}',
+                title: 'Ενημέρωση',
+                text: '{{ message }}',
+                confirmButtonColor: '#e30613',
+                timer: 3000
+            });
+        {% endfor %}
+    {% endif %}
+
     // Δεδομένα από Django
     window.allEvents = {
         {% for emp in employees %}
@@ -211,17 +225,13 @@
         {% endfor %}
     };
 
-    // Λήψη Αργιών από το Django
     const globalHolidays = JSON.parse('{{ holidays_events_json|safe }}');
-
     const initializedCalendars = {};
 
     function toggleCalendar(empId) {
         const row = document.getElementById(`calendar-row-${empId}`);
         const isVisible = row.style.display === 'table-row';
-
         document.querySelectorAll('.calendar-detail-row').forEach(r => r.style.display = 'none');
-
         if (!isVisible) {
             row.style.display = 'table-row';
             if (!initializedCalendars[empId]) {
@@ -234,34 +244,44 @@
     function renderCalendar(empId) {
         const calendarEl = document.getElementById(`calendar-${empId}`);
         const employeeEvents = window.allEvents[empId] || [];
-
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'el',
             height: 380,
             headerToolbar: { left: 'prev,next', center: 'title', right: '' },
-            // Συνένωση παρουσιών υπαλλήλου + αργιών
             events: employeeEvents.concat(globalHolidays),
         });
         calendar.render();
     }
 
+    function confirmDelete(empId, empName) {
+        Swal.fire({
+            title: 'Είσαι σίγουρος;',
+            text: "Θα διαγραφούν οριστικά τα δεδομένα για τον/την " + empName,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e30613',
+            cancelButtonColor: '#2d2d2d',
+            confirmButtonText: 'Ναι, διαγραφή!',
+            cancelButtonText: 'Ακύρωση'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "/delete-employee/" + empId + "/";
+            }
+        });
+    }
+
     function calculateRange(empId) {
         const startVal = document.getElementById(`start-${empId}`).value;
         const endVal = document.getElementById(`end-${empId}`).value;
-
         if (!startVal || !endVal) {
-            alert("Παρακαλώ επιλέξτε εύρος ημερομηνιών.");
+            Swal.fire('Προσοχή', 'Επιλέξτε εύρος ημερομηνιών', 'info');
             return;
         }
-
         const startDate = new Date(startVal);
         const endDate = new Date(endVal);
         const events = window.allEvents[empId] || [];
-
-        let officeCount = 0;
-        let remoteCount = 0;
-
+        let officeCount = 0, remoteCount = 0;
         events.forEach(event => {
             const eventDate = new Date(event.start);
             if (eventDate >= startDate && eventDate <= endDate) {
@@ -269,9 +289,7 @@
                 else if (event.title === 'Τηλεργασία') remoteCount++;
             }
         });
-
-        const resBox = document.getElementById(`results-${empId}`);
-        resBox.style.display = 'block';
+        document.getElementById(`results-${empId}`).style.display = 'block';
         document.getElementById(`res-office-${empId}`).innerText = officeCount;
         document.getElementById(`res-remote-${empId}`).innerText = remoteCount;
         document.getElementById(`res-total-${empId}`).innerText = officeCount + remoteCount;
