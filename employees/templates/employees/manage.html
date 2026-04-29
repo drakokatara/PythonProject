@@ -7,131 +7,37 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
     <style>
         :root {
-            --pcs-red: #e30613; /* Το χαρακτηριστικό κόκκινο */
+            --pcs-red: #e30613;
             --pcs-dark: #2d2d2d;
             --pcs-white: #ffffff;
             --pcs-light-gray: #f8f9fa;
         }
 
-        body {
-            background-color: #f1f1f1;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            color: var(--pcs-dark);
-        }
-
-        /* PCS Red Header */
-        .dashboard-header {
-            background: var(--pcs-white);
-            color: var(--pcs-dark);
-            padding: 1rem 0;
-            border-bottom: 3px solid var(--pcs-red);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .company-logo {
-            font-weight: 800;
-            font-size: 1.8rem;
-            color: var(--pcs-red);
-        }
-
+        body { background-color: #f1f1f1; font-family: 'Segoe UI', Roboto, sans-serif; color: var(--pcs-dark); }
+        .dashboard-header { background: var(--pcs-white); color: var(--pcs-dark); padding: 1rem 0; border-bottom: 3px solid var(--pcs-red); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .company-logo { font-weight: 800; font-size: 1.8rem; color: var(--pcs-red); }
         .company-logo span { color: var(--pcs-dark); font-weight: 300; }
-
-        .card {
-            border: none;
-            border-radius: 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-            background: var(--pcs-white);
-        }
-
-        .card-header {
-            background-color: var(--pcs-white);
-            border-bottom: 2px solid var(--pcs-red);
-            font-weight: 700;
-            color: var(--pcs-red);
-            padding: 1rem;
-            text-transform: uppercase;
-        }
-
-        /* Table Styling */
-        .table thead th {
-            background-color: var(--pcs-dark);
-            color: white;
-            font-weight: 600;
-            border: none;
-            padding: 12px;
-        }
-
+        .card { border: none; border-radius: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 25px; background: var(--pcs-white); }
+        .card-header { background-color: var(--pcs-white); border-bottom: 2px solid var(--pcs-red); font-weight: 700; color: var(--pcs-red); padding: 1rem; text-transform: uppercase; }
+        .table thead th { background-color: var(--pcs-dark); color: white; font-weight: 600; border: none; padding: 12px; }
         .employee-row { cursor: pointer; transition: 0.2s; }
         .employee-row:hover { background-color: #fff5f5; }
-
-        .avatar-circle {
-            width: 38px;
-            height: 38px;
-            background: var(--pcs-red);
-            color: white;
-            border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .stat-badge {
-            padding: 5px 10px;
-            font-weight: 700;
-            border: 1px solid #eee;
-            background: #fdfdfd;
-        }
-
-        .status-pill {
-            font-weight: 800;
-            font-size: 0.7rem;
-            padding: 5px 12px;
-            text-transform: uppercase;
-            border-radius: 2px;
-        }
-
+        .avatar-circle { width: 38px; height: 38px; background: var(--pcs-red); color: white; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .stat-badge { padding: 5px 10px; font-weight: 700; border: 1px solid #eee; background: #fdfdfd; }
+        .status-pill { font-weight: 800; font-size: 0.7rem; padding: 5px 12px; text-transform: uppercase; border-radius: 2px; }
         .status-ok { background-color: #d4edda; color: #155724; }
         .status-late { background-color: #f8d7da; color: #721c24; }
-
-        /* Calendar Customization */
-        .calendar-container {
-            padding: 20px;
-            background: #fff;
-            border: 1px solid #eee;
-        }
-
-        .fc .fc-button-primary {
-            background-color: var(--pcs-red) !important;
-            border-color: var(--pcs-red) !important;
-            border-radius: 0;
-        }
-
-        .btn-pcs {
-            background-color: var(--pcs-red);
-            color: white;
-            border: none;
-            border-radius: 0;
-            font-weight: 700;
-            padding: 12px;
-            transition: 0.3s;
-        }
-
+        .calendar-detail-row { display: none; background-color: #ffffff; }
+        .calendar-container { padding: 0; background: #fff; border: 1px solid #eee; border-top: none; }
+        .range-filter-bar { background: var(--pcs-light-gray); padding: 15px; border-bottom: 1px solid #eee; }
+        .results-box { background: white; border: 1px solid var(--pcs-red); padding: 10px; display: none; }
+        .btn-pcs { background-color: var(--pcs-red); color: white; border: none; border-radius: 0; font-weight: 700; padding: 8px 15px; transition: 0.3s; }
         .btn-pcs:hover { background-color: var(--pcs-dark); color: white; }
-
-        .btn-action-outline {
-            border: 2px solid var(--pcs-red);
-            color: var(--pcs-red);
-            font-weight: 700;
-            border-radius: 0;
-        }
-
+        .btn-action-outline { border: 2px solid var(--pcs-red); color: var(--pcs-red); font-weight: 700; border-radius: 0; text-decoration: none; padding: 8px 15px; }
         .btn-action-outline:hover { background: var(--pcs-red); color: white; }
     </style>
 </head>
@@ -149,17 +55,17 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-3">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header">ΝΕΑ ΕΓΓΡΑΦΗ</div>
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">ΟΝΟΜΑΤΕΠΩΝΥΜΟ</label>
+                            <label class="form-label small fw-bold text-muted">ΟΝΟΜΑΤΕΠΩΝΥΜΟ</label>
                             {{ form.full_name }}
                         </div>
                         <div class="mb-4">
-                            <label class="form-label small fw-bold">EMAIL</label>
+                            <label class="form-label small fw-bold text-muted">EMAIL</label>
                             {{ form.email }}
                         </div>
                         <button type="submit" class="btn btn-pcs w-100">ΑΠΟΘΗΚΕΥΣΗ</button>
@@ -169,7 +75,7 @@
         </div>
 
         <div class="col-lg-9">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header">ΛΙΣΤΑ ΠΡΟΣΩΠΙΚΟΥ</div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -197,29 +103,44 @@
                                     <td class="text-center"><span class="stat-badge">{{ emp.office }}</span></td>
                                     <td class="text-center"><span class="stat-badge text-muted">{{ emp.total }}</span></td>
                                     <td class="text-center">
-                                    {% if emp.is_ok %}
-                                        <span class="status-pill status-ok">ΕΝΤΑΞΕΙ</span>
-                                    {% else %}
-                                        <span class="status-pill status-late">ΕΛΛΙΠΗΣ</span>
-                                        <div class="mt-1">
-                                            <small class="text-danger fw-bold" style="font-size: 0.65rem;">
-                                                -{{ emp.debt }} ΗΜΕΡΕΣ
-                                            </small>
-                                        </div>
-                                    {% endif %}
+                                        {% if emp.is_ok %}
+                                            <span class="status-pill status-ok">ΕΝΤΑΞΕΙ</span>
+                                        {% else %}
+                                            <span class="status-pill status-late">ΕΛΛΙΠΗΣ</span>
+                                            <div class="mt-1">
+                                                <small class="text-danger fw-bold" style="font-size: 0.65rem;">
+                                                    -{{ emp.debt }} ΗΜΕΡΕΣ
+                                                </small>
+                                            </div>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 <tr id="calendar-row-{{ emp.id }}" class="calendar-detail-row">
                                     <td colspan="4" class="p-0">
                                         <div class="calendar-container">
-                                            <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
-                                                <span class="fw-bold"><i class="fas fa-info-circle me-1 text-danger"></i> Παρουσίες: {{ emp.name }}</span>
-                                                <span class="small">
-                                                    <i class="fas fa-square text-success"></i> Γραφείο
-                                                    <i class="fas fa-square text-info ms-2"></i> Τηλεργασία
-                                                </span>
+                                            <div class="range-filter-bar row g-2 mx-0 align-items-end">
+                                                <div class="col-md-3">
+                                                    <label class="small fw-bold">ΑΠΟ:</label>
+                                                    <input type="date" id="start-{{ emp.id }}" class="form-control form-control-sm">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="small fw-bold">ΕΩΣ:</label>
+                                                    <input type="date" id="end-{{ emp.id }}" class="form-control form-control-sm">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <button class="btn btn-pcs btn-sm w-100" onclick="calculateRange('{{ emp.id }}')">ΥΠΟΛΟΓΙΣΜΟΣ</button>
+                                                </div>
+                                                <div id="results-{{ emp.id }}" class="col-md-3 results-box">
+                                                    <div class="d-flex justify-content-between small fw-bold">
+                                                        <span>🏢 <span id="res-office-{{ emp.id }}">0</span></span>
+                                                        <span>💻 <span id="res-remote-{{ emp.id }}">0</span></span>
+                                                        <span>Σ: <span id="res-total-{{ emp.id }}">0</span></span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div id="calendar-{{ emp.id }}"></div>
+                                            <div class="p-3">
+                                                <div id="calendar-{{ emp.id }}"></div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -234,6 +155,13 @@
 </div>
 
 <script>
+    // Δεδομένα από Django
+    window.allEvents = {
+        {% for emp in employees %}
+            "{{ emp.id }}": {{ emp.events_json|safe }},
+        {% endfor %}
+    };
+
     const initializedCalendars = {};
 
     function toggleCalendar(empId) {
@@ -263,12 +191,38 @@
         calendar.render();
     }
 
-    window.allEvents = {
-        {% for emp in employees %}
-            "{{ emp.id }}": {{ emp.events_json|safe }},
-        {% endfor %}
-    };
+    function calculateRange(empId) {
+        const startVal = document.getElementById(`start-${empId}`).value;
+        const endVal = document.getElementById(`end-${empId}`).value;
+
+        if (!startVal || !endVal) {
+            alert("Παρακαλώ επιλέξτε εύρος ημερομηνιών.");
+            return;
+        }
+
+        const startDate = new Date(startVal);
+        const endDate = new Date(endVal);
+        const events = window.allEvents[empId] || [];
+
+        let officeCount = 0;
+        let remoteCount = 0;
+
+        events.forEach(event => {
+            const eventDate = new Date(event.start);
+            if (eventDate >= startDate && eventDate <= endDate) {
+                if (event.title === 'Γραφείο') officeCount++;
+                else remoteCount++;
+            }
+        });
+
+        const resBox = document.getElementById(`results-${empId}`);
+        resBox.style.display = 'block';
+        document.getElementById(`res-office-${empId}`).innerText = officeCount;
+        document.getElementById(`res-remote-${empId}`).innerText = remoteCount;
+        document.getElementById(`res-total-${empId}`).innerText = officeCount + remoteCount;
+    }
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
