@@ -1,18 +1,12 @@
 import json
 import holidays
 from datetime import date
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Employee, Attendance
 from .forms import EmployeeForm, AttendanceForm
 
 def manage_employees(request):
-    """
-    Κεντρική διαχείριση:
-    1. Λίστα υπαλλήλων & στατιστικά μήνα
-    2. Widgets για τη σημερινή εικόνα (Office/Remote/Leave)
-    3. Events για το ημερολόγιο (Παρουσίες + Αργίες)
-    """
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
         if form.is_valid():
@@ -104,10 +98,6 @@ def manage_employees(request):
 
 
 def log_attendance(request):
-    """
-    Φόρμα καταχώρησης παρουσίας.
-    Περιλαμβάνει έλεγχο αργιών/Σαββατοκύριακων μέσω JS.
-    """
     if request.method == 'POST':
         form = AttendanceForm(request.POST)
         if form.is_valid():

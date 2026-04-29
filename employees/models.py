@@ -11,11 +11,6 @@ class Employee(models.Model):
         return self.full_name
 
     def get_monthly_report(self):
-        """
-        Υπολογίζει τα στατιστικά του μήνα λαμβάνοντας υπόψη:
-        1. Ελληνικές αργίες
-        2. Άδειες και Ασθένειες (που μειώνουν το debt)
-        """
         today = date.today()
         first_day = today.replace(day=1)
 
@@ -30,7 +25,6 @@ class Employee(models.Model):
 
         office_days = attendances.filter(work_type='OFFICE').count()
         remote_days = attendances.filter(work_type='REMOTE').count()
-        # Μετράμε πόσες μέρες ήταν άδεια ή ασθένεια
         leave_days = attendances.filter(work_type__in=['LEAVE', 'SICK']).count()
 
         total_days = office_days + remote_days + leave_days
@@ -61,9 +55,6 @@ class Employee(models.Model):
         if required_office_so_far < 0:
             required_office_so_far = 0
 
-        # Η ΝΕΑ ΛΟΓΙΚΗ:
-        # Το χρέος (debt) μειώνεται από τις ημέρες γραφείου ΚΑΙ τις ημέρες αδείας/ασθένειας.
-        # Αν κάποιος πήρε άδεια, θεωρείται "καλυμμένος" για εκείνη τη μέρα.
         debt = required_office_so_far - (office_days + leave_days)
         if debt < 0:
             debt = 0
