@@ -3,286 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCS Attendance | Quick Log</title>
+    <title>PCS Attendance | Καταχώρηση</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
-            --pcs-red: #e30613;
-            --pcs-dark: #2d2d2d;
-            --pcs-white: #ffffff;
-            --pcs-light-gray: #f8f9fa;
+            --red: #CC2200;
+            --red-soft: #FFF0ED;
+            --dark: #111111;
+            --mid: #555555;
+            --muted: #999999;
+            --border: #E8E8E8;
+            --bg: #F5F4F1;
+            --surface: #FFFFFF;
+            --info: #0284C7;
+            --info-soft: #EFF6FF;
+            --success: #16A34A;
+            --success-soft: #F0FDF4;
+            --warn: #D97706;
+            --warn-soft: #FFFBEB;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            background-color: #f1f1f1;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            padding: 40px 0;
-        }
-
-        .dashboard-container { max-width: 480px; margin: 0 auto; position: relative; }
-
-        /* Floating Back Button */
-        .floating-back {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 45px;
-            height: 45px;
-            background: var(--pcs-dark);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            z-index: 1000;
-            transition: 0.3s;
-            text-decoration: none;
-        }
-        .floating-back:hover { background: var(--pcs-red); color: white; transform: scale(1.1); }
-
-        .card {
-            border: none;
-            border-radius: 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-top: 4px solid var(--pcs-red);
-        }
-
-        .card-title {
-            color: var(--pcs-red);
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .work-type-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        .work-option {
-            border: 1px solid #ddd;
-            border-radius: 2px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--pcs-white);
-            color: var(--pcs-dark);
+            background: var(--bg);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--dark);
+            font-size: 14px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 40px 16px;
         }
 
-        .work-option i { font-size: 1.4rem; margin-bottom: 5px; }
-
-        .work-option.active {
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            border-color: transparent;
+        /* ── Back button ── */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--mid);
+            transition: background 0.15s, color 0.15s, transform 0.15s;
+            z-index: 200;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
+        .back-btn:hover { background: var(--dark); color: white; transform: scale(1.05); }
 
-        .work-option.active#opt-office { background-color: var(--pcs-red); }
-        .work-option.active#opt-remote { background-color: #0ea5e9; }
-        .work-option.active#opt-leave  { background-color: #10b981; }
-        .work-option.active#opt-sick   { background-color: #f59e0b; }
-
-        #id_work_type { display: none; }
-
-        .form-label { font-weight: 700; font-size: 0.75rem; color: var(--pcs-dark); margin-bottom: 8px; display: block; }
-
-        .form-control, select {
-            border-radius: 0 !important;
-            padding: 12px;
-            border: 1px solid #ddd;
-            background-color: var(--pcs-light-gray);
-        }
-
-        .form-control:focus, select:focus {
-            border-color: var(--pcs-red);
-            box-shadow: none;
-            background-color: white;
-        }
-
-        .btn-submit {
-            background: var(--pcs-dark);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 0;
-            font-weight: 700;
-            width: 100%;
-            margin-top: 25px;
-            text-transform: uppercase;
-            transition: 0.3s;
-            letter-spacing: 1px;
-        }
-
-        .btn-submit:hover:not(:disabled) { background: var(--pcs-red); }
-        .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
-
-        .alert-warning {
-            border-radius: 0;
-            border: none;
-            border-left: 4px solid #ffc107;
+        /* ── Logo ── */
+        .page-logo {
+            font-size: 18px;
             font-weight: 600;
-            font-size: 0.85rem;
-            background-color: #fff3cd;
-            color: #856404;
+            color: var(--dark);
+            letter-spacing: -0.3px;
+            margin-bottom: 24px;
+        }
+        .page-logo span { color: var(--muted); font-weight: 400; }
+
+        /* ── Card ── */
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px 28px 32px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+        }
+
+        .form-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark);
+            text-align: center;
+            margin-bottom: 24px;
+            letter-spacing: -0.2px;
+        }
+
+        .field-group { margin-bottom: 20px; }
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .field-group select,
+        .field-group input[type="date"] {
+            width: 100%;
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #FAFAFA;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            padding: 0 12px;
+            color: var(--dark);
+            transition: border-color 0.15s, background 0.15s;
+            appearance: auto;
+        }
+        .field-group select:focus,
+        .field-group input[type="date"]:focus {
+            outline: none;
+            border-color: var(--red);
+            background: white;
+        }
+
+        /* ── Work Type Grid ── */
+        .work-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        /* Hide Django's original select */
+        #id_work_type { display: none !important; }
+
+        .work-opt {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: #FAFAFA;
+            user-select: none;
+        }
+        .work-opt:hover { border-color: #CCCCCC; background: white; }
+
+        .work-opt-icon { font-size: 20px; margin-bottom: 5px; }
+        .work-opt-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            color: var(--muted);
+            transition: color 0.15s;
+        }
+
+        /* Active states */
+        .work-opt.active-office {
+            background: var(--red-soft);
+            border-color: var(--red);
+        }
+        .work-opt.active-office .work-opt-label { color: var(--red); }
+
+        .work-opt.active-remote {
+            background: var(--info-soft);
+            border-color: var(--info);
+        }
+        .work-opt.active-remote .work-opt-label { color: var(--info); }
+
+        .work-opt.active-leave {
+            background: var(--success-soft);
+            border-color: var(--success);
+        }
+        .work-opt.active-leave .work-opt-label { color: var(--success); }
+
+        .work-opt.active-sick {
+            background: var(--warn-soft);
+            border-color: var(--warn);
+        }
+        .work-opt.active-sick .work-opt-label { color: var(--warn); }
+
+        /* ── Warning box ── */
+        .warn-box {
+            display: none;
+            margin-top: 14px;
+            padding: 10px 13px;
+            background: var(--warn-soft);
+            border: 1px solid #FDE68A;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--warn);
+            line-height: 1.4;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 22px 0;
+        }
+
+        /* ── Submit button ── */
+        .btn-submit {
+            width: 100%;
+            height: 44px;
+            border: none;
+            border-radius: 10px;
+            background: var(--dark);
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            letter-spacing: 0.2px;
+            transition: background 0.15s, transform 0.1s;
+        }
+        .btn-submit:hover:not(:disabled) { background: var(--red); transform: translateY(-1px); }
+        .btn-submit:active:not(:disabled) { transform: translateY(0); }
+        .btn-submit:disabled {
+            background: var(--border);
+            color: var(--muted);
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
 
-<a href="{% url 'manage_employees' %}" class="floating-back">
-    <i class="fas fa-arrow-left"></i>
+<a href="{% url 'manage_employees' %}" class="back-btn">
+    <i class="fas fa-arrow-left" style="font-size:12px;"></i>
 </a>
 
-<div class="container dashboard-container">
-    <div class="text-center mb-4">
-        <h2 style="font-weight: 800; color: var(--pcs-red);">PCS <span style="color: var(--pcs-dark); font-weight: 300;">Log</span></h2>
-    </div>
+<div class="page-logo">PCS <span>Log</span></div>
 
-    <div class="card shadow-lg">
-        <div class="card-body p-4 p-md-5">
-            <h5 class="card-title text-center mb-4">Καταχώρηση Ημέρας</h5>
+<div class="form-card">
+    <div class="form-title">Καταχώρηση ημέρας</div>
 
-            <form method="post" id="attendance-form">
-                {% csrf_token %}
+    <form method="post" id="attendance-form">
+        {% csrf_token %}
 
-                <div class="mb-4">
-                    <label class="form-label">ΣΥΝΕΡΓΑΤΗΣ</label>
-                    {{ form.employee }}
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label">ΗΜΕΡΟΜΗΝΙΑ</label>
-                    {{ form.date }}
-                    <div id="date-warning" class="alert alert-warning mt-2 py-2" style="display:none;"></div>
-                </div>
-
-                <div class="mb-2">
-                    <label class="form-label">ΚΑΤΑΣΤΑΣΗ / ΤΟΠΟΘΕΣΙΑ</label>
-                    {{ form.work_type }}
-
-                    <div class="work-type-group">
-                        <div class="work-option" id="opt-office" onclick="selectWork('OFFICE')">
-                            <i class="fas fa-building"></i>
-                            <span class="small fw-bold">ΓΡΑΦΕΙΟ</span>
-                        </div>
-                        <div class="work-option" id="opt-remote" onclick="selectWork('REMOTE')">
-                            <i class="fas fa-laptop-house"></i>
-                            <span class="small fw-bold">ΤΗΛΕΡΓΑΣΙΑ</span>
-                        </div>
-                        <div class="work-option" id="opt-leave" onclick="selectWork('LEAVE')">
-                            <i class="fas fa-plane"></i>
-                            <span class="small fw-bold">ΑΔΕΙΑ</span>
-                        </div>
-                        <div class="work-option" id="opt-sick" onclick="selectWork('SICK')">
-                            <i class="fas fa-medkit"></i>
-                            <span class="small fw-bold">ΑΣΘΕΝΕΙΑ</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-submit" id="submit-btn">
-                    Ολοκληρωση & Αποθηκευση
-                </button>
-            </form>
+        <div class="field-group">
+            <label class="field-label">Συνεργάτης</label>
+            {{ form.employee }}
         </div>
-    </div>
+
+        <div class="field-group">
+            <label class="field-label">Ημερομηνία</label>
+            {{ form.date }}
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field-group" style="margin-bottom:0;">
+            <label class="field-label">Κατάσταση</label>
+            {{ form.work_type }}
+
+            <div class="work-grid">
+                <div class="work-opt" id="opt-office" onclick="selectWork('OFFICE')">
+                    <div class="work-opt-icon">🏢</div>
+                    <div class="work-opt-label">Γραφείο</div>
+                </div>
+                <div class="work-opt" id="opt-remote" onclick="selectWork('REMOTE')">
+                    <div class="work-opt-icon">💻</div>
+                    <div class="work-opt-label">Τηλεργασία</div>
+                </div>
+                <div class="work-opt" id="opt-leave" onclick="selectWork('LEAVE')">
+                    <div class="work-opt-icon">✈️</div>
+                    <div class="work-opt-label">Άδεια</div>
+                </div>
+                <div class="work-opt" id="opt-sick" onclick="selectWork('SICK')">
+                    <div class="work-opt-icon">🩺</div>
+                    <div class="work-opt-label">Ασθένεια</div>
+                </div>
+            </div>
+
+            <div class="warn-box" id="warn-box">
+                <i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>
+                <span id="warn-text">Δεν επιτρέπεται καταχώρηση εργασίας αυτή την ημέρα.</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <button type="submit" class="btn-submit" id="submit-btn">
+            Ολοκλήρωση &amp; αποθήκευση
+        </button>
+    </form>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     const greekHolidays = {{ holidays_js|safe }};
     const realSelect = document.getElementById('id_work_type');
     const dateInput = document.querySelector('input[type="date"]');
     const submitBtn = document.getElementById('submit-btn');
-    const warning = document.getElementById('date-warning');
+    const warnBox = document.getElementById('warn-box');
+    const warnText = document.getElementById('warn-text');
 
-    // Κεντρική συνάρτηση ελέγχου εγκυρότητας
-    function validateEntry() {
-        const selectedDate = dateInput.value;
+    const activeClass = {
+        OFFICE: 'active-office',
+        REMOTE: 'active-remote',
+        LEAVE:  'active-leave',
+        SICK:   'active-sick'
+    };
+    const optId = {
+        OFFICE: 'opt-office',
+        REMOTE: 'opt-remote',
+        LEAVE:  'opt-leave',
+        SICK:   'opt-sick'
+    };
+
+    function validate() {
+        if (!dateInput.value) return;
+        const d = new Date(dateInput.value);
+        const day = d.getDay();
+        const isWeekend = day === 0 || day === 6;
+        const isHoliday = greekHolidays.includes(dateInput.value);
         const workType = realSelect.value;
+        const isWork = workType === 'OFFICE' || workType === 'REMOTE';
 
-        if (!selectedDate) return;
-
-        const d = new Date(selectedDate);
-        const day = d.getDay(); // 0 = Κυριακή, 6 = Σάββατο
-
-        const isWeekend = (day === 0 || day === 6);
-        const isHoliday = greekHolidays.includes(selectedDate);
-
-        // Ο έλεγχος (Warning) εμφανίζεται ΜΟΝΟ αν ο τύπος εργασίας είναι OFFICE ή REMOTE
-        // Αν είναι LEAVE ή SICK, επιτρέπουμε την καταχώρηση κανονικά
-        if ((workType === 'OFFICE' || workType === 'REMOTE') && (isWeekend || isHoliday)) {
-            warning.style.display = 'block';
-            if (isHoliday) {
-                warning.innerHTML = '<i class="fas fa-umbrella-beach me-2"></i>Επίσημη Αργία: Δεν επιτρέπεται καταχώρηση για εργασία.';
-            } else {
-                warning.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Σαββατοκύριακο: Δεν επιτρέπεται καταχώρηση για εργασία.';
-            }
+        if (isWork && (isWeekend || isHoliday)) {
+            warnBox.style.display = 'block';
+            warnText.textContent = isHoliday
+                ? 'Επίσημη αργία — δεν επιτρέπεται καταχώρηση εργασίας.'
+                : 'Σαββατοκύριακο — δεν επιτρέπεται καταχώρηση εργασίας.';
             submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.5';
         } else {
-            // Σε κάθε άλλη περίπτωση (π.χ. ΑΔΕΙΑ ή καθημερινή), όλα ΟΚ
-            warning.style.display = 'none';
+            warnBox.style.display = 'none';
             submitBtn.disabled = false;
-            submitBtn.style.opacity = '1';
         }
     }
 
-    // Επιλογή τύπου εργασίας
     function selectWork(val) {
         realSelect.value = val;
-        document.querySelectorAll('.work-option').forEach(opt => opt.classList.remove('active'));
-        const activeOpt = document.getElementById(`opt-${val.toLowerCase()}`);
-        if (activeOpt) activeOpt.classList.add('active');
-
-        // Κάθε φορά που αλλάζει το κουμπί, ξαναελέγχουμε την εγκυρότητα
-        validateEntry();
+        Object.keys(optId).forEach(k => {
+            const el = document.getElementById(optId[k]);
+            el.className = 'work-opt';
+            if (k === val) el.classList.add(activeClass[val]);
+        });
+        validate();
     }
 
-    // Όταν αλλάζει η ημερομηνία
-    if (dateInput) {
-        dateInput.addEventListener('change', validateEntry);
-    }
+    if (dateInput) dateInput.addEventListener('change', validate);
 
-    // SweetAlert2 για μηνύματα από Django
     {% if messages %}
         {% for message in messages %}
             Swal.fire({
                 icon: '{% if message.tags == "success" %}success{% elif message.tags == "error" %}error{% else %}info{% endif %}',
                 title: '{% if message.tags == "success" %}Επιτυχία!{% else %}Προσοχή!{% endif %}',
                 text: '{{ message }}',
-                confirmButtonColor: '#e30613',
+                confirmButtonColor: '#CC2200',
                 timer: 3000,
-                timerProgressBar: true
+                timerProgressBar: true,
+                showConfirmButton: false
             });
         {% endfor %}
     {% endif %}
 
-    window.onload = function() {
-        // Smart Default: Σημερινή ημερομηνία
+    window.onload = function () {
         const today = new Date().toISOString().split('T')[0];
-        if (!dateInput.value) {
-            dateInput.value = today;
-        }
-
-        // Default επιλογή OFFICE
+        if (!dateInput.value) dateInput.value = today;
         selectWork('OFFICE');
 
-        document.querySelectorAll('select').forEach(s => s.classList.add('form-select'));
+        // Apply Bootstrap form-select class to Django-rendered selects
+        document.querySelectorAll('select').forEach(s => {
+            if (s.id !== 'id_work_type') s.classList.add('form-select');
+        });
     };
 </script>
 </body>

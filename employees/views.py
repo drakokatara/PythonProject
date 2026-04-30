@@ -45,15 +45,15 @@ def manage_employees(request):
         for a in attendances:
             # Χρώμα βάσει τύπου εργασίας/απουσίας
             if a.work_type == 'OFFICE':
-                event_color = '#e30613'  # PCS Red
+                event_color = '#e30613'
             elif a.work_type == 'REMOTE':
-                event_color = '#0ea5e9'  # Blue
+                event_color = '#0ea5e9'
             elif a.work_type == 'LEAVE':
-                event_color = '#10b981'  # Green
+                event_color = '#10b981'
             elif a.work_type == 'SICK':
-                event_color = '#f59e0b'  # Orange
+                event_color = '#f59e0b'
             else:
-                event_color = '#6c757d'  # Gray (fallback)
+                event_color = '#6c757d'
 
             events_list.append({
                 'title': a.get_work_type_display(),

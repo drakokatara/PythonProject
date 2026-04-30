@@ -3,222 +3,543 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCS Attendance System | Red Edition</title>
+    <title>PCS Attendance | Dashboard</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
-            --pcs-red: #e30613;
-            --pcs-dark: #2d2d2d;
-            --pcs-white: #ffffff;
-            --pcs-light-gray: #f8f9fa;
+            --red: #CC2200;
+            --red-soft: #FFF0ED;
+            --dark: #111111;
+            --mid: #555555;
+            --muted: #999999;
+            --border: #E8E8E8;
+            --bg: #F5F4F1;
+            --surface: #FFFFFF;
+            --info: #0284C7;
+            --info-soft: #EFF6FF;
+            --success: #16A34A;
+            --success-soft: #F0FDF4;
         }
 
-        body { background-color: #f1f1f1; font-family: 'Segoe UI', Roboto, sans-serif; color: var(--pcs-dark); }
+        * { box-sizing: border-box; }
 
-        /* Header */
-        .dashboard-header { background: var(--pcs-white); color: var(--pcs-dark); padding: 1rem 0; border-bottom: 3px solid var(--pcs-red); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .company-logo { font-weight: 800; font-size: 1.8rem; color: var(--pcs-red); }
-        .company-logo span { color: var(--pcs-dark); font-weight: 300; }
+        body {
+            background: var(--bg);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--dark);
+            font-size: 14px;
+            line-height: 1.5;
+        }
 
-        /* Cards & Sidebar */
-        .card { border: none; border-radius: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 25px; background: var(--pcs-white); }
-        .card-header { background-color: var(--pcs-white); border-bottom: 2px solid var(--pcs-red); font-weight: 700; color: var(--pcs-red); padding: 1rem; text-transform: uppercase; }
+        /* ── Topbar ── */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-        /* Stats Widget Styling */
-        .stat-item { transition: 0.3s; border-left: 4px solid transparent; }
-        .stat-item:hover { background: var(--pcs-light-gray); }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-mark {
+            width: 30px;
+            height: 30px;
+            background: var(--red);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-mark svg { width: 15px; height: 15px; }
+        .logo-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark);
+            letter-spacing: -0.3px;
+        }
+        .logo-text span { color: var(--muted); font-weight: 400; }
 
-        /* Table */
-        .table thead th { background-color: var(--pcs-dark); color: white; font-weight: 600; border: none; padding: 12px; }
-        .employee-row { cursor: pointer; transition: 0.2s; }
-        .employee-row:hover { background-color: #fff5f5; }
-        .avatar-circle { width: 38px; height: 38px; background: var(--pcs-red); color: white; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .stat-badge { padding: 5px 10px; font-weight: 700; border: 1px solid #eee; background: #fdfdfd; }
+        .btn-log {
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            transition: background 0.15s, transform 0.1s;
+        }
+        .btn-log:hover { background: #aa1c00; color: white; transform: translateY(-1px); }
+        .btn-log:active { transform: translateY(0); }
 
-        .status-pill { font-weight: 800; font-size: 0.7rem; padding: 5px 12px; text-transform: uppercase; border-radius: 2px; }
-        .status-ok { background-color: #d4edda; color: #155724; }
-        .status-late { background-color: #f8d7da; color: #721c24; }
+        /* ── Layout ── */
+        .layout {
+            display: grid;
+            grid-template-columns: 256px 1fr;
+            gap: 20px;
+            padding: 24px 28px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
 
-        /* Calendar Detail */
-        .calendar-detail-row { display: none; background-color: #ffffff; }
-        .calendar-container { padding: 0; background: #fff; border: 1px solid #eee; border-top: none; }
-        .range-filter-bar { background: var(--pcs-light-gray); padding: 15px; border-bottom: 1px solid #eee; }
-        .results-box { background: white; border: 1px solid var(--pcs-red); padding: 10px; display: none; }
+        /* ── Cards ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .card:last-child { margin-bottom: 0; }
 
-        .btn-pcs { background-color: var(--pcs-red); color: white; border: none; border-radius: 0; font-weight: 700; padding: 8px 15px; transition: 0.3s; }
-        .btn-pcs:hover { background-color: var(--pcs-dark); color: white; }
-        .btn-action-outline { border: 2px solid var(--pcs-red); color: var(--pcs-red); font-weight: 700; border-radius: 0; text-decoration: none; padding: 8px 15px; }
-        .btn-action-outline:hover { background: var(--pcs-red); color: white; }
+        .card-head {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
 
-        .btn-delete { color: #ccc; transition: 0.3s; border: none; background: none; }
-        .btn-delete:hover { color: var(--pcs-red); }
+        /* ── New Employee Form ── */
+        .form-body { padding: 16px 18px; }
+        .field-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--mid);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .field-wrap { margin-bottom: 14px; }
+        .field-wrap input,
+        .field-wrap select {
+            width: 100%;
+            height: 36px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: #FAFAFA;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            padding: 0 10px;
+            color: var(--dark);
+            transition: border-color 0.15s;
+        }
+        .field-wrap input:focus,
+        .field-wrap select:focus {
+            outline: none;
+            border-color: var(--red);
+            background: white;
+        }
+        .btn-save {
+            width: 100%;
+            height: 36px;
+            background: var(--dark);
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-save:hover { background: var(--red); }
+
+        /* ── Stats ── */
+        .stats-body { padding: 14px 18px; }
+        .stat-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-left {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 13px;
+            color: var(--dark);
+        }
+        .stat-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .stat-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--dark);
+            background: #F5F4F1;
+            padding: 2px 8px;
+            border-radius: 5px;
+        }
+
+        /* ── Main Table Card ── */
+        .main-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .main-card-head {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .main-card-title { font-size: 14px; font-weight: 600; color: var(--dark); }
+
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 10px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; cursor: pointer; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #FAFAFA; }
+        td { padding: 13px 20px; vertical-align: middle; }
+
+        .emp-cell { display: flex; align-items: center; gap: 11px; }
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: var(--red);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+            letter-spacing: 0.5px;
+        }
+        .emp-name { font-size: 13px; font-weight: 500; color: var(--dark); }
+        .emp-email { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+        .num-td {
+            text-align: center;
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            color: var(--mid);
+        }
+        .badge-td { text-align: center; }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .badge-ok { background: var(--success-soft); color: var(--success); }
+        .badge-late { background: var(--red-soft); color: var(--red); }
+
+        .del-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #CCCCCC;
+            padding: 5px 8px;
+            border-radius: 6px;
+            transition: color 0.15s, background 0.15s;
+            font-size: 13px;
+        }
+        .del-btn:hover { color: var(--red); background: var(--red-soft); }
+
+        /* ── Calendar Expand Row ── */
+        .cal-expand-row { display: none; }
+        .cal-expand-row.open { display: table-row; }
+        .cal-expand-inner {
+            border-top: 1px solid var(--border);
+            background: #FAFAFA;
+        }
+        .cal-toolbar {
+            padding: 14px 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+        }
+        .cal-field { display: flex; flex-direction: column; gap: 4px; }
+        .cal-field label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .cal-field input {
+            height: 32px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            padding: 0 9px;
+            color: var(--dark);
+        }
+        .cal-field input:focus { outline: none; border-color: var(--red); }
+        .btn-calc {
+            height: 32px;
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 0 14px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-calc:hover { background: #aa1c00; }
+
+        .range-results {
+            display: none;
+            margin-left: auto;
+            gap: 20px;
+            align-items: flex-end;
+        }
+        .range-results.visible { display: flex; }
+        .rr-item { text-align: center; }
+        .rr-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; color: var(--muted); margin-bottom: 2px; }
+        .rr-val { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; }
+
+        .cal-body { padding: 16px 20px; background: white; }
+        .fc .fc-toolbar-title { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; color: var(--dark); }
+        .fc .fc-button { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; }
+        .fc .fc-button-primary { background: var(--dark) !important; border-color: var(--dark) !important; }
+        .fc .fc-button-primary:hover { background: var(--red) !important; border-color: var(--red) !important; }
+        .fc-daygrid-event { border-radius: 4px !important; font-size: 11px !important; }
+
+        .cal-legend {
+            display: flex;
+            gap: 14px;
+            padding: 0 20px 14px;
+            background: white;
+            border-top: 1px solid var(--border);
+        }
+        .leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+        .leg-dot { width: 8px; height: 8px; border-radius: 3px; }
     </style>
 </head>
 <body>
 
-<header class="dashboard-header mb-4">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="company-logo">PCS <span>Attendance</span></div>
-        <a href="{% url 'log_attendance' %}" class="btn btn-action-outline">
-            <i class="fas fa-calendar-plus me-2"></i>ΚΑΤΑΧΩΡΗΣΗ
-        </a>
-    </div>
-</header>
-
-<div class="container">
-    <div class="row">
-        <div class="col-lg-3">
-            <div class="card shadow-sm">
-                <div class="card-header">ΝΕΑ ΕΓΓΡΑΦΗ</div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-muted">ΟΝΟΜΑΤΕΠΩΝΥΜΟ</label>
-                            {{ form.full_name }}
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-muted">EMAIL</label>
-                            {{ form.email }}
-                        </div>
-                        <button type="submit" class="btn btn-pcs w-100">ΑΠΟΘΗΚΕΥΣΗ</button>
-                    </form>
-                </div>
-            </div>
-
-            <div class="card shadow-sm">
-                <div class="card-header" style="background-color: var(--pcs-dark); color: white;">
-                    ΣΗΜΕΡΙΝΗ ΕΙΚΟΝΑ
-                </div>
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 stat-item" style="border-left-color: var(--pcs-red);">
-                            <div><i class="fas fa-building text-danger me-2"></i><span class="small fw-bold">ΓΡΑΦΕΙΟ</span></div>
-                            <span class="badge bg-danger rounded-pill">{{ stats_today.office }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 stat-item" style="border-left-color: #0ea5e9;">
-                            <div><i class="fas fa-laptop-house text-info me-2"></i><span class="small fw-bold">ΤΗΛΕΡΓΑΣΙΑ</span></div>
-                            <span class="badge bg-info rounded-pill">{{ stats_today.remote }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 stat-item" style="border-left-color: #10b981;">
-                            <div><i class="fas fa-plane-departure text-success me-2"></i><span class="small fw-bold">ΑΔΕΙΑ/ΑΣΘ.</span></div>
-                            <span class="badge bg-success rounded-pill">{{ stats_today.leave }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center py-3 stat-item" style="border-left-color: var(--pcs-dark);">
-                            <div><i class="fas fa-users text-dark me-2"></i><span class="small fw-bold">ΣΥΝΟΛΟ</span></div>
-                            <span class="badge bg-dark rounded-pill">{{ stats_today.total_emps }}</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+<nav class="topbar">
+    <a href="#" class="logo">
+        <div class="logo-mark">
+            <svg viewBox="0 0 15 15" fill="none">
+                <rect x="1" y="1" width="5.5" height="5.5" fill="white" rx="1.2"/>
+                <rect x="8.5" y="1" width="5.5" height="5.5" fill="white" rx="1.2" opacity="0.65"/>
+                <rect x="1" y="8.5" width="5.5" height="5.5" fill="white" rx="1.2" opacity="0.65"/>
+                <rect x="8.5" y="8.5" width="5.5" height="5.5" fill="white" rx="1.2" opacity="0.4"/>
+            </svg>
         </div>
+        <span class="logo-text">PCS <span>Attendance</span></span>
+    </a>
+    <a href="{% url 'log_attendance' %}" class="btn-log">
+        <i class="fas fa-plus" style="font-size:11px;"></i> Καταχώρηση
+    </a>
+</nav>
 
-        <div class="col-lg-9">
-            <div class="card shadow-sm">
-                <div class="card-header">ΛΙΣΤΑ ΠΡΟΣΩΠΙΚΟΥ</div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0 border-top-0">
-                            <thead>
-                                <tr>
-                                    <th>ΥΠΑΛΛΗΛΟΣ</th>
-                                    <th class="text-center">ΓΡΑΦΕΙΟ</th>
-                                    <th class="text-center">ΣΥΝΟΛΟ</th>
-                                    <th class="text-center">ΚΑΤΑΣΤΑΣΗ</th>
-                                    <th class="text-center">ΕΝΕΡΓΕΙΕΣ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for emp in employees %}
-                                <tr class="employee-row" onclick="toggleCalendar('{{ emp.id }}')">
-                                    <td>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="avatar-circle">{{ emp.name|slice:":1" }}</div>
-                                            <div>
-                                                <div class="fw-bold">{{ emp.name }}</div>
-                                                <small class="text-muted small">{{ emp.email }}</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="text-center"><span class="stat-badge">{{ emp.office }}</span></td>
-                                    <td class="text-center"><span class="stat-badge text-muted">{{ emp.total }}</span></td>
-                                    <td class="text-center">
-                                        {% if emp.is_ok %}
-                                            <span class="status-pill status-ok">ΕΝΤΑΞΕΙ</span>
-                                        {% else %}
-                                            <span class="status-pill status-late">ΕΛΛΙΠΗΣ</span>
-                                            <div class="mt-1">
-                                                <small class="text-danger fw-bold" style="font-size: 0.65rem;">
-                                                    -{{ emp.debt }} ΗΜΕΡΕΣ
-                                                </small>
-                                            </div>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center" onclick="event.stopPropagation();">
-                                        <button class="btn-delete" onclick="confirmDelete('{{ emp.id }}', '{{ emp.name }}')">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr id="calendar-row-{{ emp.id }}" class="calendar-detail-row">
-                                    <td colspan="5" class="p-0">
-                                        <div class="calendar-container">
-                                            <div class="range-filter-bar row g-2 mx-0 align-items-end">
-                                                <div class="col-md-3">
-                                                    <label class="small fw-bold">ΑΠΟ:</label>
-                                                    <input type="date" id="start-{{ emp.id }}" class="form-control form-control-sm">
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <label class="small fw-bold">ΕΩΣ:</label>
-                                                    <input type="date" id="end-{{ emp.id }}" class="form-control form-control-sm">
-                                                </div>
-                                                <div class="col-md-3">
-                                                    <button class="btn btn-pcs btn-sm w-100" onclick="calculateRange('{{ emp.id }}')">ΥΠΟΛΟΓΙΣΜΟΣ</button>
-                                                </div>
-                                                <div id="results-{{ emp.id }}" class="col-md-3 results-box">
-                                                    <div class="d-flex justify-content-between small fw-bold">
-                                                        <span>🏢 <span id="res-office-{{ emp.id }}">0</span></span>
-                                                        <span>💻 <span id="res-remote-{{ emp.id }}">0</span></span>
-                                                        <span>Σ: <span id="res-total-{{ emp.id }}">0</span></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="p-3">
-                                                <div id="calendar-{{ emp.id }}"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside>
+        <div class="card">
+            <div class="card-head">Νέα εγγραφή</div>
+            <div class="form-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="field-wrap">
+                        <label class="field-label">Ονοματεπώνυμο</label>
+                        {{ form.full_name }}
                     </div>
+                    <div class="field-wrap">
+                        <label class="field-label">Email</label>
+                        {{ form.email }}
+                    </div>
+                    <button type="submit" class="btn-save">Αποθήκευση</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-head">Σημερινή εικόνα</div>
+            <div class="stats-body">
+                <div class="stat-row">
+                    <div class="stat-left">
+                        <div class="stat-dot" style="background: var(--red);"></div>
+                        Γραφείο
+                    </div>
+                    <span class="stat-num">{{ stats_today.office }}</span>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-left">
+                        <div class="stat-dot" style="background: var(--info);"></div>
+                        Τηλεργασία
+                    </div>
+                    <span class="stat-num">{{ stats_today.remote }}</span>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-left">
+                        <div class="stat-dot" style="background: var(--success);"></div>
+                        Άδεια / Ασθένεια
+                    </div>
+                    <span class="stat-num">{{ stats_today.leave }}</span>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-left">
+                        <div class="stat-dot" style="background: var(--muted);"></div>
+                        <strong>Σύνολο</strong>
+                    </div>
+                    <span class="stat-num" style="font-size:15px;">{{ stats_today.total_emps }}</span>
                 </div>
             </div>
         </div>
-    </div>
+    </aside>
+
+    <!-- Main -->
+    <main>
+        <div class="main-card">
+            <div class="main-card-head">
+                <span class="main-card-title">Λίστα προσωπικού</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Υπάλληλος</th>
+                            <th style="text-align:center;">Γραφείο</th>
+                            <th style="text-align:center;">Σύνολο</th>
+                            <th style="text-align:center;">Κατάσταση</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees %}
+                        <tr onclick="toggleCalendar('{{ emp.id }}')">
+                            <td>
+                                <div class="emp-cell">
+                                    <div class="avatar">{{ emp.name|slice:":2"|upper }}</div>
+                                    <div>
+                                        <div class="emp-name">{{ emp.name }}</div>
+                                        <div class="emp-email">{{ emp.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="num-td">{{ emp.office }}</td>
+                            <td class="num-td">{{ emp.total }}</td>
+                            <td class="badge-td">
+                                {% if emp.is_ok %}
+                                    <span class="badge badge-ok">Εντάξει</span>
+                                {% else %}
+                                    <span class="badge badge-late">Ελλιπής −{{ emp.debt }}</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align:center;" onclick="event.stopPropagation();">
+                                <button class="del-btn" onclick="confirmDelete('{{ emp.id }}', '{{ emp.name }}')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr id="cal-row-{{ emp.id }}" class="cal-expand-row">
+                            <td colspan="5" style="padding:0;">
+                                <div class="cal-expand-inner">
+                                    <div class="cal-toolbar">
+                                        <div class="cal-field">
+                                            <label>Από</label>
+                                            <input type="date" id="start-{{ emp.id }}">
+                                        </div>
+                                        <div class="cal-field">
+                                            <label>Έως</label>
+                                            <input type="date" id="end-{{ emp.id }}">
+                                        </div>
+                                        <button class="btn-calc" onclick="calculateRange('{{ emp.id }}')">Υπολογισμός</button>
+                                        <div id="results-{{ emp.id }}" class="range-results">
+                                            <div class="rr-item">
+                                                <div class="rr-label">Γραφείο</div>
+                                                <div class="rr-val" style="color:var(--red);" id="res-office-{{ emp.id }}">0</div>
+                                            </div>
+                                            <div class="rr-item">
+                                                <div class="rr-label">Τηλεργασία</div>
+                                                <div class="rr-val" style="color:var(--info);" id="res-remote-{{ emp.id }}">0</div>
+                                            </div>
+                                            <div class="rr-item">
+                                                <div class="rr-label">Σύνολο</div>
+                                                <div class="rr-val" id="res-total-{{ emp.id }}">0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="cal-body">
+                                        <div id="calendar-{{ emp.id }}"></div>
+                                    </div>
+                                    <div class="cal-legend">
+                                        <div class="leg-item"><div class="leg-dot" style="background:#CC2200;"></div>Γραφείο</div>
+                                        <div class="leg-item"><div class="leg-dot" style="background:#0284C7;"></div>Τηλεργασία</div>
+                                        <div class="leg-item"><div class="leg-dot" style="background:#16A34A;"></div>Άδεια</div>
+                                        <div class="leg-item"><div class="leg-dot" style="background:#D97706;"></div>Ασθένεια</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 </div>
 
 <script>
-    // Μηνύματα SweetAlert2 από Django
     {% if messages %}
         {% for message in messages %}
             Swal.fire({
                 icon: '{% if message.tags == "success" %}success{% elif message.tags == "error" %}error{% else %}info{% endif %}',
                 title: 'Ενημέρωση',
                 text: '{{ message }}',
-                confirmButtonColor: '#e30613',
-                timer: 3000
+                confirmButtonColor: '#CC2200',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
             });
         {% endfor %}
     {% endif %}
 
-    // Δεδομένα από Django
     window.allEvents = {
         {% for emp in employees %}
             "{{ emp.id }}": {{ emp.events_json|safe }},
@@ -229,11 +550,11 @@
     const initializedCalendars = {};
 
     function toggleCalendar(empId) {
-        const row = document.getElementById(`calendar-row-${empId}`);
-        const isVisible = row.style.display === 'table-row';
-        document.querySelectorAll('.calendar-detail-row').forEach(r => r.style.display = 'none');
-        if (!isVisible) {
-            row.style.display = 'table-row';
+        const row = document.getElementById(`cal-row-${empId}`);
+        const isOpen = row.classList.contains('open');
+        document.querySelectorAll('.cal-expand-row').forEach(r => r.classList.remove('open'));
+        if (!isOpen) {
+            row.classList.add('open');
             if (!initializedCalendars[empId]) {
                 renderCalendar(empId);
                 initializedCalendars[empId] = true;
@@ -242,57 +563,55 @@
     }
 
     function renderCalendar(empId) {
-        const calendarEl = document.getElementById(`calendar-${empId}`);
-        const employeeEvents = window.allEvents[empId] || [];
-        const calendar = new FullCalendar.Calendar(calendarEl, {
+        const el = document.getElementById(`calendar-${empId}`);
+        const events = (window.allEvents[empId] || []).concat(globalHolidays);
+        const cal = new FullCalendar.Calendar(el, {
             initialView: 'dayGridMonth',
             locale: 'el',
-            height: 380,
+            height: 360,
             headerToolbar: { left: 'prev,next', center: 'title', right: '' },
-            events: employeeEvents.concat(globalHolidays),
+            eventColor: '#CC2200',
+            events: events,
         });
-        calendar.render();
+        cal.render();
     }
 
     function confirmDelete(empId, empName) {
         Swal.fire({
-            title: 'Είσαι σίγουρος;',
-            text: "Θα διαγραφούν οριστικά τα δεδομένα για τον/την " + empName,
+            title: 'Διαγραφή υπαλλήλου;',
+            text: `Θα διαγραφούν οριστικά τα δεδομένα για τον/την ${empName}.`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#e30613',
-            cancelButtonColor: '#2d2d2d',
-            confirmButtonText: 'Ναι, διαγραφή!',
+            confirmButtonColor: '#CC2200',
+            cancelButtonColor: '#555',
+            confirmButtonText: 'Ναι, διαγραφή',
             cancelButtonText: 'Ακύρωση'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "/delete-employee/" + empId + "/";
-            }
+        }).then(r => {
+            if (r.isConfirmed) window.location.href = `/delete-employee/${empId}/`;
         });
     }
 
     function calculateRange(empId) {
-        const startVal = document.getElementById(`start-${empId}`).value;
-        const endVal = document.getElementById(`end-${empId}`).value;
-        if (!startVal || !endVal) {
-            Swal.fire('Προσοχή', 'Επιλέξτε εύρος ημερομηνιών', 'info');
+        const s = document.getElementById(`start-${empId}`).value;
+        const e = document.getElementById(`end-${empId}`).value;
+        if (!s || !e) {
+            Swal.fire({ icon: 'info', title: 'Προσοχή', text: 'Επιλέξτε εύρος ημερομηνιών.', confirmButtonColor: '#CC2200' });
             return;
         }
-        const startDate = new Date(startVal);
-        const endDate = new Date(endVal);
+        const start = new Date(s), end = new Date(e);
         const events = window.allEvents[empId] || [];
-        let officeCount = 0, remoteCount = 0;
-        events.forEach(event => {
-            const eventDate = new Date(event.start);
-            if (eventDate >= startDate && eventDate <= endDate) {
-                if (event.title === 'Στο Γραφείο') officeCount++;
-                else if (event.title === 'Τηλεργασία') remoteCount++;
+        let office = 0, remote = 0;
+        events.forEach(ev => {
+            const d = new Date(ev.start);
+            if (d >= start && d <= end) {
+                if (ev.title === 'Στο Γραφείο') office++;
+                else if (ev.title === 'Τηλεργασία') remote++;
             }
         });
-        document.getElementById(`results-${empId}`).style.display = 'block';
-        document.getElementById(`res-office-${empId}`).innerText = officeCount;
-        document.getElementById(`res-remote-${empId}`).innerText = remoteCount;
-        document.getElementById(`res-total-${empId}`).innerText = officeCount + remoteCount;
+        document.getElementById(`res-office-${empId}`).innerText = office;
+        document.getElementById(`res-remote-${empId}`).innerText = remote;
+        document.getElementById(`res-total-${empId}`).innerText = office + remote;
+        document.getElementById(`results-${empId}`).classList.add('visible');
     }
 </script>
 
