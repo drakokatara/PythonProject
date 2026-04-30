@@ -1,98 +1,70 @@
-import json
-import holidays
+import json, holidays
 from datetime import date
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.db.models import Q
 from .models import Employee, Attendance
 from .forms import EmployeeForm, AttendanceForm
+
+
+# Helper συνάρτηση για τις αργίες
+def get_greek_holidays():
+    gr_holidays = holidays.Greece(years=date.today().year)
+    events = [{
+        'title': f"🎉 {name}",
+        'start': d.strftime('%Y-%m-%d'),
+        'color': '#ffc107', 'textColor': '#000', 'allDay': True
+    } for d, name in gr_holidays.items()]
+    return gr_holidays, events
+
 
 def manage_employees(request):
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "✅ Ο υπάλληλος προστέθηκε επιτυχώς!")
+            messages.success(request, "✅ Ο υπάλληλος προστέθηκε!")
             return redirect('manage_employees')
-        else:
-            messages.error(request, "❌ Σφάλμα κατά την εγγραφή. Ελέγξτε τα στοιχεία.")
-    else:
-        form = EmployeeForm()
+        messages.error(request, "❌ Σφάλμα στην εγγραφή.")
 
-    employees = Employee.objects.all()
+    form = EmployeeForm()
+    # Χρήση prefetch_related για να μην "χτυπάμε" τη βάση σε κάθε loop
+    employees_qs = Employee.objects.prefetch_related('attendance_set').all()
+    gr_holidays, holiday_events = get_greek_holidays()
+
     data = []
+    # Mapping χρωμάτων για καθαρότερο κώδικα
+    colors = {'OFFICE': '#e30613', 'REMOTE': '#0ea5e9', 'LEAVE': '#10b981', 'SICK': '#f59e0b'}
 
-    # 1. Δημιουργία αργιών ως events για το ημερολόγιο (Yellow/Gold)
-    gr_holidays = holidays.Greece(years=date.today().year)
-    holiday_events = [
-        {
-            'title': f"🎉 {name}",
-            'start': d.strftime('%Y-%m-%d'),
-            'color': '#ffc107',
-            'textColor': '#000',
-            'allDay': True
-        }
-        for d, name in gr_holidays.items()
-    ]
-
-    for emp in employees:
-        # Το report στο models.py υπολογίζει το debt (Office + Leave)
+    for emp in employees_qs:
         report = emp.get_monthly_report()
-
-        # Προετοιμασία των παρουσιών του υπαλλήλου με χρώματα
-        attendances = Attendance.objects.filter(employee=emp)
-        events_list = []
-
-        for a in attendances:
-            # Χρώμα βάσει τύπου εργασίας/απουσίας
-            if a.work_type == 'OFFICE':
-                event_color = '#e30613'
-            elif a.work_type == 'REMOTE':
-                event_color = '#0ea5e9'
-            elif a.work_type == 'LEAVE':
-                event_color = '#10b981'
-            elif a.work_type == 'SICK':
-                event_color = '#f59e0b'
-            else:
-                event_color = '#6c757d'
-
-            events_list.append({
-                'title': a.get_work_type_display(),
-                'start': a.date.strftime('%Y-%m-%d'),
-                'color': event_color,
-            })
+        # Δημιουργία events λίστας με list comprehension
+        events_list = [{
+            'title': a.get_work_type_display(),
+            'start': a.date.strftime('%Y-%m-%d'),
+            'color': colors.get(a.work_type, '#6c757d')
+        } for a in emp.attendance_set.all()]
 
         data.append({
-            'id': emp.id,
-            'name': emp.full_name,
-            'email': emp.email,
-            'office': report['office_days'],
-            'remote': report['remote_days'],
-            'leave': report['leave_days'],
-            'total': report['total_days'],
-            'is_ok': report['is_ok'],
-            'debt': report['debt'],
+            'id': emp.id, 'name': emp.full_name, 'email': emp.email,
+            'office': report['office_days'], 'total': report['total_days'],
+            'is_ok': report['is_ok'], 'debt': report['debt'],
             'events_json': json.dumps(events_list)
         })
 
-    # 2. Υπολογισμός στατιστικών για το "Μικρό Παράθυρο" (ΣΗΜΕΡΑ)
-    today_date = date.today()
-    today_attendances = Attendance.objects.filter(date=today_date)
-
+    # Stats Today
+    today = date.today()
+    today_atts = Attendance.objects.filter(date=today)
     stats_today = {
-        'office': today_attendances.filter(work_type='OFFICE').count(),
-        'remote': today_attendances.filter(work_type='REMOTE').count(),
-        'leave':  today_attendances.filter(work_type__in=['LEAVE', 'SICK']).count(),
-        'total_emps': employees.count()
+        'office': today_atts.filter(work_type='OFFICE').count(),
+        'remote': today_atts.filter(work_type='REMOTE').count(),
+        'leave': today_atts.filter(work_type__in=['LEAVE', 'SICK']).count(),
+        'total_emps': employees_qs.count()
     }
 
-    # Λίστα αργιών (μόνο ημερομηνίες) για validation στην JS
-    holidays_list = [d.strftime('%Y-%m-%d') for d in gr_holidays.keys()]
-
     return render(request, 'employees/manage.html', {
-        'form': form,
-        'employees': data,
-        'stats_today': stats_today,
-        'holidays_js': json.dumps(holidays_list),
+        'form': form, 'employees': data, 'stats_today': stats_today,
+        'holidays_js': json.dumps([d.strftime('%Y-%m-%d') for d in gr_holidays.keys()]),
         'holidays_events_json': json.dumps(holiday_events),
     })
 
@@ -104,16 +76,12 @@ def log_attendance(request):
             form.save()
             messages.success(request, "✅ Η καταχώρηση ολοκληρώθηκε!")
             return redirect('log_attendance')
-        else:
-            messages.error(request, "❌ Σφάλμα: Πιθανόν να υπάρχει ήδη καταχώρηση για αυτή την ημέρα.")
-    else:
-        form = AttendanceForm()
+        messages.error(request, "❌ Σφάλμα: Διπλή καταχώρηση για την ίδια μέρα.")
 
-    # Λήψη αργιών για το "κλείδωμα" ημερομηνιών στη φόρμα
-    gr_holidays = holidays.Greece(years=date.today().year)
-    holidays_list = [d.strftime('%Y-%m-%d') for d in gr_holidays.keys()]
+    form = AttendanceForm()
+    gr_holidays, _ = get_greek_holidays()
 
     return render(request, 'employees/log_attendance.html', {
         'form': form,
-        'holidays_js': json.dumps(holidays_list)
+        'holidays_js': json.dumps([d.strftime('%Y-%m-%d') for d in gr_holidays.keys()])
     })
