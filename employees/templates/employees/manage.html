@@ -6,340 +6,96 @@
     <title>PCS | Attendance Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Sora — same font family used on pcs.gr -->
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* ── PCS Design Tokens (extracted from pcs.gr) ── */
         :root {
-            --pcs-navy:     #0B1D3C;   /* topbar / hero bg */
-            --pcs-navy-2:   #112447;   /* hover states */
-            --pcs-blue:     #1565C0;   /* primary CTA */
-            --pcs-blue-l:   #1E7EE0;   /* hover CTA */
-            --pcs-blue-xs:  #E8F1FB;   /* light tint */
+            --pcs-navy:     #0B1D3C;
+            --pcs-blue:     #1565C0;
+            --pcs-blue-l:   #1E7EE0;
             --pcs-white:    #FFFFFF;
-            --pcs-off:      #F7F8FA;   /* page bg */
+            --pcs-off:      #F7F8FA;
             --pcs-border:   #E3E8F0;
             --pcs-text:     #0D1B2E;
             --pcs-muted:    #6B7A99;
-            --pcs-success:  #0E9F6E;
-            --pcs-warn:     #F59E0B;
             --pcs-danger:   #E02424;
             --pcs-radius:   10px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; }
-        body {
-            background: var(--pcs-off);
-            font-family: 'Sora', sans-serif;
-            font-size: 14px;
-            color: var(--pcs-text);
-        }
+        body { background: var(--pcs-off); font-family: 'Sora', sans-serif; font-size: 14px; color: var(--pcs-text); }
 
-        /* ════════════════════════════════
-           TOPBAR  — identical to pcs.gr
-        ════════════════════════════════ */
-        .topbar {
-            background: var(--pcs-navy);
-            height: 64px;
-            padding: 0 40px;
-            display: flex; align-items: center; justify-content: space-between;
-            position: sticky; top: 0; z-index: 200;
-            /* subtle bottom border like the real site */
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
+        .topbar { background: var(--pcs-navy); height: 64px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid rgba(255,255,255,0.06); }
         .topbar-left { display: flex; align-items: center; gap: 16px; }
-        .topbar-logo {
-            height: 32px;
-            /* white version of the PCS logo */
-            content: url('https://pcs.gr/wp-content/uploads/2025/05/Logo.svg');
-            filter: brightness(0) invert(1);
-        }
-        .topbar-logo-fallback {
-            font-size: 20px; font-weight: 800; color: #fff;
-            letter-spacing: -0.5px; display: none;
-        }
-        .topbar-sep {
-            width: 1px; height: 22px;
-            background: rgba(255,255,255,0.18);
-        }
-        .topbar-module {
-            font-size: 12px; font-weight: 500;
-            color: rgba(255,255,255,0.55);
-            letter-spacing: 0.4px;
-        }
+        .topbar-logo { height: 32px; filter: brightness(0) invert(1); }
+        .topbar-sep { width: 1px; height: 22px; background: rgba(255,255,255,0.18); }
+        .topbar-module { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.55); }
 
-        /* CTA button — same as pcs.gr "Request a Demo" */
-        .btn-pcs {
-            background: var(--pcs-blue);
-            color: #fff; border: none;
-            border-radius: 6px;
-            padding: 9px 22px;
-            font-family: 'Sora', sans-serif;
-            font-size: 13px; font-weight: 600;
-            text-decoration: none;
-            display: inline-flex; align-items: center; gap: 8px;
-            transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
-            cursor: pointer;
-        }
-        .btn-pcs:hover {
-            background: var(--pcs-blue-l);
-            color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(21,101,192,0.35);
-        }
-        .btn-pcs-outline {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.3);
-            color: rgba(255,255,255,0.85);
-            border-radius: 6px; padding: 8px 18px;
-            font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 500;
-            text-decoration: none;
-            display: inline-flex; align-items: center; gap: 7px;
-            transition: 0.18s; cursor: pointer;
-        }
-        .btn-pcs-outline:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-pcs { background: var(--pcs-blue); color: #fff; border: none; border-radius: 6px; padding: 9px 22px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.18s; cursor: pointer; }
+        .btn-pcs:hover { background: var(--pcs-blue-l); color: #fff; box-shadow: 0 6px 18px rgba(21,101,192,0.35); }
 
-        /* ════════════════════════════════
-           PAGE HERO STRIP  (like pcs.gr section headers)
-        ════════════════════════════════ */
-        .page-hero {
-            background: var(--pcs-navy);
-            padding: 28px 40px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .page-hero h1 {
-            font-size: 22px; font-weight: 700; color: #fff;
-            letter-spacing: -0.3px; margin-bottom: 4px;
-        }
-        .page-hero p { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 400; }
+        .page-hero { background: var(--pcs-navy); padding: 28px 40px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .page-hero h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .page-hero p { font-size: 13px; color: rgba(255,255,255,0.5); }
 
-        /* ════════════════════════════════
-           LAYOUT
-        ════════════════════════════════ */
-        .layout {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 24px;
-            padding: 28px 40px;
-            max-width: 1440px;
-            margin: 0 auto;
-        }
+        .layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; padding: 28px 40px; max-width: 1440px; margin: 0 auto; }
         @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } }
 
-        /* ════════════════════════════════
-           CARD — matches pcs.gr "solution cards"
-        ════════════════════════════════ */
-        .pcs-card {
-            background: var(--pcs-white);
-            border: 1px solid var(--pcs-border);
-            border-radius: var(--pcs-radius);
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.04);
-        }
-        .pcs-card-head {
-            padding: 13px 20px;
-            border-bottom: 1px solid var(--pcs-border);
-            display: flex; align-items: center; gap: 9px;
-            font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
-            text-transform: uppercase; color: var(--pcs-muted);
-        }
-        .pcs-card-head i { color: var(--pcs-blue); font-size: 11px; }
-        /* blue top accent like pcs.gr solution cards */
+        .pcs-card { background: var(--pcs-white); border: 1px solid var(--pcs-border); border-radius: var(--pcs-radius); overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.04); }
+        .pcs-card-head { padding: 13px 20px; border-bottom: 1px solid var(--pcs-border); display: flex; align-items: center; gap: 9px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--pcs-muted); }
+        .pcs-card-head i { color: var(--pcs-blue); }
         .pcs-card-accent { border-top: 3px solid var(--pcs-blue); }
 
-        /* ════════════════════════════════
-           SIDEBAR FORM
-        ════════════════════════════════ */
         .form-field { margin-bottom: 10px; }
-        .form-field input {
-            width: 100%; height: 38px;
-            border: 1px solid var(--pcs-border); border-radius: 8px;
-            padding: 0 12px; font-size: 13px;
-            font-family: 'Sora', sans-serif;
-            background: var(--pcs-off); color: var(--pcs-text);
-            transition: border-color 0.15s, box-shadow 0.15s;
-        }
-        .form-field input:focus {
-            outline: none; border-color: var(--pcs-blue); background: #fff;
-            box-shadow: 0 0 0 3px rgba(21,101,192,0.1);
-        }
-        .form-field input::placeholder { color: #A0ABBE; font-weight: 400; }
+        .form-field input { width: 100%; height: 38px; border: 1px solid var(--pcs-border); border-radius: 8px; padding: 0 12px; font-size: 13px; background: var(--pcs-off); }
+        .btn-save { width: 100%; height: 38px; border: none; border-radius: 8px; background: var(--pcs-navy); color: #fff; font-weight: 600; cursor: pointer; margin-top: 4px; }
 
-        .btn-save {
-            width: 100%; height: 38px; border: none; border-radius: 8px;
-            background: var(--pcs-navy); color: #fff;
-            font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600;
-            cursor: pointer; transition: background 0.18s;
-            margin-top: 4px;
-        }
-        .btn-save:hover { background: var(--pcs-blue); }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--pcs-border); }
+        .stat-val { font-size: 15px; font-weight: 700; background: var(--pcs-off); padding: 2px 10px; border-radius: 6px; }
 
-        /* ════════════════════════════════
-           STAT ROWS
-        ════════════════════════════════ */
-        .stat-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 11px 0; border-bottom: 1px solid var(--pcs-border);
-        }
-        .stat-row:last-child { border-bottom: 0; padding-bottom: 0; }
-        .stat-label { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--pcs-muted); font-weight: 400; }
-        .stat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-        .stat-val {
-            font-size: 15px; font-weight: 700; color: var(--pcs-text);
-            background: var(--pcs-off); padding: 2px 10px; border-radius: 6px;
-            border: 1px solid var(--pcs-border);
-        }
-
-        /* ════════════════════════════════
-           TABLE
-        ════════════════════════════════ */
         .pcs-table { width: 100%; border-collapse: collapse; }
-        .pcs-table thead th {
-            font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
-            text-transform: uppercase; color: var(--pcs-muted);
-            padding: 12px 20px; border-bottom: 1px solid var(--pcs-border);
-            background: var(--pcs-off); text-align: left;
-        }
-        .pcs-table thead th:not(:first-child) { text-align: center; }
-        .pcs-table tbody tr { border-bottom: 1px solid var(--pcs-border); transition: background 0.1s; cursor: pointer; }
+        .pcs-table thead th { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--pcs-muted); padding: 12px 20px; border-bottom: 1px solid var(--pcs-border); background: var(--pcs-off); }
+        .pcs-table tbody tr.data-row { border-bottom: 1px solid var(--pcs-border); cursor: pointer; }
         .pcs-table tbody tr.data-row:hover { background: #F2F5FB; }
-        .pcs-table td { padding: 14px 20px; vertical-align: middle; }
+        .pcs-table td { padding: 14px 20px; }
 
-        /* Avatar */
-        .emp-avatar {
-            width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0;
-            background: linear-gradient(135deg, var(--pcs-navy) 0%, var(--pcs-blue) 100%);
-            color: #fff; font-size: 12px; font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            margin-right: 13px; letter-spacing: 0.3px;
-        }
-        .emp-name { font-size: 14px; font-weight: 600; color: var(--pcs-text); }
-        .emp-email { font-size: 11px; color: var(--pcs-muted); margin-top: 1px; font-weight: 400; }
-        .emp-join {
-            display: inline-flex; align-items: center; gap: 4px;
-            font-size: 10px; color: var(--pcs-muted);
-            background: var(--pcs-off); border: 1px solid var(--pcs-border);
-            border-radius: 4px; padding: 2px 7px; margin-top: 4px; font-weight: 400;
-        }
+        .emp-avatar { width: 38px; height: 38px; border-radius: 9px; background: linear-gradient(135deg, var(--pcs-navy) 0%, var(--pcs-blue) 100%); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-right: 13px; }
+        .emp-name { font-weight: 600; }
+        .emp-email { font-size: 11px; color: var(--pcs-muted); }
 
-        /* Mono numbers */
-        .num { font-size: 15px; font-weight: 700; color: var(--pcs-text); }
-        .num-sub { font-size: 11px; color: var(--pcs-muted); font-weight: 400; }
+        .badge-pcs { padding: 4px 11px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+        .badge-ok { background: #EDFAF4; color: #0A7A52; border: 1px solid #B5EDD6; }
+        .badge-err { background: #FEF0F0; color: #C81E1E; border: 1px solid #FAC5C5; }
 
-        /* Badges */
-        .badge-pcs {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 4px 11px; border-radius: 100px;
-            font-size: 11px; font-weight: 600; white-space: nowrap;
-        }
-        .badge-ok   { background: #EDFAF4; color: #0A7A52; border: 1px solid #B5EDD6; }
-        .badge-err  { background: #FEF0F0; color: #C81E1E; border: 1px solid #FAC5C5; }
-        .badge-warn { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; font-size: 10px; }
-
-        /* Debt tooltip */
-        .debt-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .debt-badge { position: relative; cursor: help; }
-        .debt-tip {
-            display: none; position: absolute; bottom: calc(100% + 9px); left: 50%;
-            transform: translateX(-50%);
-            background: var(--pcs-navy); color: rgba(255,255,255,0.9);
-            font-size: 11px; font-weight: 400; border-radius: 8px;
-            padding: 9px 14px; white-space: nowrap; z-index: 99;
-            pointer-events: none; line-height: 1.8;
-            box-shadow: 0 8px 28px rgba(0,0,0,0.22);
-        }
-        .debt-tip::after {
-            content: ''; position: absolute; top: 100%; left: 50%;
-            transform: translateX(-50%);
-            border: 5px solid transparent; border-top-color: var(--pcs-navy);
-        }
-        .debt-badge:hover .debt-tip { display: block; }
-
-        /* ════════════════════════════════
-           CALENDAR ROW
-        ════════════════════════════════ */
         .cal-row { display: none; background: #F7F8FA; }
         .cal-row.open { display: table-row; }
+        .cal-body { padding: 20px; background: #fff; }
 
-        .cal-toolbar {
-            padding: 16px 22px; display: flex; gap: 12px;
-            align-items: flex-end; border-bottom: 1px solid var(--pcs-border);
-            flex-wrap: wrap; background: #F0F3F9;
-        }
-        .cal-toolbar .tf-group label {
-            display: block; font-size: 9px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.7px;
-            color: var(--pcs-muted); margin-bottom: 5px;
-        }
-        .cal-toolbar input[type="date"] {
-            height: 34px; border: 1px solid var(--pcs-border); border-radius: 7px;
-            padding: 0 10px; font-size: 12px; font-family: 'Sora', sans-serif;
-            background: #fff; color: var(--pcs-text);
-        }
-        .btn-calc {
-            height: 34px; background: var(--pcs-navy); color: #fff; border: none;
-            border-radius: 7px; font-size: 12px; font-weight: 600;
-            padding: 0 18px; cursor: pointer; font-family: 'Sora', sans-serif;
-            transition: background 0.15s;
-        }
-        .btn-calc:hover { background: var(--pcs-blue); }
-
-        .range-res { display: none; margin-left: auto; gap: 28px; }
-        .range-res.show { display: flex; }
-        .rr-label { font-size: 9px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: var(--pcs-muted); margin-bottom: 2px; }
-        .rr-val { font-size: 24px; font-weight: 800; color: var(--pcs-text); line-height: 1; }
-        .rr-val.danger { color: var(--pcs-danger); }
-
-        .cal-body { padding: 20px; background: #fff; border-bottom: 1px solid var(--pcs-border); }
-        .cal-legend { padding: 11px 22px; background: #fff; display: flex; gap: 16px; flex-wrap: wrap; }
-        .cal-legend span { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--pcs-muted); font-weight: 400; }
-        .cl-dot { width: 9px; height: 9px; border-radius: 3px; }
-
-        .fc .fc-toolbar-title { font-size: 14px; font-weight: 700; font-family: 'Sora', sans-serif; }
-        .fc .fc-button-primary { background: var(--pcs-navy)!important; border: 0!important; border-radius: 6px!important; font-size: 11px!important; padding: 4px 10px; font-family: 'Sora', sans-serif!important; }
-        .fc .fc-button-primary:hover { background: var(--pcs-blue)!important; }
-
-        /* trash icon */
-        .btn-del { background: none; border: none; cursor: pointer; padding: 4px; border-radius: 6px; transition: background 0.15s; }
-        .btn-del:hover { background: #FEF0F0; }
-        .btn-del i { color: #C8D0DC; font-size: 13px; transition: color 0.15s; }
-        .btn-del:hover i { color: var(--pcs-danger); }
+        .fc .fc-toolbar-title { font-size: 14px; font-weight: 700; }
+        .btn-del { background: none; border: none; cursor: pointer; padding: 4px; color: #C8D0DC; }
+        .btn-del:hover { color: var(--pcs-danger); }
     </style>
 </head>
 <body>
 
-<!-- ═══════════ TOPBAR ═══════════ -->
 <nav class="topbar">
     <div class="topbar-left">
-        <img class="topbar-logo"
-             src="https://pcs.gr/wp-content/uploads/2025/05/Logo.svg"
-             alt="PCS"
-             onerror="this.style.display='none'; document.querySelector('.topbar-logo-fallback').style.display='block';">
-        <span class="topbar-logo-fallback">PCS</span>
+        <img class="topbar-logo" src="https://pcs.gr/wp-content/uploads/2025/05/Logo.svg" alt="PCS">
         <div class="topbar-sep"></div>
         <span class="topbar-module">Attendance Management</span>
     </div>
-    <a href="{% url 'log_attendance' %}" class="btn-pcs">
-        <i class="fas fa-plus"></i> Καταχώρηση
-    </a>
+    <a href="{% url 'log_attendance' %}" class="btn-pcs"><i class="fas fa-plus"></i> Καταχώρηση</a>
 </nav>
 
-<!-- ═══════════ PAGE HERO ═══════════ -->
 <div class="page-hero">
     <h1>Attendance Dashboard</h1>
     <p>Παρακολούθηση και διαχείριση παρουσιών προσωπικού</p>
 </div>
 
-<!-- ═══════════ LAYOUT ═══════════ -->
 <div class="layout">
-
-    <!-- ── SIDEBAR ── -->
     <aside style="display:flex; flex-direction:column; gap:20px;">
-
         <div class="pcs-card pcs-card-accent">
             <div class="pcs-card-head"><i class="fas fa-user-plus"></i>Νέα Εγγραφή</div>
             <div style="padding:16px;">
@@ -347,7 +103,7 @@
                     {% csrf_token %}
                     <div class="form-field"><input type="text" name="full_name" placeholder="Ονοματεπώνυμο" required></div>
                     <div class="form-field"><input type="email" name="email" placeholder="Email" required></div>
-                    <div class="form-field"><input type="date" name="date_joined" required title="Ημερομηνία εγγραφής στο σύστημα"></div>
+                    <div class="form-field"><input type="date" name="date_joined" required></div>
                     <button type="submit" class="btn-save">Αποθήκευση</button>
                 </form>
             </div>
@@ -356,137 +112,47 @@
         <div class="pcs-card pcs-card-accent">
             <div class="pcs-card-head"><i class="fas fa-chart-pie"></i>Σημερινή Εικόνα</div>
             <div style="padding:14px 18px;">
-                <div class="stat-row">
-                    <span class="stat-label"><div class="stat-dot" style="background:var(--pcs-blue);"></div>Στο Γραφείο</span>
-                    <span class="stat-val">{{ stats_today.office }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label"><div class="stat-dot" style="background:#0EA5E9;"></div>Τηλεργασία</span>
-                    <span class="stat-val">{{ stats_today.remote }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label"><div class="stat-dot" style="background:var(--pcs-success);"></div>Άδεια / Ασθ.</span>
-                    <span class="stat-val">{{ stats_today.leave }}</span>
-                </div>
-                <div class="stat-row" style="margin-top:8px; padding-top:12px; border-top:2px solid var(--pcs-border);">
-                    <span class="stat-label" style="font-weight:600; color:var(--pcs-text);">Σύνολο</span>
-                    <span class="stat-val" style="background:var(--pcs-navy); color:#fff; border-color:var(--pcs-navy); font-size:17px; padding:3px 14px;">
-                        {{ stats_today.total_emps }}
-                    </span>
-                </div>
+                <div class="stat-row"><span>Στο Γραφείο</span><span class="stat-val">{{ stats_today.office }}</span></div>
+                <div class="stat-row"><span>Τηλεργασία</span><span class="stat-val">{{ stats_today.remote }}</span></div>
+                <div class="stat-row"><span>Σύνολο</span><span class="stat-val" style="background:var(--pcs-navy); color:#fff;">{{ stats_today.total_emps }}</span></div>
             </div>
         </div>
-
     </aside>
 
-    <!-- ── MAIN TABLE ── -->
     <main>
         <div class="pcs-card">
-            <div class="pcs-card-head" style="padding:15px 22px;">
-                <i class="fas fa-users"></i>Λίστα Προσωπικού
-            </div>
-            <div class="table-responsive">
-                <table class="pcs-table">
-                    <thead>
-                        <tr>
-                            <th>Υπάλληλος</th>
-                            <th style="text-align:center;">Γραφείο</th>
-                            <th style="text-align:center;">Σύνολο</th>
-                            <th style="text-align:center;">Κατάσταση</th>
-                            <th style="width:48px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for emp in employees %}
-                        <tr class="data-row" onclick="toggleCal('{{ emp.id }}')">
-                            <td>
-                                <div style="display:flex; align-items:center;">
-                                    <div class="emp-avatar">{{ emp.name|slice:":2"|upper }}</div>
-                                    <div>
-                                        <div class="emp-name">{{ emp.name }}</div>
-                                        <div class="emp-email">{{ emp.email }}</div>
-                                        <div class="emp-join"><i class="fas fa-calendar-alt" style="font-size:8px;"></i>{{ emp.date_joined }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="text-align:center;">
-                                <span class="num">{{ emp.office }}</span>
-                                <span class="num-sub"> / 8</span>
-                            </td>
-                            <td style="text-align:center;">
-                                <span class="num">{{ emp.total }}</span>
-                            </td>
-                            <td style="text-align:center;">
-                                {% if emp.is_ok and emp.monthly_remaining == 0 %}
-                                    <span class="badge-pcs badge-ok">
-                                        <i class="fas fa-check-circle"></i> Εντάξει
-                                    </span>
-                                {% else %}
-                                    <div class="debt-wrap">
-                                        {% if not emp.is_ok %}
-                                        <span class="badge-pcs badge-err debt-badge">
-                                            <i class="fas fa-exclamation-circle"></i> Χρέος −{{ emp.debt }}
-                                            <span class="debt-tip">
-                                                Συνολικό χρέος: {{ emp.debt }} ημέρες<br>
-                                                (περιλαμβάνει μεταφορές από προηγ. μήνες)
-                                            </span>
-                                        </span>
-                                        {% endif %}
-                                        {% if emp.monthly_remaining > 0 %}
-                                        <span class="badge-pcs badge-warn">
-                                            Μηνιαίο −{{ emp.monthly_remaining }}/8
-                                        </span>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            </td>
-                            <td onclick="event.stopPropagation()" style="text-align:center;">
-                                <button class="btn-del" onclick="confirmDel('{{ emp.id }}','{{ emp.name }}')" title="Διαγραφή">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- Calendar expand row -->
-                        <tr id="cal-{{ emp.id }}" class="cal-row">
-                            <td colspan="5" style="padding:0;">
-                                <div class="cal-toolbar">
-                                    <div class="tf-group">
-                                        <label>ΑΠΟ</label>
-                                        <input type="date" id="s-{{ emp.id }}">
-                                    </div>
-                                    <div class="tf-group">
-                                        <label>ΕΩΣ</label>
-                                        <input type="date" id="e-{{ emp.id }}">
-                                    </div>
-                                    <button class="btn-calc" onclick="calcRange('{{ emp.id }}')">
-                                        <i class="fas fa-calculator" style="margin-right:6px;"></i>Υπολογισμός
-                                    </button>
-                                    <div id="res-box-{{ emp.id }}" class="range-res">
-                                        <div>
-                                            <div class="rr-label">Γραφείο</div>
-                                            <div class="rr-val danger" id="ro-{{ emp.id }}">0</div>
-                                        </div>
-                                        <div>
-                                            <div class="rr-label">Σύνολο</div>
-                                            <div class="rr-val" id="rt-{{ emp.id }}">0</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="cal-body"><div id="calendar-{{ emp.id }}"></div></div>
-                                <div class="cal-legend">
-                                    <span><div class="cl-dot" style="background:#1565C0;"></div>Γραφείο</span>
-                                    <span><div class="cl-dot" style="background:#0EA5E9;"></div>Τηλεργασία</span>
-                                    <span><div class="cl-dot" style="background:#10B981;"></div>Άδεια</span>
-                                    <span><div class="cl-dot" style="background:#F59E0B;"></div>Ασθένεια</span>
-                                    <span><div class="cl-dot" style="background:#FFC107;"></div>Αργία</span>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <div class="pcs-card-head" style="padding:15px 22px;"><i class="fas fa-users"></i>Λίστα Προσωπικού</div>
+            <table class="pcs-table">
+                <thead>
+                    <tr>
+                        <th>Υπάλληλος</th>
+                        <th style="text-align:center;">Γραφείο</th>
+                        <th style="text-align:center;">Κατάσταση</th>
+                        <th style="width:48px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in employees %}
+                    <tr class="data-row" onclick="toggleCal('{{ emp.id }}')">
+                        <td>
+                            <div style="display:flex; align-items:center;">
+                                <div class="emp-avatar">{{ emp.name|slice:":2"|upper }}</div>
+                                <div><div class="emp-name">{{ emp.name }}</div><div class="emp-email">{{ emp.email }}</div></div>
+                            </div>
+                        </td>
+                        <td style="text-align:center;"><span style="font-weight:700;">{{ emp.office }}</span> / 8</td>
+                        <td style="text-align:center;">
+                            {% if emp.is_ok %}<span class="badge-pcs badge-ok">Εντάξει</span>
+                            {% else %}<span class="badge-pcs badge-err">Χρέος -{{ emp.debt }}</span>{% endif %}
+                        </td>
+                        <td onclick="event.stopPropagation()"><button class="btn-del" onclick="confirmDel('{{ emp.id }}','{{ emp.name }}')"><i class="fas fa-trash-alt"></i></button></td>
+                    </tr>
+                    <tr id="cal-{{ emp.id }}" class="cal-row">
+                        <td colspan="4" style="padding:0;"><div class="cal-body"><div id="calendar-{{ emp.id }}"></div></div></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </main>
 </div>
@@ -504,9 +170,59 @@
             row.classList.add('open');
             if (!calendars[id]) {
                 const cal = new FullCalendar.Calendar(document.getElementById(`calendar-${id}`), {
-                    initialView: 'dayGridMonth', locale: 'el', height: 340,
-                    headerToolbar: { left: 'prev,next', center: 'title', right: '' },
-                    events: (eventsData[id] || []).concat(holidays)
+                    initialView: 'dayGridMonth', locale: 'el', height: 400,
+                    events: (eventsData[id] || []).concat(holidays),
+                    eventClick: function(info) {
+                        if (info.event.title.includes('🎉')) return;
+
+                        const dateStr = info.event.startStr;
+
+                        Swal.fire({
+                            title: 'Ενημέρωση Παρουσίας',
+                            html: `
+                                <div style="margin-top:10px; text-align:left;">
+                                    <label style="font-size:12px; font-weight:600; color:#6B7A99;">ΕΠΙΛΕΞΤΕ ΤΥΠΟ ΓΙΑ: ${info.event.start.toLocaleDateString('el-GR')}</label>
+                                    <select id="swal-work-type" class="form-select mt-2" style="font-family:'Sora',sans-serif; font-size:14px;">
+                                        <option value="OFFICE" ${info.event.title.includes('Γραφείο') ? 'selected' : ''}>🏢 Γραφείο</option>
+                                        <option value="REMOTE" ${info.event.title.includes('Τηλεργασία') ? 'selected' : ''}>💻 Τηλεργασία</option>
+                                        <option value="LEAVE" ${info.event.title.includes('Άδεια') ? 'selected' : ''}>✈️ Άδεια</option>
+                                        <option value="SICK" ${info.event.title.includes('Ασθένεια') ? 'selected' : ''}>🩺 Ασθένεια</option>
+                                    </select>
+                                </div>
+                            `,
+                            showCancelButton: true,
+                            confirmButtonText: 'Αποθήκευση',
+                            cancelButtonText: 'Άκυρο',
+                            confirmButtonColor: '#1565C0',
+                            preConfirm: () => {
+                                return document.getElementById('swal-work-type').value;
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                fetch('/update-attendance-ajax/', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRFToken': '{{ csrf_token }}'
+                                    },
+                                    body: JSON.stringify({
+                                        emp_id: id,
+                                        date: dateStr,
+                                        work_type: result.value
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.status === 'success') {
+                                        Swal.fire({ icon: 'success', title: 'Έγινε!', text: 'Η αλλαγή αποθηκεύτηκε.', timer: 1500, showConfirmButton: false })
+                                        .then(() => location.reload());
+                                    } else {
+                                        Swal.fire('Σφάλμα', 'Η αλλαγή δεν αποθηκεύτηκε.', 'error');
+                                    }
+                                });
+                            }
+                        });
+                    }
                 });
                 cal.render();
                 calendars[id] = true;
@@ -514,29 +230,11 @@
         }
     }
 
-    function calcRange(id) {
-        const sVal = document.getElementById(`s-${id}`).value;
-        const eVal = document.getElementById(`e-${id}`).value;
-        if (!sVal || !eVal) return Swal.fire({ icon: 'info', title: 'Προσοχή', text: 'Επιλέξτε εύρος ημερομηνιών', confirmButtonColor: '#0B1D3C' });
-        const s = new Date(sVal), e = new Date(eVal);
-        let off = 0, total = 0;
-        (eventsData[id] || []).forEach(ev => {
-            const d = new Date(ev.start);
-            if (d >= s && d <= e) { total++; if (ev.title.includes('Γραφείο')) off++; }
-        });
-        document.getElementById(`ro-${id}`).innerText = off;
-        document.getElementById(`rt-${id}`).innerText = total;
-        document.getElementById(`res-box-${id}`).classList.add('show');
-    }
-
     function confirmDel(id, name) {
         Swal.fire({
             title: 'Διαγραφή;',
-            html: `<span style="font-size:14px;">Οριστική διαγραφή του/της <strong>${name}</strong>;<br>Θα διαγραφούν και όλες οι καταχωρήσεις του/της.</span>`,
-            icon: 'warning', showCancelButton: true,
-            confirmButtonColor: '#E02424', cancelButtonColor: '#6B7A99',
-            confirmButtonText: 'Ναι, διαγραφή', cancelButtonText: 'Άκυρο',
-            borderRadius: '12px'
+            text: `Οριστική διαγραφή του/της ${name};`,
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#E02424', confirmButtonText: 'Διαγραφή'
         }).then(r => {
             if (r.isConfirmed) {
                 const form = document.createElement('form');
@@ -549,12 +247,8 @@
     }
 
     {% if messages %}{% for m in messages %}
-    Swal.fire({
-        icon: '{{ m.tags }}' === 'error' ? 'error' : 'success',
-        text: '{{ m }}', timer: 2800, showConfirmButton: false,
-        toast: true, position: 'top-end'
-    });
+    Swal.fire({ icon: '{{ m.tags }}' === 'error' ? 'error' : 'success', text: '{{ m }}', timer: 2800, showConfirmButton: false, toast: true, position: 'top-end' });
     {% endfor %}{% endif %}
 </script>
 </body>
-</html>
+</html> υ

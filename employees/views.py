@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from .models import Employee, Attendance
 from .forms import EmployeeForm, AttendanceForm
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 def get_greek_holidays():
@@ -95,3 +97,39 @@ def log_attendance(request):
         'form': form,
         'holidays_js': json.dumps([d.strftime('%Y-%m-%d') for d in gr_holidays.keys()])
     })
+
+
+def edit_attendance(request, att_id):
+    attendance = get_object_or_404(Attendance, id=att_id)
+    if request.method == 'POST':
+        form = AttendanceForm(request.POST, instance=attendance)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "✅ Η καταχώρηση ενημερώθηκε επιτυχώς!")
+            return redirect('manage_employees')
+    else:
+        form = AttendanceForm(instance=attendance)
+
+    return render(request, 'employees/log_attendance.html', {
+        'form': form,
+        'edit_mode': True,
+        'attendance': attendance
+    })
+
+
+@csrf_exempt
+def update_attendance_ajax(request):
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        emp_id = data.get('emp_id')
+        new_type = data.get('work_type')  # 'OFFICE' ή 'REMOTE'
+        date_str = data.get('date')
+
+        # Βρίσκουμε την εγγραφή και την ενημερώνουμε
+        attendance = Attendance.objects.filter(employee_id=emp_id, date=date_str).first()
+        if attendance:
+            attendance.work_type = new_type
+            attendance.save()
+            return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)

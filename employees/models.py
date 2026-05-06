@@ -6,26 +6,19 @@ import holidays
 
 
 def _count_required_office_days(year, month, from_day, to_day, gr_holidays):
-    """
-    Μετράει πόσες εβδομάδες περνάνε σε ένα διάστημα [from_day, to_day]
-    μέσα στον ίδιο μήνα/χρόνο και υπολογίζει τις απαιτούμενες ημέρες γραφείου
-    (2 ανά εβδομάδα, αφαιρώντας αργίες σε καθημερινές).
-    Μέγιστο 8 ημέρες ανά μήνα.
-    """
+
     weeks = 0
     holidays_on_weekdays = 0
     curr = from_day
 
     while curr <= to_day:
         if curr.weekday() < 5:  # Καθημερινή
-            if curr in gr_holidays:
-                holidays_on_weekdays += 1
             # Νέα εβδομάδα: κάθε Δευτέρα ή η πρώτη μέρα μέτρησης
             if curr.weekday() == 0 or curr == from_day:
                 weeks += 1
         curr += timedelta(days=1)
 
-    required = (weeks * 2) - holidays_on_weekdays
+    required = (weeks * 2)
     return max(0, min(8, required))
 
 
