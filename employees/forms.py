@@ -5,7 +5,7 @@ from .models import Employee, Attendance
 class EmployeeForm(forms.ModelForm):
     class Meta:
         model  = Employee
-        fields = ['full_name', 'email']
+        fields = ['full_name', 'email', 'date_joined']
         widgets = {
             'full_name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -14,6 +14,10 @@ class EmployeeForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'π.χ. gpapadopoulos@company.gr'
+            }),
+            'date_joined': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
             }),
         }
 

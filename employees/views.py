@@ -1,13 +1,12 @@
 import json, holidays
 from datetime import date
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Q
+from django.views.decorators.http import require_POST
 from .models import Employee, Attendance
 from .forms import EmployeeForm, AttendanceForm
 
 
-# Helper συνάρτηση για τις αργίες
 def get_greek_holidays():
     gr_holidays = holidays.Greece(years=date.today().year)
     events = [{
@@ -28,17 +27,14 @@ def manage_employees(request):
         messages.error(request, "❌ Σφάλμα στην εγγραφή.")
 
     form = EmployeeForm()
-    # Χρήση prefetch_related για να μην "χτυπάμε" τη βάση σε κάθε loop
     employees_qs = Employee.objects.prefetch_related('attendance_set').all()
     gr_holidays, holiday_events = get_greek_holidays()
 
     data = []
-    # Mapping χρωμάτων για καθαρότερο κώδικα
     colors = {'OFFICE': '#e30613', 'REMOTE': '#0ea5e9', 'LEAVE': '#10b981', 'SICK': '#f59e0b'}
 
     for emp in employees_qs:
         report = emp.get_monthly_report()
-        # Δημιουργία events λίστας με list comprehension
         events_list = [{
             'title': a.get_work_type_display(),
             'start': a.date.strftime('%Y-%m-%d'),
@@ -46,13 +42,18 @@ def manage_employees(request):
         } for a in emp.attendance_set.all()]
 
         data.append({
-            'id': emp.id, 'name': emp.full_name, 'email': emp.email,
-            'office': report['office_days'], 'total': report['total_days'],
-            'is_ok': report['is_ok'], 'debt': report['debt'],
+            'id': emp.id,
+            'name': emp.full_name,
+            'email': emp.email,
+            'date_joined': emp.date_joined.strftime('%d/%m/%Y'),
+            'office': report['office_days'],
+            'total': report['total_days'],
+            'is_ok': report['is_ok'],
+            'debt': report['debt'],
+            'monthly_remaining': report['monthly_remaining'],
             'events_json': json.dumps(events_list)
         })
 
-    # Stats Today
     today = date.today()
     today_atts = Attendance.objects.filter(date=today)
     stats_today = {
@@ -67,6 +68,15 @@ def manage_employees(request):
         'holidays_js': json.dumps([d.strftime('%Y-%m-%d') for d in gr_holidays.keys()]),
         'holidays_events_json': json.dumps(holiday_events),
     })
+
+
+@require_POST
+def delete_employee(request, employee_id):
+    emp = get_object_or_404(Employee, id=employee_id)
+    name = emp.full_name
+    emp.delete()
+    messages.success(request, f"✅ Ο/Η {name} διαγράφηκε.")
+    return redirect('manage_employees')
 
 
 def log_attendance(request):

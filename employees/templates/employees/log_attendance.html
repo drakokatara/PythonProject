@@ -3,95 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCS Attendance</title>
+    <title>PCS Attendance | Καταχώρηση</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        :root { --red: #CC2200; --red-s: #FFF0ED; --dark: #111; --muted: #999; --border: #E8E8E8; --bg: #F5F4F1; --surface: #FFF; }
-        body { background: var(--bg); font-family: 'DM Sans', sans-serif; font-size: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .back-btn { position: fixed; top: 20px; left: 20px; width: 38px; height: 38px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: #555; text-decoration: none; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .back-btn:hover { background: var(--dark); color: #fff; transform: scale(1.1); }
-        .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 25px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.05); }
-        .field-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: block; letter-spacing: 0.5px; }
-        .field-group select, .field-group input { width: 100%; height: 40px; border: 1px solid var(--border); border-radius: 8px; background: #FAFAFA; padding: 0 12px; margin-bottom: 15px; }
-        .work-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .work-opt { border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: 0.15s; background: #FAFAFA; }
-        .work-opt:hover { border-color: #CCC; background: #fff; }
-        .work-opt-icon { font-size: 18px; }
-        .work-opt-label { font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--muted); }
-        /* Active States */
-        .active-OFFICE { background: var(--red-s); border-color: var(--red); }
-        .active-REMOTE { background: #EFF6FF; border-color: #0284C7; }
-        .active-LEAVE { background: #F0FDF4; border-color: #16A34A; }
-        .active-SICK { background: #FFFBEB; border-color: #D97706; }
-        .warn-box { display: none; padding: 10px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; font-size: 12px; color: #D97706; margin-bottom: 15px; }
-        .btn-submit { width: 100%; height: 45px; border: none; border-radius: 10px; background: var(--dark); color: #fff; font-weight: 500; transition: 0.2s; }
-        .btn-submit:hover:not(:disabled) { background: var(--red); }
-        .btn-submit:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+        :root {
+            --navy:    #0B1F3A;
+            --navy-m:  #102848;
+            --accent:  #1E6FBF;
+            --accent-l:#2E86D4;
+            --border:  #E2E8F0;
+            --bg:      #F4F6FA;
+            --surface: #FFFFFF;
+            --muted:   #64748B;
+            --success: #10B981;
+            --danger:  #EF4444;
+            --text:    #0F172A;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--bg); font-family: 'Inter', sans-serif; font-size: 14px;
+            min-height: 100vh; margin: 0; color: var(--text);
+            display: flex; flex-direction: column;
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            background: var(--navy); height: 60px; padding: 0 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.25); flex-shrink: 0;
+        }
+        .topbar-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .topbar-logo img { height: 28px; filter: brightness(0) invert(1); }
+        .topbar-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.2); }
+        .topbar-label { color: rgba(255,255,255,0.65); font-size: 12px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+        .back-link-top {
+            color: rgba(255,255,255,0.75); text-decoration: none; font-size: 13px;
+            font-weight: 500; display: flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.15);
+            transition: 0.18s;
+        }
+        .back-link-top:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+        /* ── Main content ── */
+        .main-content {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            padding: 32px 20px;
+        }
+
+        /* ── Card ── */
+        .log-card {
+            background: var(--surface); width: 100%; max-width: 460px;
+            border-radius: 16px; border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 20px 40px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .log-card-header {
+            background: var(--navy); padding: 28px 32px 24px;
+            text-align: center;
+        }
+        .log-card-header .icon-wrap {
+            width: 52px; height: 52px; border-radius: 14px;
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 22px; margin-bottom: 14px;
+        }
+        .log-card-header h4 {
+            font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 700;
+            color: #fff; margin: 0 0 6px;
+        }
+        .log-card-header p { color: rgba(255,255,255,0.6); font-size: 13px; margin: 0; }
+        .log-card-body { padding: 28px 32px 32px; }
+
+        /* ── Field labels ── */
+        .field-label {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.7px; color: var(--muted); margin-bottom: 6px; display: block;
+        }
+
+        /* ── Inputs ── */
+        select, input[type="date"] {
+            width: 100%; height: 42px; border: 1px solid var(--border); border-radius: 9px;
+            background: var(--bg); padding: 0 12px; margin-bottom: 20px;
+            font-size: 13px; color: var(--text); transition: 0.18s; font-family: 'Inter', sans-serif;
+        }
+        select:focus, input[type="date"]:focus {
+            outline: none; border-color: var(--accent); background: #fff;
+            box-shadow: 0 0 0 3px rgba(30,111,191,0.12);
+        }
+
+        /* ── Work type grid ── */
+        .work-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .work-opt {
+            border: 1.5px solid var(--border); border-radius: 11px; padding: 16px 10px;
+            text-align: center; cursor: pointer; transition: 0.15s; background: var(--bg);
+            user-select: none; position: relative; overflow: hidden;
+        }
+        .work-opt:hover { border-color: #94A3B8; background: #fff; transform: translateY(-1px); }
+        .work-opt-icon { font-size: 24px; margin-bottom: 6px; display: block; }
+        .work-opt-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+
+        .active-OFFICE { background: #EFF6FF!important; border-color: var(--accent)!important; }
+        .active-OFFICE .work-opt-label { color: var(--accent)!important; }
+        .active-REMOTE { background: #F0F9FF!important; border-color: #0284C7!important; }
+        .active-REMOTE .work-opt-label { color: #0284C7!important; }
+        .active-LEAVE  { background: #ECFDF5!important; border-color: #059669!important; }
+        .active-LEAVE  .work-opt-label { color: #059669!important; }
+        .active-SICK   { background: #FFFBEB!important; border-color: #D97706!important; }
+        .active-SICK   .work-opt-label { color: #D97706!important; }
+
+        /* ── Warn ── */
+        .warn-box {
+            display: none; padding: 11px 14px; background: #FEF2F2;
+            border: 1px solid #FECACA; border-radius: 9px;
+            font-size: 12px; color: #DC2626; margin-bottom: 20px;
+            display: none; align-items: center; gap: 8px;
+        }
+
+        /* ── Submit ── */
+        .btn-submit {
+            width: 100%; height: 46px; border: none; border-radius: 10px;
+            background: var(--navy); color: #fff; font-weight: 600; font-size: 14px;
+            transition: 0.2s; cursor: pointer; font-family: 'Inter', sans-serif;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-submit:hover:not(:disabled) { background: var(--accent); box-shadow: 0 4px 16px rgba(30,111,191,0.35); transform: translateY(-1px); }
+        .btn-submit:disabled { background: #CBD5E1; color: #94A3B8; cursor: not-allowed; }
+
         #id_work_type { display: none !important; }
     </style>
 </head>
 <body>
 
-<a href="{% url 'manage_employees' %}" class="back-btn"><i class="fas fa-arrow-left"></i></a>
-<div class="form-card">
-    <div class="fw-bold mb-3 text-center">Καταχώρηση ημέρας</div>
-    <form method="post" id="att-form">
-        {% csrf_token %}
-        <div class="field-group"><label class="field-label">Συνεργάτης</label>{{ form.employee }}</div>
-        <div class="field-group"><label class="field-label">Ημερομηνία</label>{{ form.date }}</div>
-        <label class="field-label">Κατάσταση</label>
-        {{ form.work_type }}
-        <div class="work-grid">
-            <div class="work-opt" id="opt-OFFICE" onclick="sel('OFFICE')"><div class="work-opt-icon">🏢</div><div class="work-opt-label">Γραφείο</div></div>
-            <div class="work-opt" id="opt-REMOTE" onclick="sel('REMOTE')"><div class="work-opt-icon">💻</div><div class="work-opt-label">Τηλεργασία</div></div>
-            <div class="work-opt" id="opt-LEAVE" onclick="sel('LEAVE')"><div class="work-opt-icon">✈️</div><div class="work-opt-label">Άδεια</div></div>
-            <div class="work-opt" id="opt-SICK" onclick="sel('SICK')"><div class="work-opt-icon">🩺</div><div class="work-opt-label">Ασθένεια</div></div>
+<!-- ── Topbar ── -->
+<nav class="topbar">
+    <div class="topbar-logo">
+        <img src="https://pcs.gr/wp-content/uploads/2025/05/Logo.svg" alt="PCS" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span style="display:none; color:#fff; font-family:'Sora',sans-serif; font-weight:700; font-size:18px; letter-spacing:-0.5px;">PCS</span>
+        <div class="topbar-divider"></div>
+        <span class="topbar-label">Attendance</span>
+    </div>
+    <a href="{% url 'manage_employees' %}" class="back-link-top">
+        <i class="fas fa-arrow-left"></i> Επιστροφή
+    </a>
+</nav>
+
+<!-- ── Main ── -->
+<div class="main-content">
+    <div class="log-card">
+        <div class="log-card-header">
+            <div class="icon-wrap">📋</div>
+            <h4>Καταχώρηση Ημέρας</h4>
+            <p>Συμπληρώστε την παρουσία εργαζομένου</p>
         </div>
-        <div class="warn-box" id="warn"></div>
-        <button type="submit" class="btn-submit" id="sub-btn">Αποθήκευση</button>
-    </form>
+
+        <div class="log-card-body">
+            <form method="post" id="log-form">
+                {% csrf_token %}
+
+                <label class="field-label">Συνεργάτης</label>
+                {{ form.employee }}
+
+                <label class="field-label">Ημερομηνία</label>
+                {{ form.date }}
+
+                <label class="field-label">Τύπος Εργασίας</label>
+                {{ form.work_type }}
+
+                <div class="work-grid">
+                    <div class="work-opt" id="opt-OFFICE" onclick="sel('OFFICE')">
+                        <span class="work-opt-icon">🏢</span>
+                        <div class="work-opt-label">Γραφείο</div>
+                    </div>
+                    <div class="work-opt" id="opt-REMOTE" onclick="sel('REMOTE')">
+                        <span class="work-opt-icon">💻</span>
+                        <div class="work-opt-label">Τηλεργασία</div>
+                    </div>
+                    <div class="work-opt" id="opt-LEAVE" onclick="sel('LEAVE')">
+                        <span class="work-opt-icon">✈️</span>
+                        <div class="work-opt-label">Άδεια</div>
+                    </div>
+                    <div class="work-opt" id="opt-SICK" onclick="sel('SICK')">
+                        <span class="work-opt-icon">🩺</span>
+                        <div class="work-opt-label">Ασθένεια</div>
+                    </div>
+                </div>
+
+                <div class="warn-box" id="warn">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="warn-text"></span>
+                </div>
+
+                <button type="submit" class="btn-submit" id="sub-btn">
+                    <i class="fas fa-check-circle"></i> Υποβολή Καταχώρησης
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
-    const holidays = {{ holidays_js|safe }},
-          f = document.getElementById('id_work_type'),
-          dIn = document.querySelector('input[type="date"]'),
-          btn = document.getElementById('sub-btn'),
-          wrn = document.getElementById('warn');
+    const logHols   = {{ holidays_js|safe }};
+    const wtSelect  = document.getElementById('id_work_type');
+    const dateInput = document.querySelector('input[type="date"]');
+    const btnSubmit = document.getElementById('sub-btn');
+    const warnBox   = document.getElementById('warn');
+    const warnText  = document.getElementById('warn-text');
 
-    function val() {
-        const d = new Date(dIn.value), day = d.getDay(),
-              isRestricted = (day === 0 || day === 6 || holidays.includes(dIn.value)),
-              isWork = (f.value === 'OFFICE' || f.value === 'REMOTE');
+    function validate() {
+        if (!dateInput.value) return;
+        const d = new Date(dateInput.value), day = d.getDay();
+        const isWeekend = (day === 0 || day === 6);
+        const isHoliday = logHols.includes(dateInput.value);
+        const isWork    = (wtSelect.value === 'OFFICE' || wtSelect.value === 'REMOTE');
 
-        if (isWork && isRestricted) {
-            wrn.style.display = 'block';
-            wrn.innerText = day === 0 || day === 6 ? 'Σαββατοκύριακο - Μη επιτρεπτή εργασία' : 'Αργία - Μη επιτρεπτή εργασία';
-            btn.disabled = true;
+        if (isWork && (isWeekend || isHoliday)) {
+            warnBox.style.display = 'flex';
+            warnText.innerText = isWeekend ? 'Δεν επιτρέπεται εργασία το Σαββατοκύριακο.' : 'Η ημέρα αυτή είναι αργία.';
+            btnSubmit.disabled = true;
         } else {
-            wrn.style.display = 'none';
-            btn.disabled = false;
+            warnBox.style.display = 'none';
+            btnSubmit.disabled = false;
         }
     }
 
-    function sel(v) {
-        f.value = v;
-        document.querySelectorAll('.work-opt').forEach(el => {
-            el.classList.remove('active-OFFICE', 'active-REMOTE', 'active-LEAVE', 'active-SICK');
-            if(el.id === `opt-${v}`) el.classList.add(`active-${v}`);
-        });
-        val();
+    function sel(val) {
+        wtSelect.value = val;
+        document.querySelectorAll('.work-opt').forEach(el =>
+            el.classList.remove('active-OFFICE', 'active-REMOTE', 'active-LEAVE', 'active-SICK')
+        );
+        document.getElementById(`opt-${val}`).classList.add(`active-${val}`);
+        validate();
     }
 
-    dIn.onchange = val;
-    window.onload = () => { if(!dIn.value) dIn.value = new Date().toISOString().split('T')[0]; sel('OFFICE'); };
+    dateInput.addEventListener('change', validate);
+
+    window.addEventListener('load', () => {
+        if (!dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+        sel('OFFICE');
+    });
 
     {% if messages %}{% for m in messages %}
-    Swal.fire({ icon: '{{ m.tags }}' === 'error' ? 'error' : 'success', text: '{{ m }}', timer: 2000, showConfirmButton: false });
+    Swal.fire({
+        icon: '{{ m.tags }}' === 'error' ? 'error' : 'success',
+        text: '{{ m }}', timer: 3000, showConfirmButton: false,
+        toast: true, position: 'top-end'
+    });
     {% endfor %}{% endif %}
 </script>
 </body>
