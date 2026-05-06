@@ -5,15 +5,13 @@ import calendar
 import holidays
 
 
-def _count_required_office_days(year, month, from_day, to_day, gr_holidays):
+def _count_required_office_days(from_day, to_day):
 
     weeks = 0
-    holidays_on_weekdays = 0
     curr = from_day
 
     while curr <= to_day:
-        if curr.weekday() < 5:  # Καθημερινή
-            # Νέα εβδομάδα: κάθε Δευτέρα ή η πρώτη μέρα μέτρησης
+        if curr.weekday() < 5:
             if curr.weekday() == 0 or curr == from_day:
                 weeks += 1
         curr += timedelta(days=1)
@@ -37,7 +35,7 @@ class Employee(models.Model):
         today = date.today()
         join = self.date_joined
 
-        # Ξεκινάμε από τον μήνα εγγραφής
+        # Ξεκινάμε από την αρχή του μήνα εγγραφής
         cursor = join.replace(day=1)
         current_month_start = today.replace(day=1)
 
@@ -49,44 +47,37 @@ class Employee(models.Model):
         while cursor <= current_month_start:
             year = cursor.year
             month = cursor.month
-            gr_holidays = holidays.Greece(years=year)
 
             last_day_of_month = date(year, month, calendar.monthrange(year, month)[1])
 
-            # Η πρώτη μέρα μέτρησης: αν είναι ο μήνας εγγραφής, ξεκινάμε από την ημερομηνία εγγραφής
+            # Καθορισμός εύρους ημερών για τον υπολογισμό
             if cursor.year == join.year and cursor.month == join.month:
                 from_day = join
             else:
                 from_day = cursor
 
-            # Η τελευταία μέρα μέτρησης: αν είναι ο τρέχων μήνας, μέχρι σήμερα
             if cursor.year == today.year and cursor.month == today.month:
                 to_day = today
             else:
                 to_day = last_day_of_month
 
-            required = _count_required_office_days(year, month, from_day, to_day, gr_holidays)
+            # Κλήση της καθαρής συνάρτησης
+            required = _count_required_office_days(from_day, to_day)
 
-            # Προσθέτουμε το μεταφερόμενο χρέος στις απαιτήσεις αυτού του μήνα
+            # Συνολικές απαιτήσεις (τρέχουσες + παλιό χρέος)
             total_required = required + carried_debt
 
-            # Ημέρες γραφείου αυτού του μήνα
+            # Ημέρες που όντως ήρθε στο γραφείο αυτόν τον μήνα
             office_days = sum(
                 1 for d, wt in att_by_date.items()
                 if wt == 'OFFICE' and d.year == year and d.month == month
             )
 
-            # Χρέος αυτού του μήνα (αν ο μήνας δεν έχει τελειώσει, δεν μεταφέρουμε ακόμα)
-            month_debt = total_required - office_days
-            if month_debt < 0:
-                month_debt = 0
+            # Υπολογισμός χρέους
+            month_debt = max(0, total_required - office_days)
 
-            # Αν ο μήνας έχει κλείσει, μεταφέρουμε το χρέος
-            if to_day == last_day_of_month:
-                carried_debt = month_debt
-            else:
-                # Τρέχων μήνας — το χρέος δεν μεταφέρεται ακόμα
-                carried_debt = month_debt
+            # Το χρέος μεταφέρεται στον επόμενο κύκλο του loop
+            carried_debt = month_debt
 
             cursor = (cursor + relativedelta(months=1)).replace(day=1)
 
@@ -97,11 +88,8 @@ class Employee(models.Model):
         join = self.date_joined
         year = today.year
         month = today.month
-        gr_holidays = holidays.Greece(years=year)
 
-        last_day_of_month = date(year, month, calendar.monthrange(year, month)[1])
-
-        # Από πότε μετράμε αυτόν τον μήνα
+        # Από πότε μετράμε για τον τρέχοντα μήνα
         if join.year == year and join.month == month:
             from_day = join
         else:
@@ -113,13 +101,14 @@ class Employee(models.Model):
         leave_days = attendances.filter(work_type__in=['LEAVE', 'SICK']).count()
         total_days = office_days + remote_days
 
-        required_this_month = _count_required_office_days(year, month, from_day, today, gr_holidays)
+        # Χρήση της καθαρής συνάρτησης για τον τρέχοντα μήνα
+        required_this_month = _count_required_office_days(from_day, today)
 
-        # Υπολογισμός συνολικού χρέους (με μεταφορές από προηγούμενους μήνες)
+        # Συνολικό χρέος (ιστορικό)
         debt = self.get_cumulative_debt()
         is_ok = (debt == 0)
 
-        # Πόσες ημέρες λείπουν ακόμα για να φτάσει τις 8 του μήνα (ανεξάρτητα από carryover)
+        # Υπόλοιπο μέχρι το πλαφόν των 8 ημερών (ανεξάρτητα από χρέη)
         monthly_remaining = max(0, 8 - office_days)
 
         return {
