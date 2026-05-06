@@ -120,7 +120,6 @@ def edit_attendance(request, att_id):
 @csrf_exempt
 def update_attendance_ajax(request):
     if request.method == 'POST':
-        import json
         data = json.loads(request.body)
         emp_id = data.get('emp_id')
         new_type = data.get('work_type')  # 'OFFICE' ή 'REMOTE'

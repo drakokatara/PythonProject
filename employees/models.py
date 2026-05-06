@@ -34,10 +34,6 @@ class Employee(models.Model):
         return self.full_name
 
     def get_cumulative_debt(self):
-        """
-        Υπολογίζει το συνολικό χρέος από τον μήνα εγγραφής μέχρι σήμερα.
-        Αν ένας μήνας κλείσει με χρέος, αυτό μεταφέρεται στον επόμενο.
-        """
         today = date.today()
         join = self.date_joined
 
