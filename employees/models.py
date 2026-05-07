@@ -1,7 +1,6 @@
 from django.db import models
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
-import calendar
 import holidays
 
 
