@@ -74,6 +74,9 @@
         .cal-row.open { display: table-row; }
         .cal-body { padding: 20px; background: #fff; }
 
+        .range-stats-box { background: var(--pcs-off); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--pcs-border); }
+        .range-result-pill { background: #fff; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--pcs-border); font-weight: 600; font-size: 12px; }
+
         .fc .fc-toolbar-title { font-size: 14px; font-weight: 700; }
         .btn-del { background: none; border: none; cursor: pointer; padding: 4px; color: #C8D0DC; }
         .btn-del:hover { color: var(--pcs-danger); }
@@ -162,7 +165,37 @@
                         <td onclick="event.stopPropagation()"><button class="btn-del" onclick="confirmDel('{{ emp.id }}','{{ emp.name }}')"><i class="fas fa-trash-alt"></i></button></td>
                     </tr>
                     <tr id="cal-{{ emp.id }}" class="cal-row">
-                        <td colspan="4" style="padding:0;"><div class="cal-body"><div id="calendar-{{ emp.id }}"></div></div></td>
+                        <td colspan="4" style="padding:0;">
+                            <div class="cal-body">
+                                <div class="range-stats-box">
+                                    <div style="font-size: 11px; font-weight: 700; color: var(--pcs-muted); text-transform: uppercase; margin-bottom: 10px;">
+                                        <i class="fas fa-filter"></i> Αναφορά ανά Διάστημα
+                                    </div>
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-3">
+                                            <label style="font-size:10px; display:block; margin-bottom:3px;">ΑΠΟ</label>
+                                            <input type="date" id="start-{{ emp.id }}" class="form-control form-control-sm shadow-none">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label style="font-size:10px; display:block; margin-bottom:3px;">ΕΩΣ</label>
+                                            <input type="date" id="end-{{ emp.id }}" class="form-control form-control-sm shadow-none">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button class="btn btn-dark btn-sm w-100" onclick="getRangeStats('{{ emp.id }}')">Υπολογισμός</button>
+                                        </div>
+                                        <div class="col-md-4" id="results-{{ emp.id }}" style="display:none;">
+                                            <div class="d-flex gap-2">
+                                                <div class="range-result-pill">🏢 <span id="off-{{ emp.id }}">0</span></div>
+                                                <div class="range-result-pill">💻 <span id="rem-{{ emp.id }}">0</span></div>
+                                                <div class="range-result-pill">✈️ <span id="leav-{{ emp.id }}">0</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="calendar-{{ emp.id }}"></div>
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -175,6 +208,28 @@
     const eventsData = { {% for emp in employees %}"{{ emp.id }}": {{ emp.events_json|safe }},{% endfor %} };
     const holidays = JSON.parse('{{ holidays_events_json|safe }}');
     const calendars = {};
+
+    function getRangeStats(empId) {
+        const start = document.getElementById(`start-${empId}`).value;
+        const end = document.getElementById(`end-${empId}`).value;
+
+        if(!start || !end) {
+            Swal.fire({ icon: 'warning', title: 'Ελλιπή στοιχεία', text: 'Παρακαλώ επιλέξτε και τις δύο ημερομηνίες.', confirmButtonColor: '#0B1D3C' });
+            return;
+        }
+
+        fetch(`/employee-stats/${empId}/?start=${start}&end=${end}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById(`results-${empId}`).style.display = 'block';
+                document.getElementById(`off-${empId}`).innerText = data.office;
+                document.getElementById(`rem-${empId}`).innerText = data.remote;
+                document.getElementById(`leav-${empId}`).innerText = data.leave;
+            })
+            .catch(err => {
+                Swal.fire('Σφάλμα', 'Δεν ήταν δυνατή η ανάκτηση των στατιστικών.', 'error');
+            });
+    }
 
     function toggleCal(id) {
         const row = document.getElementById(`cal-${id}`);
