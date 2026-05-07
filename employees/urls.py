@@ -7,4 +7,5 @@ urlpatterns = [
     path('delete-employee/<int:employee_id>/', views.delete_employee, name='delete_employee'),
     path('edit-attendance/<int:att_id>/', views.edit_attendance, name='edit_attendance'),
     path('update-attendance-ajax/', views.update_attendance_ajax, name='update_attendance_ajax'),
+    path('employee-stats/<int:employee_id>/', views.employee_range_stats, name='employee_range_stats'),
 ]

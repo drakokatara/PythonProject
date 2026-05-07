@@ -87,6 +87,18 @@ class Employee(models.Model):
             'monthly_remaining': max(0, 8 - office_days),
         }
 
+    def get_stats_for_range(self, start_date, end_date):
+        """
+        Επιστρέφει στατιστικά παρουσίας για ένα συγκεκριμένο εύρος ημερομηνιών.
+        """
+        attendances = self.attendance_set.filter(date__range=[start_date, end_date])
+
+        return {
+            'office': attendances.filter(work_type='OFFICE').count(),
+            'remote': attendances.filter(work_type='REMOTE').count(),
+            'leave': attendances.filter(work_type__in=['LEAVE', 'SICK']).count(),
+        }
+
 
 class Attendance(models.Model):
     WORK_TYPE_CHOICES = [

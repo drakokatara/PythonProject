@@ -132,3 +132,13 @@ def update_attendance_ajax(request):
             attendance.save()
             return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=400)
+
+
+def employee_range_stats(request, employee_id):
+    start_date = request.GET.get('start')
+    end_date = request.GET.get('end')
+
+    employee = get_object_or_404(Employee, id=employee_id)
+    stats = employee.get_stats_for_range(start_date, end_date)
+
+    return JsonResponse(stats)
