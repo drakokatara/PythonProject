@@ -5,9 +5,7 @@ import holidays
 
 
 def _count_required_office_days(from_day, to_day):
-    """
-    Υπολογίζει τις απαιτούμενες ημέρες γραφείου (2 ανά εβδομάδα) για ένα διάστημα.
-    """
+
     weeks = 0
     curr = from_day
     while curr <= to_day:
@@ -36,9 +34,7 @@ class Employee(models.Model):
         return self.full_name
 
     def get_cumulative_debt(self):
-        """
-        Υπολογίζει το χρέος ξεκινώντας ΜΟΝΟ από τον τρέχοντα μήνα.
-        """
+
         today = date.today()
         current_month_start = today.replace(day=1)
 
@@ -88,9 +84,7 @@ class Employee(models.Model):
         }
 
     def get_stats_for_range(self, start_date, end_date):
-        """
-        Επιστρέφει στατιστικά παρουσίας για ένα συγκεκριμένο εύρος ημερομηνιών.
-        """
+
         attendances = self.attendance_set.filter(date__range=[start_date, end_date])
 
         return {
