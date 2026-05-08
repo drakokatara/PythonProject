@@ -12,73 +12,85 @@
 
     <style>
         :root {
-            --pcs-navy:     #0B1D3C;
-            --pcs-blue:     #1565C0;
-            --pcs-blue-l:   #1E7EE0;
+            --pcs-navy:     #450A0A; /* Βαθύ Μπορντό */
+            --pcs-red:      #991B1B; /* Κόκκινο Crimson */
+            --pcs-red-l:    #DC2626; /* Φωτεινό Κόκκινο */
             --pcs-white:    #FFFFFF;
-            --pcs-off:      #F7F8FA;
-            --pcs-border:   #E3E8F0;
-            --pcs-text:     #0D1B2E;
-            --pcs-muted:    #6B7A99;
-            --pcs-danger:   #E02424;
-            --pcs-radius:   10px;
+            --pcs-off:      #FEF2F2; /* Απαλό Ροζ Φόντο */
+            --pcs-border:   #FEE2E2;
+            --pcs-text:     #1F2937;
+            --pcs-muted:    #7F1D1D;
+            --pcs-danger:   #B91C1C;
+            --pcs-radius:   12px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--pcs-off); font-family: 'Sora', sans-serif; font-size: 14px; color: var(--pcs-text); }
 
-        .topbar { background: var(--pcs-navy); height: 64px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        /* Topbar */
+        .topbar { background: var(--pcs-navy); height: 64px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .topbar-left { display: flex; align-items: center; gap: 16px; }
-        .topbar-logo { height: 32px; filter: brightness(0) invert(1); }
-        .topbar-sep { width: 1px; height: 22px; background: rgba(255,255,255,0.18); }
-        .topbar-module { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.55); }
 
-        .btn-pcs { background: var(--pcs-blue); color: #fff; border: none; border-radius: 6px; padding: 9px 22px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.18s; cursor: pointer; }
-        .btn-pcs:hover { background: var(--pcs-blue-l); color: #fff; box-shadow: 0 6px 18px rgba(21,101,192,0.35); }
+        .topbar-brand { font-size: 24px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; line-height: 1; }
+        .topbar-brand span { color: var(--pcs-red-l); } /* Το πρώτο γράμμα ή στυλ */
 
-        .page-hero { background: var(--pcs-navy); padding: 28px 40px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .page-hero h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-        .page-hero p { font-size: 13px; color: rgba(255,255,255,0.5); }
+        .topbar-sep { width: 1px; height: 22px; background: rgba(255,255,255,0.2); }
+        .topbar-module { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7); }
 
-        .layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; padding: 28px 40px; max-width: 1440px; margin: 0 auto; }
+        /* Buttons */
+        .btn-pcs { background: var(--pcs-red); color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; cursor: pointer; }
+        .btn-pcs:hover { background: var(--pcs-red-l); color: #fff; box-shadow: 0 4px 12px rgba(153, 27, 27, 0.3); transform: translateY(-1px); }
+
+        /* Hero */
+        .page-hero { background: var(--pcs-navy); padding: 32px 40px 28px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .page-hero h1 { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .page-hero p { font-size: 14px; color: rgba(255,255,255,0.6); }
+
+        /* Layout & Cards */
+        .layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; padding: 28px 40px; max-width: 1440px; margin: 0 auto; }
         @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } }
 
-        .pcs-card { background: var(--pcs-white); border: 1px solid var(--pcs-border); border-radius: var(--pcs-radius); overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.04); }
-        .pcs-card-head { padding: 13px 20px; border-bottom: 1px solid var(--pcs-border); display: flex; align-items: center; gap: 9px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--pcs-muted); }
-        .pcs-card-head i { color: var(--pcs-blue); }
-        .pcs-card-accent { border-top: 3px solid var(--pcs-blue); }
+        .pcs-card { background: var(--pcs-white); border: 1px solid var(--pcs-border); border-radius: var(--pcs-radius); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .pcs-card-head { padding: 14px 20px; border-bottom: 1px solid var(--pcs-border); display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--pcs-muted); letter-spacing: 0.5px; }
+        .pcs-card-head i { color: var(--pcs-red); }
+        .pcs-card-accent { border-top: 4px solid var(--pcs-red); }
 
-        .form-field { margin-bottom: 10px; }
-        .form-field label { font-size: 10px; font-weight: 700; color: var(--pcs-muted); text-transform: uppercase; margin-bottom: 4px; display: block; }
-        .form-field input { width: 100%; height: 38px; border: 1px solid var(--pcs-border); border-radius: 8px; padding: 0 12px; font-size: 13px; background: var(--pcs-off); }
-        .btn-save { width: 100%; height: 38px; border: none; border-radius: 8px; background: var(--pcs-navy); color: #fff; font-weight: 600; cursor: pointer; margin-top: 4px; }
+        /* Forms */
+        .form-field { margin-bottom: 12px; }
+        .form-field label { font-size: 10px; font-weight: 700; color: var(--pcs-muted); text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .form-field input { width: 100%; height: 40px; border: 1px solid var(--pcs-border); border-radius: 8px; padding: 0 12px; font-size: 13px; background: #FFF5F5; }
+        .form-field input:focus { outline: none; border-color: var(--pcs-red); background: #fff; }
+        .btn-save { width: 100%; height: 40px; border: none; border-radius: 8px; background: var(--pcs-navy); color: #fff; font-weight: 600; cursor: pointer; margin-top: 8px; transition: 0.2s; }
+        .btn-save:hover { background: #000; }
 
-        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--pcs-border); }
-        .stat-val { font-size: 15px; font-weight: 700; background: var(--pcs-off); padding: 2px 10px; border-radius: 6px; }
+        /* Stats */
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--pcs-border); }
+        .stat-val { font-size: 15px; font-weight: 700; background: #FEE2E2; color: #991B1B; padding: 2px 12px; border-radius: 20px; }
 
+        /* Table */
         .pcs-table { width: 100%; border-collapse: collapse; }
-        .pcs-table thead th { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--pcs-muted); padding: 12px 20px; border-bottom: 1px solid var(--pcs-border); background: var(--pcs-off); }
+        .pcs-table thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--pcs-muted); padding: 14px 20px; border-bottom: 1px solid var(--pcs-border); background: #FEF2F2; }
         .pcs-table tbody tr.data-row { border-bottom: 1px solid var(--pcs-border); cursor: pointer; }
-        .pcs-table tbody tr.data-row:hover { background: #F2F5FB; }
-        .pcs-table td { padding: 14px 20px; }
+        .pcs-table tbody tr.data-row:hover { background: #FFF5F5; }
+        .pcs-table td { padding: 16px 20px; }
 
-        .emp-avatar { width: 38px; height: 38px; border-radius: 9px; background: linear-gradient(135deg, var(--pcs-navy) 0%, var(--pcs-blue) 100%); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-right: 13px; }
-        .emp-name { font-weight: 600; }
-        .emp-email { font-size: 11px; color: var(--pcs-muted); }
+        .emp-avatar { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #7F1D1D 0%, #DC2626 100%); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-right: 14px; }
+        .emp-name { font-weight: 600; color: #111827; }
+        .emp-email { font-size: 12px; color: #6B7280; }
 
-        .badge-pcs { padding: 4px 11px; border-radius: 100px; font-size: 11px; font-weight: 600; }
-        .badge-ok { background: #EDFAF4; color: #0A7A52; border: 1px solid #B5EDD6; }
-        .badge-err { background: #FEF0F0; color: #C81E1E; border: 1px solid #FAC5C5; }
+        .badge-pcs { padding: 5px 12px; border-radius: 100px; font-size: 11px; font-weight: 700; }
+        .badge-ok { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
+        .badge-err { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
 
-        .cal-row { display: none; background: #F7F8FA; }
+        .cal-row { display: none; background: #FEF2F2; }
         .cal-row.open { display: table-row; }
-        .cal-body { padding: 20px; background: #fff; }
+        .cal-body { padding: 24px; background: #fff; border-top: 1px solid var(--pcs-border); }
 
-        .range-stats-box { background: var(--pcs-off); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--pcs-border); }
-        .range-result-pill { background: #fff; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--pcs-border); font-weight: 600; font-size: 12px; }
+        .range-stats-box { background: #FEF2F2; padding: 18px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--pcs-border); }
+        .range-result-pill { background: #fff; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--pcs-border); font-weight: 700; font-size: 13px; color: var(--pcs-red); }
 
-        .fc .fc-toolbar-title { font-size: 14px; font-weight: 700; }
-        .btn-del { background: none; border: none; cursor: pointer; padding: 4px; color: #C8D0DC; }
+        .fc .fc-button-primary { background-color: var(--pcs-red) !important; border-color: var(--pcs-red) !important; }
+        .btn-del { background: none; border: none; cursor: pointer; padding: 6px; color: #FECACA; }
         .btn-del:hover { color: var(--pcs-danger); }
     </style>
 </head>
@@ -86,7 +98,7 @@
 
 <nav class="topbar">
     <div class="topbar-left">
-        <img class="topbar-logo" src="https://pcs.gr/wp-content/uploads/2025/05/Logo.svg" alt="PCS">
+        <div class="topbar-brand"><span>P</span>CS</div>
         <div class="topbar-sep"></div>
         <span class="topbar-module">Attendance Management</span>
     </div>
@@ -118,7 +130,7 @@
                         <input type="date" name="date_joined" required>
                     </div>
                     <div class="form-field">
-                        <label>Αρχικό Χρέος (Ημέρες)</label>
+                        <label>Χρέος (Ημέρες)</label>
                         <input type="number" name="initial_debt" value="0" min="0" required>
                     </div>
                     <button type="submit" class="btn-save">Αποθήκευση</button>
@@ -192,7 +204,6 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 <div id="calendar-{{ emp.id }}"></div>
                             </div>
                         </td>
@@ -214,7 +225,7 @@
         const end = document.getElementById(`end-${empId}`).value;
 
         if(!start || !end) {
-            Swal.fire({ icon: 'warning', title: 'Ελλιπή στοιχεία', text: 'Παρακαλώ επιλέξτε και τις δύο ημερομηνίες.', confirmButtonColor: '#0B1D3C' });
+            Swal.fire({ icon: 'warning', title: 'Ελλιπή στοιχεία', text: 'Παρακαλώ επιλέξτε και τις δύο ημερομηνίες.', confirmButtonColor: '#450A0A' });
             return;
         }
 
@@ -243,14 +254,13 @@
                     events: (eventsData[id] || []).concat(holidays),
                     eventClick: function(info) {
                         if (info.event.title.includes('🎉')) return;
-
                         const dateStr = info.event.startStr;
 
                         Swal.fire({
                             title: 'Ενημέρωση Παρουσίας',
                             html: `
                                 <div style="margin-top:10px; text-align:left;">
-                                    <label style="font-size:12px; font-weight:600; color:#6B7A99;">ΕΠΙΛΕΞΤΕ ΤΥΠΟ ΓΙΑ: ${info.event.start.toLocaleDateString('el-GR')}</label>
+                                    <label style="font-size:12px; font-weight:600; color:#7F1D1D;">ΕΠΙΛΕΞΤΕ ΤΥΠΟ ΓΙΑ: ${info.event.start.toLocaleDateString('el-GR')}</label>
                                     <select id="swal-work-type" class="form-select mt-2" style="font-family:'Sora',sans-serif; font-size:14px;">
                                         <option value="OFFICE" ${info.event.title.includes('Γραφείο') ? 'selected' : ''}>🏢 Γραφείο</option>
                                         <option value="REMOTE" ${info.event.title.includes('Τηλεργασία') ? 'selected' : ''}>💻 Τηλεργασία</option>
@@ -262,7 +272,7 @@
                             showCancelButton: true,
                             confirmButtonText: 'Αποθήκευση',
                             cancelButtonText: 'Άκυρο',
-                            confirmButtonColor: '#1565C0',
+                            confirmButtonColor: '#991B1B',
                             preConfirm: () => {
                                 return document.getElementById('swal-work-type').value;
                             }
@@ -274,19 +284,13 @@
                                         'Content-Type': 'application/json',
                                         'X-CSRFToken': '{{ csrf_token }}'
                                     },
-                                    body: JSON.stringify({
-                                        emp_id: id,
-                                        date: dateStr,
-                                        work_type: result.value
-                                    })
+                                    body: JSON.stringify({ emp_id: id, date: dateStr, work_type: result.value })
                                 })
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.status === 'success') {
                                         Swal.fire({ icon: 'success', title: 'Έγινε!', text: 'Η αλλαγή αποθηκεύτηκε.', timer: 1500, showConfirmButton: false })
                                         .then(() => location.reload());
-                                    } else {
-                                        Swal.fire('Σφάλμα', 'Η αλλαγή δεν αποθηκεύτηκε.', 'error');
                                     }
                                 });
                             }
@@ -303,7 +307,7 @@
         Swal.fire({
             title: 'Διαγραφή;',
             text: `Οριστική διαγραφή του/της ${name};`,
-            icon: 'warning', showCancelButton: true, confirmButtonColor: '#E02424', confirmButtonText: 'Διαγραφή'
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#B91C1C', confirmButtonText: 'Διαγραφή'
         }).then(r => {
             if (r.isConfirmed) {
                 const form = document.createElement('form');

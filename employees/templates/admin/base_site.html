@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | PCS Admin{% endblock %}
+
+{% block extrastyle %}
+<style>
+    /* Header - Πάνω μπάρα */
+    #header, .module h2, .button.default, input[type=submit].default {
+        background: #991B1B !important; /* Crimson Red */
+    }
+    
+    /* Branding */
+    #branding h1 {
+        color: #ffffff !important;
+    }
+
+    /* Κουμπιά */
+    .button, input[type=submit] {
+        background: #450A0A !important; /* Deep Maroon */
+        border-radius: 4px !important;
+    }
+
+    /* Sidebar Φίλτρα */
+    #changelist-filter h2 {
+        background: #450A0A !important;
+    }
+
+    /* Links */
+    a:link, a:visited {
+        color: #991B1B;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">PCS Attendance Dashboard</a></h1>
+{% endblock %}
