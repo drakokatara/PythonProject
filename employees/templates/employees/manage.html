@@ -11,82 +11,103 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        :root {
-            --pcs-navy:     #450A0A; /* Βαθύ Μπορντό */
-            --pcs-red:      #991B1B; /* Κόκκινο Crimson */
-            --pcs-red-l:    #DC2626; /* Φωτεινό Κόκκινο */
-            --pcs-white:    #FFFFFF;
-            --pcs-off:      #FEF2F2; /* Απαλό Ροζ Φόντο */
-            --pcs-border:   #FEE2E2;
-            --pcs-text:     #1F2937;
-            --pcs-muted:    #7F1D1D;
-            --pcs-danger:   #B91C1C;
-            --pcs-radius:   12px;
-        }
+    :root {
+        --pcs-navy:     #450A0A; /* Βαθύ Μπορντό */
+        --pcs-red:      #991B1B; /* Κόκκινο Crimson */
+        --pcs-red-l:    #DC2626; /* Φωτεινό Κόκκινο */
+        --pcs-white:    #FFFFFF;
+        --pcs-off:      #FEF2F2; /* Απαλό Ροζ Φόντο */
+        --pcs-border:   #FEE2E2;
+        --pcs-text:     #1F2937;
+        --pcs-muted:    #7F1D1D;
+        --pcs-danger:   #B91C1C;
+        --pcs-radius:   12px;
+    }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--pcs-off); font-family: 'Sora', sans-serif; font-size: 14px; color: var(--pcs-text); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--pcs-off); font-family: 'Sora', sans-serif; font-size: 14px; color: var(--pcs-text); }
 
-        /* Topbar */
-        .topbar { background: var(--pcs-navy); height: 64px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .topbar-left { display: flex; align-items: center; gap: 16px; }
-        .topbar-brand { font-size: 24px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; line-height: 1; }
-        .topbar-brand span { color: var(--pcs-red-l); }
-        .topbar-sep { width: 1px; height: 22px; background: rgba(255,255,255,0.2); }
-        .topbar-module { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7); }
+    /* Topbar */
+    .topbar { background: var(--pcs-navy); height: 64px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .topbar-brand { font-size: 24px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; line-height: 1; }
+    .topbar-brand span { color: var(--pcs-red-l); }
+    .topbar-sep { width: 1px; height: 22px; background: rgba(255,255,255,0.2); }
+    .topbar-module { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7); }
 
-        /* Buttons */
-        .btn-pcs { background: var(--pcs-red); color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; cursor: pointer; }
-        .btn-pcs:hover { background: var(--pcs-red-l); color: #fff; box-shadow: 0 4px 12px rgba(153, 27, 27, 0.3); transform: translateY(-1px); }
+    /* Buttons */
+    .btn-pcs { background: var(--pcs-red); color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; cursor: pointer; }
+    .btn-pcs:hover { background: var(--pcs-red-l); color: #fff; box-shadow: 0 4px 12px rgba(153, 27, 27, 0.3); transform: translateY(-1px); }
 
-        /* Hero */
-        .page-hero { background: var(--pcs-navy); padding: 32px 40px 28px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .page-hero h1 { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-        .page-hero p { font-size: 14px; color: rgba(255,255,255,0.6); }
+    /* Hero */
+    .page-hero { background: var(--pcs-navy); padding: 32px 40px 28px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .page-hero h1 { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .page-hero p { font-size: 14px; color: rgba(255,255,255,0.6); }
 
-        /* Layout & Cards */
-        .layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; padding: 28px 40px; max-width: 1440px; margin: 0 auto; }
-        @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } }
+    /* Layout & Cards */
+    .layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; padding: 28px 40px; max-width: 1440px; margin: 0 auto; }
+    @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } }
 
-        .pcs-card { background: var(--pcs-white); border: 1px solid var(--pcs-border); border-radius: var(--pcs-radius); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-        .pcs-card-head { padding: 14px 20px; border-bottom: 1px solid var(--pcs-border); display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--pcs-muted); letter-spacing: 0.5px; }
-        .pcs-card-head i { color: var(--pcs-red); }
-        .pcs-card-accent { border-top: 4px solid var(--pcs-red); }
+    .pcs-card { background: var(--pcs-white); border: 1px solid var(--pcs-border); border-radius: var(--pcs-radius); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+    .pcs-card-head { padding: 14px 20px; border-bottom: 1px solid var(--pcs-border); display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--pcs-muted); letter-spacing: 0.5px; }
+    .pcs-card-head i { color: var(--pcs-red); }
+    .pcs-card-accent { border-top: 4px solid var(--pcs-red); }
 
-        /* Forms */
-        .form-field { margin-bottom: 12px; }
-        .form-field label { font-size: 10px; font-weight: 700; color: var(--pcs-muted); text-transform: uppercase; margin-bottom: 5px; display: block; }
-        .form-field input { width: 100%; height: 40px; border: 1px solid var(--pcs-border); border-radius: 8px; padding: 0 12px; font-size: 13px; background: #FFF5F5; }
-        .btn-save { width: 100%; height: 40px; border: none; border-radius: 8px; background: var(--pcs-navy); color: #fff; font-weight: 600; cursor: pointer; margin-top: 8px; transition: 0.2s; }
-        .btn-save:hover { background: #000; }
+    /* Forms */
+    .form-field { margin-bottom: 12px; }
+    .form-field label { font-size: 10px; font-weight: 700; color: var(--pcs-muted); text-transform: uppercase; margin-bottom: 5px; display: block; }
+    .form-field input { width: 100%; height: 40px; border: 1px solid var(--pcs-border); border-radius: 8px; padding: 0 12px; font-size: 13px; background: #FFF5F5; }
+    .btn-save { width: 100%; height: 40px; border: none; border-radius: 8px; background: var(--pcs-navy); color: #fff; font-weight: 600; cursor: pointer; margin-top: 8px; transition: 0.2s; }
+    .btn-save:hover { background: #000; }
 
-        /* Table */
-        .pcs-table { width: 100%; border-collapse: collapse; }
-        .pcs-table thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--pcs-muted); padding: 14px 20px; border-bottom: 1px solid var(--pcs-border); background: #FEF2F2; }
-        .pcs-table tbody tr.data-row { border-bottom: 1px solid var(--pcs-border); cursor: pointer; }
-        .pcs-table tbody tr.data-row:hover { background: #FFF5F5; }
-        .pcs-table td { padding: 16px 20px; }
+    /* Table */
+    .pcs-table { width: 100%; border-collapse: collapse; }
+    .pcs-table thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--pcs-muted); padding: 14px 20px; border-bottom: 1px solid var(--pcs-border); background: #FEF2F2; }
+    .pcs-table tbody tr.data-row { border-bottom: 1px solid var(--pcs-border); cursor: pointer; }
+    .pcs-table tbody tr.data-row:hover { background: #FFF5F5; }
+    .pcs-table td { padding: 16px 20px; }
 
-        .emp-avatar { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #7F1D1D 0%, #DC2626 100%); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-right: 14px; }
-        .badge-pcs { padding: 5px 12px; border-radius: 100px; font-size: 11px; font-weight: 700; }
-        .badge-ok { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
-        .badge-err { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+    .emp-avatar { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #7F1D1D 0%, #DC2626 100%); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-right: 14px; }
+    .badge-pcs { padding: 5px 12px; border-radius: 100px; font-size: 11px; font-weight: 700; }
+    .badge-ok { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
+    .badge-err { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
 
-        .cal-row { display: none; background: #FEF2F2; }
-        .cal-row.open { display: table-row; }
-        .cal-body { padding: 24px; background: #fff; border-top: 1px solid var(--pcs-border); }
+    .cal-row { display: none; background: #FEF2F2; }
+    .cal-row.open { display: table-row; }
+    .cal-body { padding: 24px; background: #fff; border-top: 1px solid var(--pcs-border); }
 
-        .range-stats-box { background: #FEF2F2; padding: 18px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--pcs-border); }
-        .range-result-pill { background: #fff; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--pcs-border); font-weight: 700; font-size: 13px; color: var(--pcs-red); }
+    .range-stats-box { background: #FEF2F2; padding: 18px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--pcs-border); }
+    .range-result-pill { background: #fff; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--pcs-border); font-weight: 700; font-size: 13px; color: var(--pcs-red); }
 
-        .fc .fc-button-primary { background-color: var(--pcs-red) !important; border-color: var(--pcs-red) !important; }
-        .btn-del { background: none; border: none; cursor: pointer; padding: 6px; color: #FECACA; }
-        .btn-del:hover { color: var(--pcs-danger); }
+    /* --- FullCalendar Διορθώσεις & Περιορισμοί --- */
+    .fc .fc-button-primary { background-color: var(--pcs-red) !important; border-color: var(--pcs-red) !important; }
+    .btn-del { background: none; border: none; cursor: pointer; padding: 6px; color: #FECACA; }
+    .btn-del:hover { color: var(--pcs-danger); }
 
-        /* Highlight για το dateClick */
-        .fc-daygrid-day { cursor: cell !important; }
-        .fc-daygrid-day:hover { background-color: rgba(153, 27, 27, 0.05) !important; }
-    </style>
+    /* Highlight για το dateClick σε εργάσιμες μέρες */
+    .fc-daygrid-day { cursor: pointer !important; transition: 0.2s; }
+    .fc-daygrid-day:hover { background-color: rgba(153, 27, 27, 0.05) !important; }
+
+    /* Γκριζάρισμα Σαββατοκύριακων και απενεργοποίηση κλικ */
+    .fc-day-sat, .fc-day-sun {
+        background-color: #F3F4F6 !important; /* Ανοιχτό γκρι */
+        cursor: not-allowed !important;
+        opacity: 0.6;
+    }
+
+    /* Οπτική ένδειξη για τις Αργίες */
+    .fc-day-holiday {
+        background-color: #FFFBEB !important; /* Ελαφρύ κίτρινο για τις γιορτές */
+    }
+
+    /* Μικρά "στυλιστικά" για τα events μέσα στο ημερολόγιο */
+    .fc-event {
+        border-radius: 4px !important;
+        padding: 2px 4px !important;
+        font-size: 0.85em !important;
+        border: none !important;
+    }
+</style>
 </head>
 <body>
 
@@ -244,49 +265,94 @@
             });
     }
 
-    function openAttendanceModal(empId, dateStr, currentTitle = "") {
+function openAttendanceModal(empId, dateStr, currentTitle = "") {
+    // 1. Μετατροπή της ημερομηνίας για έλεγχο
+    const selectedDate = new Date(dateStr);
+    const day = selectedDate.getDay(); // 0 = Κυριακή, 6 = Σάββατο
+
+    // 2. Έλεγχος για Σαββατοκύριακο
+    if (day === 0 || day === 6) {
         Swal.fire({
-            title: 'Διαχείριση Παρουσίας',
-            html: `
-                <div style="margin-top:10px; text-align:left;">
-                    <label style="font-size:12px; font-weight:600; color:#7F1D1D;">ΗΜΕΡΟΜΗΝΙΑ: ${new Date(dateStr).toLocaleDateString('el-GR')}</label>
-                    <select id="swal-work-type" class="form-select mt-2" style="font-family:'Sora',sans-serif; font-size:14px;">
-                        <option value="OFFICE" ${currentTitle.includes('Γραφείο') ? 'selected' : ''}>🏢 Γραφείο</option>
-                        <option value="REMOTE" ${currentTitle.includes('Τηλεργασία') ? 'selected' : ''}>💻 Τηλεργασία</option>
-                        <option value="LEAVE" ${currentTitle.includes('Άδεια') ? 'selected' : ''}>✈️ Άδεια</option>
-                        <option value="SICK" ${currentTitle.includes('Ασθένεια') ? 'selected' : ''}>🩺 Ασθένεια</option>
-                    </select>
-                </div>
-            `,
-            showCancelButton: true,
-            confirmButtonText: 'Αποθήκευση',
-            cancelButtonText: 'Άκυρο',
-            confirmButtonColor: '#991B1B',
-            preConfirm: () => {
-                return document.getElementById('swal-work-type').value;
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch('/update-attendance-ajax/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({ emp_id: empId, date: dateStr, work_type: result.value })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire({ icon: 'success', title: 'Έγινε!', text: 'Η παρουσία ενημερώθηκε.', timer: 1500, showConfirmButton: false })
-                        .then(() => location.reload());
-                    } else {
-                        Swal.fire('Σφάλμα', 'Δεν ήταν δυνατή η αποθήκευση.', 'error');
-                    }
-                });
-            }
+            icon: 'warning',
+            title: 'Ακύρωση',
+            text: 'Δεν επιτρέπονται καταχωρήσεις για Σαββατοκύριακα.',
+            confirmButtonColor: '#991B1B'
         });
+        return; // Σταματάει η εκτέλεση
     }
+
+    // 3. Έλεγχος για Αργίες (αναζήτηση στη λίστα holidays που έρχεται από το Django)
+    // Η μεταβλητή 'holidays' πρέπει να είναι προσβάσιμη στο script σου
+    const isHoliday = holidays.some(h => h.start === dateStr);
+    if (isHoliday) {
+        const holidayName = holidays.find(h => h.start === dateStr).title;
+        Swal.fire({
+            icon: 'info',
+            title: 'Επίσημη Αργία',
+            text: `Η ημερομηνία αυτή είναι αργία (${holidayName}).`,
+            confirmButtonColor: '#991B1B'
+        });
+        return; // Σταματάει η εκτέλεση
+    }
+
+    // 4. Αν περάσει τους ελέγχους, ανοίγει το Modal
+    Swal.fire({
+        title: 'Διαχείριση Παρουσίας',
+        html: `
+            <div style="margin-top:10px; text-align:left;">
+                <label style="font-size:12px; font-weight:600; color:#7F1D1D;">ΗΜΕΡΟΜΗΝΙΑ: ${selectedDate.toLocaleDateString('el-GR')}</label>
+                <select id="swal-work-type" class="form-select mt-2" style="font-family:'Sora',sans-serif; font-size:14px;">
+                    <option value="OFFICE" ${currentTitle.includes('Γραφείο') ? 'selected' : ''}>🏢 Γραφείο</option>
+                    <option value="REMOTE" ${currentTitle.includes('Τηλεργασία') ? 'selected' : ''}>💻 Τηλεργασία</option>
+                    <option value="LEAVE" ${currentTitle.includes('Άδεια') ? 'selected' : ''}>✈️ Άδεια</option>
+                    <option value="SICK" ${currentTitle.includes('Ασθένεια') ? 'selected' : ''}>🩺 Ασθένεια</option>
+                </select>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Αποθήκευση',
+        cancelButtonText: 'Άκυρο',
+        confirmButtonColor: '#991B1B',
+        preConfirm: () => {
+            return document.getElementById('swal-work-type').value;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Αποστολή δεδομένων με AJAX
+            fetch('/update-attendance-ajax/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    emp_id: empId,
+                    date: dateStr,
+                    work_type: result.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Έγινε!',
+                        text: 'Η παρουσία ενημερώθηκε.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    })
+                    .then(() => location.reload());
+                } else {
+                    // Εμφάνιση μηνύματος σφάλματος από το server (π.χ. αν η views.py έκοψε την αργία)
+                    Swal.fire('Σφάλμα', data.message || 'Δεν ήταν δυνατή η αποθήκευση.', 'error');
+                }
+            })
+            .catch(err => {
+                Swal.fire('Σφάλμα', 'Παρουσιάστηκε πρόβλημα με τη σύνδεση.', 'error');
+            });
+        }
+    });
+}
 
     function toggleCal(id) {
         const row = document.getElementById(`cal-${id}`);

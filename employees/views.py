@@ -92,13 +92,9 @@ def delete_employee(request, employee_id):
     messages.success(request, f"✅ Ο/Η {name} διαγράφηκε επιτυχώς.")
     return redirect('manage_employees')
 
+
 @csrf_exempt
 def update_attendance_ajax(request):
-    """
-    Κύρια συνάρτηση καταχώρησης/ενημέρωσης παρουσίας μέσω AJAX.
-    Αν η ημερομηνία είναι κενή στο ημερολόγιο, δημιουργεί νέα εγγραφή (Log).
-    Αν η ημερομηνία είναι ήδη συμπληρωμένη, την ενημερώνει (Edit/Αλλαγή).
-    """
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -106,27 +102,34 @@ def update_attendance_ajax(request):
             new_type = data.get('work_type')
             date_str = data.get('date')
 
-            if not all([emp_id, new_type, date_str]):
-                return JsonResponse({'status': 'error', 'message': 'Ελλιπή δεδομένα'}, status=400)
+            # Μετατροπή string σε αντικείμενο date
+            selected_date = date.fromisoformat(date_str)
 
-            # Η μέθοδος update_or_create κάνει αυτόματα τη διάκριση:
-            # Αν δεν υπάρχει η εγγραφή (employee_id + date), τη φτιάχνει.
-            # Αν υπάρχει, αλλάζει απλώς το work_type.
+            # 1. Έλεγχος για Σαββατοκύριακο (5=Σάββατο, 6=Κυριακή)
+            if selected_date.weekday() in [5, 6]:
+                return JsonResponse({'status': 'error', 'message': 'Δεν επιτρέπονται καταχωρήσεις Σαββατοκύριακα!'},
+                                    status=400)
+
+            # 2. Έλεγχος για Αργίες (χρησιμοποιώντας τη βιβλιοθήκη holidays)
+            gr_holidays = holidays.Greece(years=selected_date.year)
+            if selected_date in gr_holidays:
+                return JsonResponse(
+                    {'status': 'error', 'message': f'Η ημέρα είναι αργία: {gr_holidays.get(selected_date)}'},
+                    status=400)
+
+            # Αν όλα είναι οκ, προχωράμε στην αποθήκευση
             attendance, created = Attendance.objects.update_or_create(
                 employee_id=emp_id,
-                date=date_str,
+                date=selected_date,
                 defaults={'work_type': new_type}
             )
 
-            return JsonResponse({
-                'status': 'success',
-                'action': 'created' if created else 'updated'
-            })
+            return JsonResponse({'status': 'success', 'action': 'created' if created else 'updated'})
 
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
-    return JsonResponse({'status': 'error', 'message': 'Μη αποδεκτή μέθοδος'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=400)
 
 def employee_range_stats(request, employee_id):
     """Επιστρέφει στατιστικά παρουσιών για ένα συγκεκριμένο εύρος ημερομηνιών."""
