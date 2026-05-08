@@ -71,29 +71,39 @@ def manage_employees(request):
 
     # --- Υπολογισμός Στατιστικών (Σήμερα & Μήνας) ---
     today = date.today()
-    # Φιλτράρουμε τις παρουσίες του τρέχοντος μήνα
-    current_month_atts = Attendance.objects.filter(date__year=today.year, date__month=today.month)
+    # Φιλτράρουμε τις παρουσίες του τρέχοντος μήνα και φέρνουμε τα ονόματα υπαλλήλων (select_related)
+    current_month_atts = Attendance.objects.filter(
+        date__year=today.year,
+        date__month=today.month
+    ).select_related('employee')
 
-    # Χρησιμοποιούμε select_related για να πάρουμε τα ονόματα των υπαλλήλων για το hover
-    today_atts = current_month_atts.filter(date=today).select_related('employee')
+    # --- ΔΕΔΟΜΕΝΑ ΓΙΑ ΣΗΜΕΡΑ ---
+    today_atts = current_month_atts.filter(date=today)
+    names_today_office = [a.employee.full_name for a in today_atts.filter(work_type='OFFICE')]
+    names_today_remote = [a.employee.full_name for a in today_atts.filter(work_type='REMOTE')]
+    names_today_leave = [a.employee.full_name for a in today_atts.filter(work_type__in=['LEAVE', 'SICK'])]
 
-    # Δημιουργία λιστών με ονόματα για το Hover
-    names_office = [a.employee.full_name for a in today_atts.filter(work_type='OFFICE')]
-    names_remote = [a.employee.full_name for a in today_atts.filter(work_type='REMOTE')]
+    # --- ΔΕΔΟΜΕΝΑ ΓΙΑ ΜΗΝΑ (Μοναδικά ονόματα για το Hover) ---
+    names_month_office = sorted(list(set([a.employee.full_name for a in current_month_atts.filter(work_type='OFFICE')])))
+    names_month_remote = sorted(list(set([a.employee.full_name for a in current_month_atts.filter(work_type='REMOTE')])))
+    names_month_leave = sorted(list(set([a.employee.full_name for a in current_month_atts.filter(work_type__in=['LEAVE', 'SICK'])])))
 
     stats_summary = {
         'today': {
-            'office': len(names_office),
-            'remote': len(names_remote),
-            'leave': today_atts.filter(work_type__in=['LEAVE', 'SICK']).count(),
-            # Ενώνουμε τα ονόματα σε ένα string χωρισμένο με κόμμα
-            'names_office': ", ".join(names_office) if names_office else "Κανένας",
-            'names_remote': ", ".join(names_remote) if names_remote else "Κανένας",
+            'office': len(names_today_office),
+            'remote': len(names_today_remote),
+            'leave': len(names_today_leave),
+            'names_office': ", ".join(names_today_office) if names_today_office else "Κανένας",
+            'names_remote': ", ".join(names_today_remote) if names_today_remote else "Κανένας",
+            'names_leave': ", ".join(names_today_leave) if names_today_leave else "Κανένας",
         },
         'month': {
             'office': current_month_atts.filter(work_type='OFFICE').count(),
             'remote': current_month_atts.filter(work_type='REMOTE').count(),
             'leave': current_month_atts.filter(work_type__in=['LEAVE', 'SICK']).count(),
+            'names_office': ", ".join(names_month_office) if names_month_office else "Κανένας",
+            'names_remote': ", ".join(names_month_remote) if names_month_remote else "Κανένας",
+            'names_leave': ", ".join(names_month_leave) if names_month_leave else "Κανένας",
         },
         'total_emps': employees_qs.count()
     }
