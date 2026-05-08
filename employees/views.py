@@ -6,9 +6,11 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count
 
 from .models import Employee, Attendance
 from .forms import EmployeeForm, AttendanceForm
+
 
 def get_greek_holidays():
     """Ανακτά τις ελληνικές αργίες για το τρέχον έτος."""
@@ -21,6 +23,7 @@ def get_greek_holidays():
         'allDay': True
     } for d, name in gr_holidays.items()]
     return gr_holidays, events
+
 
 def manage_employees(request):
     """Dashboard διαχείρισης υπαλλήλων και στατιστικών."""
@@ -66,22 +69,43 @@ def manage_employees(request):
             'events_json': json.dumps(events_list)
         })
 
+    # --- Υπολογισμός Στατιστικών (Σήμερα & Μήνας) ---
     today = date.today()
-    today_atts = Attendance.objects.filter(date=today)
-    stats_today = {
-        'office': today_atts.filter(work_type='OFFICE').count(),
-        'remote': today_atts.filter(work_type='REMOTE').count(),
-        'leave': today_atts.filter(work_type__in=['LEAVE', 'SICK']).count(),
+    # Φιλτράρουμε τις παρουσίες του τρέχοντος μήνα
+    current_month_atts = Attendance.objects.filter(date__year=today.year, date__month=today.month)
+
+    # Χρησιμοποιούμε select_related για να πάρουμε τα ονόματα των υπαλλήλων για το hover
+    today_atts = current_month_atts.filter(date=today).select_related('employee')
+
+    # Δημιουργία λιστών με ονόματα για το Hover
+    names_office = [a.employee.full_name for a in today_atts.filter(work_type='OFFICE')]
+    names_remote = [a.employee.full_name for a in today_atts.filter(work_type='REMOTE')]
+
+    stats_summary = {
+        'today': {
+            'office': len(names_office),
+            'remote': len(names_remote),
+            'leave': today_atts.filter(work_type__in=['LEAVE', 'SICK']).count(),
+            # Ενώνουμε τα ονόματα σε ένα string χωρισμένο με κόμμα
+            'names_office': ", ".join(names_office) if names_office else "Κανένας",
+            'names_remote': ", ".join(names_remote) if names_remote else "Κανένας",
+        },
+        'month': {
+            'office': current_month_atts.filter(work_type='OFFICE').count(),
+            'remote': current_month_atts.filter(work_type='REMOTE').count(),
+            'leave': current_month_atts.filter(work_type__in=['LEAVE', 'SICK']).count(),
+        },
         'total_emps': employees_qs.count()
     }
 
     return render(request, 'employees/manage.html', {
         'form': form,
         'employees': data,
-        'stats_today': stats_today,
+        'stats': stats_summary,
         'holidays_js': json.dumps([d.strftime('%Y-%m-%d') for d in gr_holidays.keys()]),
         'holidays_events_json': json.dumps(holiday_events),
     })
+
 
 @require_POST
 def delete_employee(request, employee_id):
@@ -95,6 +119,7 @@ def delete_employee(request, employee_id):
 
 @csrf_exempt
 def update_attendance_ajax(request):
+    """Ενημέρωση παρουσίας μέσω AJAX με ελέγχους ΣΚ και Αργιών."""
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -102,22 +127,20 @@ def update_attendance_ajax(request):
             new_type = data.get('work_type')
             date_str = data.get('date')
 
-            # Μετατροπή string σε αντικείμενο date
             selected_date = date.fromisoformat(date_str)
 
-            # 1. Έλεγχος για Σαββατοκύριακο (5=Σάββατο, 6=Κυριακή)
+            # 1. Έλεγχος για Σαββατοκύριακο
             if selected_date.weekday() in [5, 6]:
                 return JsonResponse({'status': 'error', 'message': 'Δεν επιτρέπονται καταχωρήσεις Σαββατοκύριακα!'},
                                     status=400)
 
-            # 2. Έλεγχος για Αργίες (χρησιμοποιώντας τη βιβλιοθήκη holidays)
+            # 2. Έλεγχος για Αργίες
             gr_holidays = holidays.Greece(years=selected_date.year)
             if selected_date in gr_holidays:
                 return JsonResponse(
                     {'status': 'error', 'message': f'Η ημέρα είναι αργία: {gr_holidays.get(selected_date)}'},
                     status=400)
 
-            # Αν όλα είναι οκ, προχωράμε στην αποθήκευση
             attendance, created = Attendance.objects.update_or_create(
                 employee_id=emp_id,
                 date=selected_date,
@@ -130,6 +153,7 @@ def update_attendance_ajax(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=400)
+
 
 def employee_range_stats(request, employee_id):
     """Επιστρέφει στατιστικά παρουσιών για ένα συγκεκριμένο εύρος ημερομηνιών."""
