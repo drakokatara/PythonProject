@@ -36,7 +36,7 @@ class AttendanceAdmin(admin.ModelAdmin):
     list_display = ('employee', 'date', 'work_type')
     list_filter = ('work_type', 'date', 'employee')
     search_fields = ('employee__full_name',)
-    date_hierarchy = 'date' # Μπάρα ημερομηνιών στο πάνω μέρος
+    date_hierarchy = 'date'
 
     class Media:
         css = {

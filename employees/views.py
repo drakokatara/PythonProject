@@ -6,14 +6,12 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Count
-
 from .models import Employee, Attendance
-from .forms import EmployeeForm, AttendanceForm
+from .forms import EmployeeForm
 
 
 def get_greek_holidays():
-    """Ανακτά τις ελληνικές αργίες για το τρέχον έτος."""
+
     gr_holidays = holidays.Greece(years=date.today().year)
     events = [{
         'title': f"🎉 {name}",
@@ -26,7 +24,7 @@ def get_greek_holidays():
 
 
 def manage_employees(request):
-    """Dashboard διαχείρισης υπαλλήλων και στατιστικών."""
+
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
         if form.is_valid():
@@ -119,7 +117,7 @@ def manage_employees(request):
 
 @require_POST
 def delete_employee(request, employee_id):
-    """Διαγραφή υπαλλήλου."""
+
     emp = get_object_or_404(Employee, id=employee_id)
     name = emp.full_name
     emp.delete()
@@ -129,7 +127,7 @@ def delete_employee(request, employee_id):
 
 @csrf_exempt
 def update_attendance_ajax(request):
-    """Ενημέρωση παρουσίας μέσω AJAX με ελέγχους ΣΚ και Αργιών."""
+
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -166,7 +164,7 @@ def update_attendance_ajax(request):
 
 
 def employee_range_stats(request, employee_id):
-    """Επιστρέφει στατιστικά παρουσιών για ένα συγκεκριμένο εύρος ημερομηνιών."""
+
     start_date = request.GET.get('start')
     end_date = request.GET.get('end')
 
