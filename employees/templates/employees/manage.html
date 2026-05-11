@@ -99,7 +99,7 @@
 <body class="light">
 
 <nav class="topbar">
-    <div class="topbar-brand"><span>PCS</span> Attendance</div>
+    <div class="topbar-brand"><span>PCS</span> Attendance Management</div>
     <div class="d-flex align-items-center gap-3">
         <a href="{% url 'export_attendance_excel' %}" class="btn theme-toggle" style="background: #10b981; border:none;">
             <i class="fas fa-file-excel"></i> Export
@@ -119,7 +119,7 @@
                     <div class="input-group-custom"><input type="text" name="full_name" class="form-control-custom" placeholder="Ονοματεπώνυμο" required><i class="fas fa-user"></i></div>
                     <div class="input-group-custom"><input type="email" name="email" class="form-control-custom" placeholder="Email" required><i class="fas fa-envelope"></i></div>
                     <div class="input-group-custom"><input type="date" name="date_joined" id="todayDate" class="form-control-custom" required><i class="fas fa-calendar-check"></i></div>
-                    <div class="input-group-custom"><input type="number" name="initial_debt" value="0" class="form-control-custom" placeholder="Αρχικό Χρέος"><i class="fas fa-minus-circle"></i></div>
+                    <div class="input-group-custom"><input type="number" name="initial_debt" value="Αρχικό Χρέος" class="form-control-custom" placeholder="Αρχικό Χρέος"><i class="fas fa-minus-circle"></i></div>
                     <button type="submit" class="btn-action"><i class="fas fa-user-plus"></i> Προσθήκη</button>
                 </form>
             </div>
