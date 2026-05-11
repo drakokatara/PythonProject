@@ -21,14 +21,8 @@ def _count_required_office_days(from_day, to_day):
 class Employee(models.Model):
     full_name = models.CharField(max_length=200, verbose_name="Ονοματεπώνυμο")
     email = models.EmailField(unique=True, verbose_name="Email")
-    date_joined = models.DateField(
-        verbose_name="Ημερομηνία εγγραφής στο σύστημα",
-        default=date.today
-    )
-    initial_debt = models.IntegerField(
-        default=0,
-        verbose_name="Αρχικό Χρέος Ημερών"
-    )
+    date_joined = models.DateField(verbose_name="Ημερομηνία εγγραφής στο σύστημα",default=date.today)
+    initial_debt = models.IntegerField(default=0, verbose_name="Αρχικό Χρέος Ημερών")
 
     def __str__(self):
         return self.full_name
