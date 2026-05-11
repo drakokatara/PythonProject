@@ -4,8 +4,10 @@ from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill
 from .models import Employee, Attendance
 from .forms import EmployeeForm
 
@@ -175,3 +177,50 @@ def employee_range_stats(request, employee_id):
     stats = employee.get_stats_for_range(start_date, end_date)
 
     return JsonResponse(stats)
+
+
+def export_attendance_excel(request):
+    # 1. Δημιουργία του Workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Μηνιαία Αναφορά Παρουσίας"
+
+    # 2. Επικεφαλίδες με Styling
+    headers = ['Ονοματεπώνυμο', 'Email', 'Γραφείο', 'Τηλεργασία', 'Άδειες/Ασθ.', 'Χρέος (Ημέρες)']
+    ws.append(headers)
+
+    header_fill = PatternFill(start_color="991B1B", end_color="991B1B", fill_type="solid")
+    for cell in ws[1]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.alignment = Alignment(horizontal="center")
+        cell.fill = header_fill
+
+    # 3. Συλλογή Δεδομένων
+    employees = Employee.objects.all()
+    for emp in employees:
+        report = emp.get_monthly_report()
+        ws.append([
+            emp.full_name,
+            emp.email,
+            report['office_days'],
+            report['remote_days'],
+            report['leave_days'],
+            report['debt']
+        ])
+
+    # 4. Προσαρμογή πλάτους στηλών
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter
+        for cell in col:
+            if cell.value:
+                max_length = max(max_length, len(str(cell.value)))
+        ws.column_dimensions[column].width = max_length + 2
+
+    # 5. Επιστροφή του αρχείου στον browser
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename="Attendance_Report.xlsx"'
+    wb.save(response)
+    return response

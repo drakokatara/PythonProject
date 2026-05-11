@@ -704,6 +704,10 @@
                     <span class="stat-label">Άδειες / Ασθ.</span>
                     <span class="stat-chip">{{ stats.month.leave }}</span>
                 </div>
+                <a href="{% url 'export_attendance_excel' %}" class="btn-report" style="text-decoration:none; display:inline-flex;">
+                    <i class="fas fa-file-excel" style="color: #1D6F42;"></i>
+                    Εξαγωγή σε Excel
+                </a>
 
                 <!-- Total -->
                 <div class="stat-total">
