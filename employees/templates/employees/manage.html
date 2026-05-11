@@ -69,7 +69,7 @@
             --success-border: #065F46;
             --err-bg:         #2A0C0C;
             --err-text:       #FCA5A5;
-            --err-border:     #7F1D1D;
+            --err-border:   #7F1D1D;
 
             --shadow-sm:  0 1px 3px rgba(0,0,0,0.3);
             --shadow-md:  0 4px 12px rgba(0,0,0,0.35);
@@ -103,11 +103,9 @@
             position: sticky;
             top: 0;
             z-index: 200;
-            /* subtle red glow line at bottom */
             border-bottom: 1px solid rgba(220, 38, 38, 0.25);
         }
 
-        /* noise grain on topbar */
         .topbar::after {
             content: '';
             position: absolute;
@@ -132,31 +130,11 @@
             line-height: 1;
         }
 
-        .topbar-brand em {
-            font-style: italic;
-            color: #F87171;
-        }
+        .topbar-brand em { font-style: italic; color: #F87171; }
+        .topbar-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.15); }
+        .topbar-module { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.50); letter-spacing: 0.8px; text-transform: uppercase; }
 
-        .topbar-divider {
-            width: 1px;
-            height: 20px;
-            background: rgba(255,255,255,0.15);
-        }
-
-        .topbar-module {
-            font-size: 11px;
-            font-weight: 500;
-            color: rgba(255,255,255,0.50);
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            position: relative; z-index: 1;
-        }
+        .topbar-right { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
 
         .btn-theme {
             background: rgba(255,255,255,0.08);
@@ -174,10 +152,7 @@
             transition: background 0.2s, border-color 0.2s, color 0.2s;
         }
 
-        .btn-theme:hover {
-            background: rgba(255,255,255,0.13);
-            color: #fff;
-        }
+        .btn-theme:hover { background: rgba(255,255,255,0.13); color: #fff; }
 
         /* ═══════════════════════════
            LAYOUT
@@ -191,15 +166,8 @@
             margin: 0 auto;
         }
 
-        @media (max-width: 1080px) {
-            .layout { grid-template-columns: 1fr; }
-        }
-
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
+        @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } }
+        .sidebar { display: flex; flex-direction: column; gap: 18px; }
 
         /* ═══════════════════════════
            CARDS
@@ -212,385 +180,80 @@
             box-shadow: var(--shadow-sm);
             transition: box-shadow 0.2s ease;
         }
-
-        .card:hover {
-            box-shadow: var(--shadow-md);
-        }
-
-        /* top accent stripe */
-        .card-accent {
-            border-top: 3px solid var(--brand-mid);
-        }
-
-        .card-head {
-            padding: 13px 18px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            background: var(--surface-raised);
-        }
-
-        .card-head-label {
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: var(--text-muted);
-        }
-
-        .card-head-icon {
-            width: 26px;
-            height: 26px;
-            background: linear-gradient(135deg, var(--brand-dark), var(--brand-mid));
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 11px;
-            flex-shrink: 0;
-        }
-
-        .card-body {
-            padding: 18px;
-        }
+        .card:hover { box-shadow: var(--shadow-md); }
+        .card-accent { border-top: 3px solid var(--brand-mid); }
+        .card-head { padding: 13px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 9px; background: var(--surface-raised); }
+        .card-head-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); }
+        .card-head-icon { width: 26px; height: 26px; background: linear-gradient(135deg, var(--brand-dark), var(--brand-mid)); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; flex-shrink: 0; }
+        .card-body { padding: 18px; }
 
         /* ═══════════════════════════
            FORM
         ═══════════════════════════ */
-        .form-group {
-            margin-bottom: 13px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-
-        .form-input {
-            width: 100%;
-            height: 38px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 0 11px;
-            background: var(--bg);
-            color: var(--text-primary);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 13px;
-            transition: border-color 0.18s ease, box-shadow 0.18s ease;
-            outline: none;
-        }
-
-        .form-input:focus {
-            border-color: var(--brand-mid);
-            box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.12);
-        }
+        .form-group { margin-bottom: 13px; }
+        .form-label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 5px; }
+        .form-input { width: 100%; height: 38px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 11px; background: var(--bg); color: var(--text-primary); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; transition: border-color 0.18s ease, box-shadow 0.18s ease; outline: none; }
+        .form-input:focus { border-color: var(--brand-mid); box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.12); }
 
         .btn-save {
-            width: 100%;
-            height: 40px;
-            border: none;
-            border-radius: var(--radius-md);
+            width: 100%; height: 40px; border: none; border-radius: var(--radius-md);
             background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-mid) 100%);
-            color: #fff;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(100,20,20,0.2);
-            transition: opacity 0.18s ease, transform 0.18s ease;
+            color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.3px; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(100,20,20,0.2); transition: opacity 0.18s ease, transform 0.18s ease;
         }
-
-        .btn-save:hover {
-            opacity: 0.88;
-            transform: translateY(-1px);
-        }
-
-        .btn-save:active {
-            transform: translateY(0);
-            opacity: 1;
-        }
+        .btn-save:hover { opacity: 0.88; transform: translateY(-1px); }
 
         /* ═══════════════════════════
            STATS PANEL
         ═══════════════════════════ */
-        .stats-section-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 9.5px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.3px;
-            color: var(--brand-mid);
-            padding-bottom: 6px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 4px;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 7px 0;
-            cursor: help;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .stat-chip {
-            font-size: 12px;
-            font-weight: 700;
-            padding: 2px 10px;
-            border-radius: 20px;
-            background: var(--bg);
-            color: var(--brand-mid);
-            border: 1px solid var(--border);
-            min-width: 34px;
-            text-align: center;
-        }
-
-        .stat-total {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 14px;
-            padding-top: 12px;
-            border-top: 2px dashed var(--border-strong);
-        }
-
-        .stat-total-label {
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.9px;
-            color: var(--text-primary);
-        }
-
-        .stat-total-chip {
-            font-size: 12px;
-            font-weight: 800;
-            padding: 3px 12px;
-            border-radius: 20px;
-            background: var(--brand-darkest);
-            color: #fff;
-        }
-
-        body.dark .stat-total-chip {
-            background: var(--brand-mid);
-        }
+        .stats-section-label { display: flex; align-items: center; gap: 6px; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; color: var(--brand-mid); padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; cursor: help; }
+        .stat-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+        .stat-chip { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 20px; background: var(--bg); color: var(--brand-mid); border: 1px solid var(--border); min-width: 34px; text-align: center; }
+        .stat-total { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 2px dashed var(--border-strong); }
+        .stat-total-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.9px; color: var(--text-primary); }
+        .stat-total-chip { font-size: 12px; font-weight: 800; padding: 3px 12px; border-radius: 20px; background: var(--brand-darkest); color: #fff; }
+        body.dark .stat-total-chip { background: var(--brand-mid); }
 
         /* ═══════════════════════════
            MAIN TABLE
         ═══════════════════════════ */
-        .emp-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        .emp-table { width: 100%; border-collapse: collapse; }
+        .emp-table thead th { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 12px 20px; background: var(--surface-raised); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .emp-table tbody tr.data-row { border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s ease; }
+        .emp-table tbody tr.data-row:hover { background: #FFF5F4; }
+        body.dark .emp-table tbody tr.data-row:hover { background: #1F1010; }
+        .emp-table td { padding: 14px 20px; vertical-align: middle; }
 
-        .emp-table thead th {
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            padding: 12px 20px;
-            background: var(--surface-raised);
-            border-bottom: 1px solid var(--border);
-            white-space: nowrap;
-        }
+        .emp-avatar { width: 38px; height: 38px; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-bright) 100%); color: #fff; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .emp-name { font-weight: 600; font-size: 14px; color: var(--text-primary); line-height: 1.2; }
+        .emp-email { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
 
-        .emp-table tbody tr.data-row {
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: background 0.12s ease;
-        }
+        .office-counter { font-weight: 700; font-size: 14px; color: var(--text-primary); }
+        .office-counter span { color: var(--text-muted); font-weight: 400; }
 
-        .emp-table tbody tr.data-row:hover {
-            background: #FFF5F4;
-        }
+        .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+        .badge-ok { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
+        .badge-err { background: var(--err-bg); color: var(--err-text); border: 1px solid var(--err-border); }
 
-        body.dark .emp-table tbody tr.data-row:hover {
-            background: #1F1010;
-        }
+        .btn-del { background: none; border: none; cursor: pointer; color: var(--border-strong); width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: background 0.15s ease, color 0.15s ease; }
+        .btn-del:hover { background: var(--err-bg); color: var(--brand-bright); }
 
-        .emp-table tbody tr.data-row:last-child {
-            border-bottom: none;
-        }
-
-        .emp-table td {
-            padding: 14px 20px;
-            vertical-align: middle;
-        }
-
-        /* ── Avatar ── */
-        .emp-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: var(--radius-md);
-            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-bright) 100%);
-            color: #fff;
-            font-weight: 800;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .emp-name {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-primary);
-            line-height: 1.2;
-        }
-
-        .emp-email {
-            font-size: 11.5px;
-            color: var(--text-muted);
-            margin-top: 1px;
-        }
-
-        /* ── Office counter ── */
-        .office-counter {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-
-        .office-counter span {
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        /* ── Badges ── */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 11px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .badge-ok {
-            background: var(--success-bg);
-            color: var(--success-text);
-            border: 1px solid var(--success-border);
-        }
-
-        .badge-err {
-            background: var(--err-bg);
-            color: var(--err-text);
-            border: 1px solid var(--err-border);
-        }
-
-        /* ── Delete btn ── */
-        .btn-del {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--border-strong);
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s ease, color 0.15s ease;
-        }
-
-        .btn-del:hover {
-            background: var(--err-bg);
-            color: var(--brand-bright);
-        }
-
-        /* ── Report button ── */
-        .btn-report {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            background: var(--surface-raised);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 7px 14px;
-            border-radius: var(--radius-md);
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            transition: border-color 0.18s, color 0.18s, background 0.18s;
-        }
-
-        .btn-report:hover {
-            border-color: var(--brand-mid);
-            color: var(--brand-mid);
-            background: var(--bg);
-        }
+        .btn-report { display: inline-flex; align-items: center; gap: 7px; background: var(--surface-raised); border: 1px solid var(--border); color: var(--text-secondary); padding: 7px 14px; border-radius: var(--radius-md); font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: border-color 0.18s, color 0.18s, background 0.18s; }
+        .btn-report:hover { border-color: var(--brand-mid); color: var(--brand-mid); background: var(--bg); }
 
         /* ═══════════════════════════
            CALENDAR EXPAND ROW
         ═══════════════════════════ */
-        .cal-row {
-            display: none;
-        }
+        .cal-row { display: none; }
+        .cal-row.open { display: table-row; }
+        .cal-body { padding: 22px 24px; background: var(--surface-raised); border-top: 1px solid var(--border); }
+        .cal-toolbar { display: flex; justify-content: flex-end; margin-bottom: 16px; }
 
-        .cal-row.open {
-            display: table-row;
-        }
-
-        .cal-body {
-            padding: 22px 24px;
-            background: var(--surface-raised);
-            border-top: 1px solid var(--border);
-        }
-
-        .cal-toolbar {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 16px;
-        }
-
-        /* FullCalendar dark mode tweaks */
-        body.dark .fc {
-            color: var(--text-primary);
-        }
-
-        body.dark .fc-theme-standard td,
-        body.dark .fc-theme-standard th {
-            border-color: var(--border);
-        }
-
-        body.dark .fc-theme-standard .fc-scrollgrid {
-            border-color: var(--border);
-        }
-
-        body.dark .fc-col-header-cell-cushion,
-        body.dark .fc-daygrid-day-number {
-            color: var(--text-secondary);
-        }
-
-        .fc-day-sat, .fc-day-sun {
-            background-color: rgba(0,0,0,0.03) !important;
-        }
-
-        body.dark .fc-day-sat,
-        body.dark .fc-day-sun {
-            background-color: rgba(255,255,255,0.02) !important;
-        }
+        body.dark .fc { color: var(--text-primary); }
+        body.dark .fc-theme-standard td, body.dark .fc-theme-standard th { border-color: var(--border); }
+        .fc-day-sat, .fc-day-sun { background-color: rgba(0,0,0,0.03) !important; }
+        body.dark .fc-day-sat, body.dark .fc-day-sun { background-color: rgba(255,255,255,0.02) !important; }
 
         /* ═══════════════════════════
            SCROLLBAR
@@ -600,15 +263,11 @@
         ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--brand-mid); }
 
-        /* ═══════════════════════════
-           MISC UTILITIES
-        ═══════════════════════════ */
         .spacer-sm { height: 12px; }
     </style>
 </head>
 <body>
 
-<!-- ── TOPBAR ── -->
 <nav class="topbar">
     <div class="topbar-left">
         <div class="topbar-brand"><em>P</em>CS</div>
@@ -623,13 +282,9 @@
     </div>
 </nav>
 
-<!-- ── LAYOUT ── -->
 <div class="layout">
 
-    <!-- ── SIDEBAR ── -->
     <aside class="sidebar">
-
-        <!-- New Employee Form -->
         <div class="card card-accent">
             <div class="card-head">
                 <div class="card-head-icon"><i class="fas fa-user-plus"></i></div>
@@ -638,93 +293,65 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    <div class="form-group">
-                        <label class="form-label">Ονοματεπώνυμο</label>
-                        <input type="text" name="full_name" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Ημερομηνία Πρόσληψης</label>
-                        <input type="date" name="date_joined" class="form-input" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 16px;">
-                        <label class="form-label">Χρέος (Ημέρες)</label>
-                        <input type="number" name="initial_debt" value="0" min="0" class="form-input" required>
-                    </div>
+                    <div class="form-group"><label class="form-label">Ονοματεπώνυμο</label><input type="text" name="full_name" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Ημερομηνία Πρόσληψης</label><input type="date" name="date_joined" class="form-input" required></div>
+                    <div class="form-group" style="margin-bottom: 16px;"><label class="form-label">Χρέος (Ημέρες)</label><input type="number" name="initial_debt" value="0" min="0" class="form-input" required></div>
                     <button type="submit" class="btn-save">Αποθήκευση</button>
                 </form>
             </div>
         </div>
 
-        <!-- Stats Panel -->
         <div class="card card-accent">
             <div class="card-head">
                 <div class="card-head-icon"><i class="fas fa-chart-line"></i></div>
                 <span class="card-head-label">Στατιστικά Παρουσίας</span>
             </div>
             <div class="card-body">
-
-                <!-- Today -->
-                <div class="stats-section-label">
-                    <i class="fas fa-calendar-day" style="font-size:9px;"></i>
-                    Σήμερα
-                </div>
-                <div class="stat-row" title="{{ stats.today.names_office }}">
-                    <span class="stat-label">Γραφείο</span>
-                    <span class="stat-chip">{{ stats.today.office }}</span>
-                </div>
-                <div class="stat-row" title="{{ stats.today.names_remote }}">
-                    <span class="stat-label">Τηλεργασία</span>
-                    <span class="stat-chip">{{ stats.today.remote }}</span>
-                </div>
-                <div class="stat-row" title="{{ stats.today.names_leave }}">
-                    <span class="stat-label">Άδεια / Ασθ.</span>
-                    <span class="stat-chip">{{ stats.today.leave }}</span>
-                </div>
-
+                <div class="stats-section-label"><i class="fas fa-calendar-day" style="font-size:9px;"></i> Σήμερα</div>
+                <div class="stat-row" title="{{ stats.today.names_office }}"><span class="stat-label">Γραφείο</span><span class="stat-chip">{{ stats.today.office }}</span></div>
+                <div class="stat-row" title="{{ stats.today.names_remote }}"><span class="stat-label">Τηλεργασία</span><span class="stat-chip">{{ stats.today.remote }}</span></div>
+                <div class="stat-row" title="{{ stats.today.names_leave }}"><span class="stat-label">Άδεια / Ασθ.</span><span class="stat-chip">{{ stats.today.leave }}</span></div>
                 <div class="spacer-sm"></div>
-
-                <!-- This Month -->
-                <div class="stats-section-label">
-                    <i class="fas fa-calendar-alt" style="font-size:9px;"></i>
-                    Τρέχων Μήνας
+                <div class="stats-section-label"><i class="fas fa-calendar-alt" style="font-size:9px;"></i> Τρέχων Μήνας</div>
+                <div class="stat-row" title="Υπάλληλοι: {{ stats.month.names_office }}"><span class="stat-label">Συν. Γραφείο</span><span class="stat-chip">{{ stats.month.office }}</span></div>
+                <div class="stat-row" title="Υπάλληλοι: {{ stats.month.names_remote }}"><span class="stat-label">Συν. Τηλεργασία</span><span class="stat-chip">{{ stats.month.remote }}</span></div>
+                <div class="stat-row" title="Υπάλληλοι: {{ stats.month.names_leave }}"><span class="stat-label">Άδειες / Ασθ.</span><span class="stat-chip">{{ stats.month.leave }}</span></div>
+                <div style="margin-top:10px;">
+                    <a href="{% url 'export_attendance_excel' %}" class="btn-report" style="text-decoration:none; display:inline-flex; width: 100%; justify-content: center;">
+                        <i class="fas fa-file-excel" style="color: #1D6F42;"></i> Εξαγωγή σε Excel
+                    </a>
                 </div>
-                <div class="stat-row" title="Υπάλληλοι: {{ stats.month.names_office }}">
-                    <span class="stat-label">Συν. Γραφείο</span>
-                    <span class="stat-chip">{{ stats.month.office }}</span>
-                </div>
-                <div class="stat-row" title="Υπάλληλοι: {{ stats.month.names_remote }}">
-                    <span class="stat-label">Συν. Τηλεργασία</span>
-                    <span class="stat-chip">{{ stats.month.remote }}</span>
-                </div>
-                <div class="stat-row" title="Υπάλληλοι: {{ stats.month.names_leave }}">
-                    <span class="stat-label">Άδειες / Ασθ.</span>
-                    <span class="stat-chip">{{ stats.month.leave }}</span>
-                </div>
-                <a href="{% url 'export_attendance_excel' %}" class="btn-report" style="text-decoration:none; display:inline-flex;">
-                    <i class="fas fa-file-excel" style="color: #1D6F42;"></i>
-                    Εξαγωγή σε Excel
-                </a>
-
-                <!-- Total -->
-                <div class="stat-total">
-                    <span class="stat-total-label">Σύνολο Προσωπικού</span>
-                    <span class="stat-total-chip">{{ stats.total_emps }}</span>
-                </div>
+                <div class="stat-total"><span class="stat-total-label">Σύνολο Προσωπικού</span><span class="stat-total-chip">{{ stats.total_emps }}</span></div>
             </div>
         </div>
-
     </aside>
 
-    <!-- ── MAIN CONTENT ── -->
     <main>
         <div class="card">
-            <div class="card-head">
-                <div class="card-head-icon"><i class="fas fa-users"></i></div>
-                <span class="card-head-label">Λίστα Προσωπικού</span>
+            <div class="card-head" style="justify-content: space-between;">
+                <div style="display:flex; align-items:center; gap:9px;">
+                    <div class="card-head-icon"><i class="fas fa-users"></i></div>
+                    <span class="card-head-label">Λίστα Προσωπικού</span>
+                </div>
+            </div>
+
+            <div class="card-body" style="padding-bottom: 10px; background: var(--surface-raised); border-bottom: 1px solid var(--border);">
+                <div class="row g-2">
+                    <div class="col-md-8">
+                        <div style="position: relative;">
+                            <i class="fas fa-search" style="position: absolute; left: 12px; top: 12px; color: var(--text-muted); font-size: 12px;"></i>
+                            <input type="text" id="empSearch" class="form-input" style="padding-left: 35px;" placeholder="Αναζήτηση υπαλλήλου..." onkeyup="filterTable()">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select id="statusFilter" class="form-input" onchange="filterTable()">
+                            <option value="ALL">Όλοι οι υπάλληλοι</option>
+                            <option value="OK">Κατάσταση: Εντάξει</option>
+                            <option value="DEBT">Κατάσταση: Με Χρέος</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <table class="emp-table">
@@ -736,76 +363,67 @@
                         <th style="width:52px;"></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="employeeTableBody">
                     {% for emp in employees %}
-
                     <tr class="data-row" onclick="toggleCal('{{ emp.id }}')">
-                        <!-- Employee Info -->
                         <td>
                             <div style="display:flex; align-items:center; gap:13px;">
                                 <div class="emp-avatar">{{ emp.name|slice:":2"|upper }}</div>
-                                <div>
-                                    <div class="emp-name">{{ emp.name }}</div>
-                                    <div class="emp-email">{{ emp.email }}</div>
-                                </div>
+                                <div><div class="emp-name">{{ emp.name }}</div><div class="emp-email">{{ emp.email }}</div></div>
                             </div>
                         </td>
-
-                        <!-- Office count -->
-                        <td style="text-align:center;">
-                            <span class="office-counter">{{ emp.office }} <span>/ 8</span></span>
-                        </td>
-
-                        <!-- Status badge -->
+                        <td style="text-align:center;"><span class="office-counter">{{ emp.office }} <span>/ 8</span></span></td>
                         <td style="text-align:center;">
                             {% if emp.is_ok %}
-                                <span class="badge badge-ok">
-                                    <i class="fas fa-check" style="font-size:9px;"></i>
-                                    Εντάξει
-                                </span>
+                                <span class="badge badge-ok"><i class="fas fa-check" style="font-size:9px;"></i> Εντάξει</span>
                             {% else %}
-                                <span class="badge badge-err">
-                                    <i class="fas fa-minus-circle" style="font-size:9px;"></i>
-                                    Χρέος −{{ emp.debt }}
-                                </span>
+                                <span class="badge badge-err"><i class="fas fa-minus-circle" style="font-size:9px;"></i> Χρέος −{{ emp.debt }}</span>
                             {% endif %}
                         </td>
-
-                        <!-- Delete -->
-                        <td onclick="event.stopPropagation()">
-                            <button class="btn-del" onclick="confirmDel('{{ emp.id }}','{{ emp.name }}')" title="Διαγραφή">
-                                <i class="fas fa-trash-alt" style="font-size:12px;"></i>
-                            </button>
-                        </td>
+                        <td onclick="event.stopPropagation()"><button class="btn-del" onclick="confirmDel('{{ emp.id }}','{{ emp.name }}')" title="Διαγραφή"><i class="fas fa-trash-alt" style="font-size:12px;"></i></button></td>
                     </tr>
-
-                    <!-- Calendar expand row -->
                     <tr id="cal-{{ emp.id }}" class="cal-row">
-                        <td colspan="4" style="padding:0;">
-                            <div class="cal-body">
-                                <div class="cal-toolbar">
-                                    <button class="btn-report" onclick="openRangeModal('{{ emp.id }}', '{{ emp.name }}')">
-                                        <i class="fas fa-file-alt" style="font-size:11px;"></i>
-                                        Αναφορά ανά Διάστημα
-                                    </button>
-                                </div>
-                                <div id="calendar-{{ emp.id }}"></div>
-                            </div>
-                        </td>
+                        <td colspan="4" style="padding:0;"><div class="cal-body"><div class="cal-toolbar"><button class="btn-report" onclick="openRangeModal('{{ emp.id }}', '{{ emp.name }}')"><i class="fas fa-file-alt" style="font-size:11px;"></i> Αναφορά ανά Διάστημα</button></div><div id="calendar-{{ emp.id }}"></div></div></td>
                     </tr>
-
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </main>
-
-</div><!-- .layout -->
+</div>
 
 <script>
     const eventsData = { {% for emp in employees %}"{{ emp.id }}": {{ emp.events_json|safe }},{% endfor %} };
     const holidays = JSON.parse('{{ holidays_events_json|safe }}');
     const calendars = {};
+
+    /* ── Live Search & Filtering ── */
+    function filterTable() {
+        const searchQuery = document.getElementById('empSearch').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('.emp-table tbody tr.data-row');
+
+        rows.forEach(row => {
+            const name = row.querySelector('.emp-name').innerText.toLowerCase();
+            const email = row.querySelector('.emp-email').innerText.toLowerCase();
+            const hasDebt = row.querySelector('.badge-err') !== null;
+
+            const matchesSearch = name.includes(searchQuery) || email.includes(searchQuery);
+            let matchesStatus = true;
+            if (statusFilter === 'OK') matchesStatus = !hasDebt;
+            if (statusFilter === 'DEBT') matchesStatus = hasDebt;
+
+            const empId = row.getAttribute('onclick').match(/'([^']+)'/)[1];
+            const calRow = document.getElementById(`cal-${empId}`);
+
+            if (matchesSearch && matchesStatus) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+                if (calRow) calRow.classList.remove('open');
+            }
+        });
+    }
 
     /* ── Theme ── */
     document.addEventListener('DOMContentLoaded', () => {
@@ -851,9 +469,7 @@
                        <option value="LEAVE"   ${currentTitle.includes('Άδεια')     ? 'selected' : ''}>✈️ Άδεια</option>
                        <option value="SICK"    ${currentTitle.includes('Ασθένεια')  ? 'selected' : ''}>🩺 Ασθένεια</option>
                    </select>`,
-            showCancelButton: true,
-            confirmButtonText: 'Αποθήκευση',
-            confirmButtonColor: '#991B1B',
+            showCancelButton: true, confirmButtonText: 'Αποθήκευση', confirmButtonColor: '#991B1B',
             preConfirm: () => document.getElementById('swal-work-type').value
         }).then((r) => {
             if (r.isConfirmed) {
@@ -873,15 +489,8 @@
             title: `Αναφορά: ${empName}`,
             background: isDark ? '#1C1212' : '#fff',
             color: isDark ? '#F5EDED' : '#1A0F0F',
-            html: `<div style="text-align:left;">
-                       <label style="font-size:11px;font-weight:700;">ΑΠΟ:</label>
-                       <input type="date" id="range-start" class="form-control mb-2">
-                       <label style="font-size:11px;font-weight:700;">ΕΩΣ:</label>
-                       <input type="date" id="range-end" class="form-control">
-                   </div>`,
-            showCancelButton: true,
-            confirmButtonText: 'Υπολογισμός',
-            confirmButtonColor: '#3B0808',
+            html: `<div style="text-align:left;"><label style="font-size:11px;font-weight:700;">ΑΠΟ:</label><input type="date" id="range-start" class="form-control mb-2"><label style="font-size:11px;font-weight:700;">ΕΩΣ:</label><input type="date" id="range-end" class="form-control"></div>`,
+            showCancelButton: true, confirmButtonText: 'Υπολογισμός', confirmButtonColor: '#3B0808',
             preConfirm: () => {
                 const s = document.getElementById('range-start').value;
                 const e = document.getElementById('range-end').value;
@@ -891,30 +500,20 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 fetch(`/employee-stats/${empId}/?start=${result.value.start}&end=${result.value.end}`)
-                    .then(r => r.json())
-                    .then(data => {
+                    .then(r => r.json()).then(data => {
                         Swal.fire({
-                            title: 'Αποτελέσματα',
-                            background: isDark ? '#1C1212' : '#fff',
-                            color: isDark ? '#F5EDED' : '#1A0F0F',
+                            title: 'Αποτελέσματα', background: isDark ? '#1C1212' : '#fff', color: isDark ? '#F5EDED' : '#1A0F0F',
                             html: `<div style="display:flex;justify-content:center;gap:10px;margin-top:8px;">
                                     <div style="background:${isDark?'#231616':'#FFF5F4'};padding:14px 10px;border-radius:10px;border:1px solid ${isDark?'#2E1C1C':'#FEE2E2'};min-width:80px;text-align:center;">
-                                        <div style="font-size:20px;margin-bottom:6px;">🏢</div>
-                                        <div style="font-weight:800;font-size:20px;color:#991B1B;">${data.office}</div>
-                                        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9C7B7B;margin-top:4px;">ΓΡΑΦΕΙΟ</div>
+                                        <div style="font-size:20px;margin-bottom:6px;">🏢</div><div style="font-weight:800;font-size:20px;color:#991B1B;">${data.office}</div><div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9C7B7B;margin-top:4px;">ΓΡΑΦΕΙΟ</div>
                                     </div>
                                     <div style="background:${isDark?'#231616':'#FFF5F4'};padding:14px 10px;border-radius:10px;border:1px solid ${isDark?'#2E1C1C':'#FEE2E2'};min-width:80px;text-align:center;">
-                                        <div style="font-size:20px;margin-bottom:6px;">💻</div>
-                                        <div style="font-weight:800;font-size:20px;color:#991B1B;">${data.remote}</div>
-                                        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9C7B7B;margin-top:4px;">ΤΗΛΕΡΓΑΣΙΑ</div>
+                                        <div style="font-size:20px;margin-bottom:6px;">💻</div><div style="font-weight:800;font-size:20px;color:#991B1B;">${data.remote}</div><div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9C7B7B;margin-top:4px;">ΤΗΛΕΡΓΑΣΙΑ</div>
                                     </div>
                                     <div style="background:${isDark?'#231616':'#FFF5F4'};padding:14px 10px;border-radius:10px;border:1px solid ${isDark?'#2E1C1C':'#FEE2E2'};min-width:80px;text-align:center;">
-                                        <div style="font-size:20px;margin-bottom:6px;">✈️</div>
-                                        <div style="font-weight:800;font-size:20px;color:#991B1B;">${data.leave}</div>
-                                        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9C7B7B;margin-top:4px;">ΑΔΕΙΕΣ</div>
+                                        <div style="font-size:20px;margin-bottom:6px;">✈️</div><div style="font-weight:800;font-size:20px;color:#991B1B;">${data.leave}</div><div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9C7B7B;margin-top:4px;">ΑΔΕΙΕΣ</div>
                                     </div>
-                                   </div>`,
-                            confirmButtonColor: '#3B0808'
+                                   </div>`, confirmButtonColor: '#3B0808'
                         });
                     });
             }
@@ -930,18 +529,12 @@
             row.classList.add('open');
             if (!calendars[id]) {
                 const cal = new FullCalendar.Calendar(document.getElementById(`calendar-${id}`), {
-                    initialView: 'dayGridMonth',
-                    locale: 'el',
-                    height: 400,
+                    initialView: 'dayGridMonth', locale: 'el', height: 400,
                     events: (eventsData[id] || []).concat(holidays),
                     dateClick: (info) => openAttendanceModal(id, info.dateStr),
-                    eventClick: (info) => {
-                        if (!info.event.title.includes('🎉'))
-                            openAttendanceModal(id, info.event.startStr, info.event.title);
-                    }
+                    eventClick: (info) => { if (!info.event.title.includes('🎉')) openAttendanceModal(id, info.event.startStr, info.event.title); }
                 });
-                cal.render();
-                calendars[id] = true;
+                cal.render(); calendars[id] = true;
             }
         }
     }
@@ -950,26 +543,14 @@
     function confirmDel(id, name) {
         const isDark = document.body.classList.contains('dark');
         Swal.fire({
-            title: 'Διαγραφή;',
-            text: `Οριστική διαγραφή του/της ${name};`,
-            icon: 'warning',
-            background: isDark ? '#1C1212' : '#fff',
-            color: isDark ? '#F5EDED' : '#1A0F0F',
-            showCancelButton: true,
-            confirmButtonColor: '#DC2626',
-            confirmButtonText: 'Διαγραφή'
+            title: 'Διαγραφή;', text: `Οριστική διαγραφή του/της ${name};`, icon: 'warning',
+            background: isDark ? '#1C1212' : '#fff', color: isDark ? '#F5EDED' : '#1A0F0F',
+            showCancelButton: true, confirmButtonColor: '#DC2626', confirmButtonText: 'Διαγραφή'
         }).then(r => {
             if (r.isConfirmed) {
-                const f = document.createElement('form');
-                f.method = 'POST';
-                f.action = `/delete-employee/${id}/`;
-                const c = document.createElement('input');
-                c.type = 'hidden';
-                c.name = 'csrfmiddlewaretoken';
-                c.value = '{{ csrf_token }}';
-                f.appendChild(c);
-                document.body.appendChild(f);
-                f.submit();
+                const f = document.createElement('form'); f.method = 'POST'; f.action = `/delete-employee/${id}/`;
+                const c = document.createElement('input'); c.type = 'hidden'; c.name = 'csrfmiddlewaretoken'; c.value = '{{ csrf_token }}';
+                f.appendChild(c); document.body.appendChild(f); f.submit();
             }
         });
     }
