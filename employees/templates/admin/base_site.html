@@ -3,35 +3,665 @@
 {% block title %}{{ title }} | PCS Admin{% endblock %}
 
 {% block extrastyle %}
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
 <style>
-    /* Header - Πάνω μπάρα */
-    #header, .module h2, .button.default, input[type=submit].default {
-        background: #991B1B !important; /* Crimson Red */
-    }
-    
-    /* Branding */
-    #branding h1 {
-        color: #ffffff !important;
-    }
+/* ═══════════════════════════════════════════════
+   PCS ADMIN — Custom Theme
+   ───────────────────────────────────────────────
+   PALETTE
+   --deep-maroon : #450A0A   (darkest)
+   --blood       : #7F1D1D   (mid-dark)
+   --crimson     : #991B1B   (primary brand)
+   --ember       : #DC2626   (bright accent)
+   --gold        : #D4A854   (luxe accent)
+   --soft-bg     : #FFF8F5   (page background)
+   --cream       : #FDF5F0   (surface light)
+   --border      : #E8D5CF   (dividers)
+   --charcoal    : #1C1C1C   (primary text)
+   --muted       : #6B5B58   (secondary text)
+═══════════════════════════════════════════════ */
 
-    /* Κουμπιά */
-    .button, input[type=submit] {
-        background: #450A0A !important; /* Deep Maroon */
-        border-radius: 4px !important;
-    }
+/* ── 1. CSS VARIABLES ── */
+:root {
+    --deep-maroon : #450A0A;
+    --blood       : #7F1D1D;
+    --crimson     : #991B1B;
+    --ember       : #DC2626;
+    --gold        : #D4A854;
+    --soft-bg     : #FFF8F5;
+    --cream       : #FDF5F0;
+    --border      : #E8D5CF;
+    --charcoal    : #1C1C1C;
+    --muted       : #6B5B58;
+    --shadow      : rgba(69, 10, 10, 0.10);
+    --shadow-lg   : rgba(69, 10, 10, 0.22);
+    --focus-ring  : rgba(153, 27, 27, 0.18);
+    --radius      : 8px;
+    --radius-sm   : 5px;
+}
 
-    /* Sidebar Φίλτρα */
-    #changelist-filter h2 {
-        background: #450A0A !important;
-    }
+/* ── 2. BASE ── */
+*, *::before, *::after { box-sizing: border-box; }
 
-    /* Links */
-    a:link, a:visited {
-        color: #991B1B;
-    }
+body {
+    font-family: 'DM Sans', sans-serif !important;
+    background: var(--soft-bg) !important;
+    color: var(--charcoal) !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+}
+
+/* ── 3. LINKS — low specificity, component overrides win ── */
+a:link, a:visited {
+    color: var(--crimson);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+a:hover {
+    color: var(--ember);
+    text-decoration: none;
+}
+
+/* ── 4. HEADER ── */
+#header {
+    background: linear-gradient(
+        135deg,
+        var(--deep-maroon) 0%,
+        var(--blood)       55%,
+        var(--crimson)     100%
+    ) !important;
+    padding: 0 28px !important;
+    height: 64px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-shadow: 0 4px 20px var(--shadow-lg) !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* subtle noise texture overlay */
+#header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+
+/* gold separator line */
+#header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--gold) 40%, var(--gold) 60%, transparent 100%);
+    opacity: 0.7;
+}
+
+/* ── 5. BRANDING ── */
+#branding h1 {
+    font-family: 'Playfair Display', Georgia, serif !important;
+    font-size: 21px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px !important;
+    color: #fff !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.25) !important;
+    position: relative; z-index: 1;
+}
+
+#branding h1 a:link,
+#branding h1 a:visited {
+    color: #fff !important;
+    transition: color 0.2s ease;
+}
+
+#branding h1 a:hover {
+    color: var(--gold) !important;
+}
+
+/* ── 6. USER TOOLS ── */
+#user-tools {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.8px !important;
+    text-transform: uppercase !important;
+    color: rgba(255,255,255,0.80) !important;
+    position: relative; z-index: 1;
+}
+
+#user-tools a:link,
+#user-tools a:visited {
+    color: rgba(255,255,255,0.80) !important;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 1px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+#user-tools a:hover {
+    color: var(--gold) !important;
+    border-color: var(--gold) !important;
+}
+
+/* ── 7. BREADCRUMBS ── */
+div.breadcrumbs {
+    background: var(--cream) !important;
+    padding: 9px 28px !important;
+    border-bottom: 1px solid var(--border) !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: var(--muted) !important;
+}
+
+div.breadcrumbs a:link,
+div.breadcrumbs a:visited {
+    color: var(--crimson) !important;
+    transition: color 0.15s ease;
+}
+div.breadcrumbs a:hover {
+    color: var(--ember) !important;
+}
+
+/* ── 8. LAYOUT ── */
+/* #content is the outermost wrapper — pad here only */
+#content {
+    padding: 28px !important;
+}
+
+/* ── 9. PAGE TITLE ── */
+#content h1 {
+    font-family: 'Playfair Display', Georgia, serif !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    color: var(--deep-maroon) !important;
+    border-bottom: 2px solid var(--border) !important;
+    padding-bottom: 12px !important;
+    margin-top: 0 !important;
+    margin-bottom: 24px !important;
+}
+
+/* ── 10. MODULE CARDS ── */
+.module {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 10px var(--shadow) !important;
+    margin-bottom: 22px !important;
+    background: #fff !important;
+    transition: box-shadow 0.2s ease !important;
+}
+
+.module:hover {
+    box-shadow: 0 5px 20px var(--shadow-lg) !important;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+    background: linear-gradient(90deg, var(--deep-maroon) 0%, var(--blood) 100%) !important;
+    color: #fff !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase !important;
+    padding: 10px 16px !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+/* ── 11. FIELDSETS ── */
+fieldset {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    padding: 20px !important;
+    margin-bottom: 18px !important;
+    background: #fff !important;
+}
+
+fieldset > h2,
+fieldset.module h2 {
+    margin: -20px -20px 18px !important;
+    border-radius: var(--radius) var(--radius) 0 0 !important;
+}
+
+.help {
+    font-size: 12px !important;
+    color: var(--muted) !important;
+    font-style: italic !important;
+}
+
+/* ── 12. FORM FIELDS ── */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="url"],
+input[type="tel"],
+input[type="search"],
+textarea,
+select {
+    border: 1.5px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 8px 11px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 13px !important;
+    color: var(--charcoal) !important;
+    background: #fff !important;
+    outline: none !important;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+input[type="tel"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--crimson) !important;
+    box-shadow: 0 0 0 3px var(--focus-ring) !important;
+    outline: none !important;
+}
+
+input[type="checkbox"] {
+    accent-color: var(--crimson) !important;
+    width: 15px !important;
+    height: 15px !important;
+    cursor: pointer !important;
+}
+
+/* ── 13. SEARCH BAR ── */
+#searchbar,
+#changelist-search input[type="search"],
+#changelist-search input[type="text"] {
+    border: 1.5px solid var(--border) !important;
+    border-radius: 20px !important;
+    padding: 7px 14px !important;
+    width: 280px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 13px !important;
+    background: #fff !important;
+    outline: none !important;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+#searchbar:focus,
+#changelist-search input:focus {
+    border-color: var(--crimson) !important;
+    box-shadow: 0 0 0 3px var(--focus-ring) !important;
+}
+
+/* ── 14. BUTTONS ── */
+.button,
+input[type="submit"],
+input[type="button"] {
+    background: linear-gradient(135deg, var(--deep-maroon) 0%, var(--crimson) 100%) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 8px 18px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.3px !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 8px var(--shadow) !important;
+    /* Explicit properties — never 'transition: all' to avoid conflicts */
+    transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease !important;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+    background: linear-gradient(135deg, var(--blood) 0%, var(--ember) 100%) !important;
+    box-shadow: 0 4px 14px var(--shadow-lg) !important;
+    transform: translateY(-1px) !important;
+}
+
+.button:active,
+input[type="submit"]:active,
+input[type="button"]:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 4px var(--shadow) !important;
+}
+
+.button.default,
+input[type="submit"].default {
+    background: linear-gradient(135deg, var(--crimson) 0%, var(--ember) 100%) !important;
+}
+
+/* ── 15. DELETE LINK — declared AFTER .button to win specificity ── */
+a.deletelink,
+a.deletelink:link,
+a.deletelink:visited {
+    background: transparent !important;
+    color: var(--ember) !important;
+    border: 1.5px solid var(--ember) !important;
+    border-radius: var(--radius-sm) !important;
+    box-shadow: none !important;
+    padding: 6px 16px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    transform: none !important;
+    transition: background 0.18s ease, color 0.18s ease !important;
+}
+
+a.deletelink:hover {
+    background: var(--ember) !important;
+    color: #fff !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ── 16. SUBMIT ROW ── */
+.submit-row {
+    background: var(--cream) !important;
+    border-top: 1px solid var(--border) !important;
+    border-radius: 0 0 var(--radius) var(--radius) !important;
+    padding: 12px 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+}
+
+/* ── 17. OBJECT TOOLS ── */
+ul.object-tools {
+    margin: 0 0 16px !important;
+    padding: 0 !important;
+}
+
+ul.object-tools li {
+    display: inline-block !important;
+    margin-left: 8px !important;
+}
+
+ul.object-tools a:link,
+ul.object-tools a:visited {
+    background: linear-gradient(135deg, var(--deep-maroon) 0%, var(--crimson) 100%) !important;
+    color: #fff !important;
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.6px !important;
+    text-transform: uppercase !important;
+    box-shadow: 0 2px 8px var(--shadow) !important;
+    transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease !important;
+}
+
+ul.object-tools a:hover {
+    background: linear-gradient(135deg, var(--blood) 0%, var(--ember) 100%) !important;
+    box-shadow: 0 4px 14px var(--shadow-lg) !important;
+    color: #fff !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ── 18. CHANGELIST TABLE ── */
+#result_list {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    width: 100% !important;
+}
+
+#result_list thead th {
+    background: var(--cream) !important;
+    color: var(--muted) !important;
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.1px !important;
+    text-transform: uppercase !important;
+    border-bottom: 2px solid var(--border) !important;
+    padding: 11px 13px !important;
+}
+
+#result_list thead th a:link,
+#result_list thead th a:visited {
+    color: var(--muted) !important;
+    transition: color 0.15s ease;
+}
+
+#result_list thead th a:hover {
+    color: var(--crimson) !important;
+}
+
+#result_list tbody tr {
+    transition: background 0.12s ease !important;
+}
+
+#result_list tbody tr:nth-child(even) {
+    background: #FDF8F7 !important;
+}
+
+#result_list tbody tr:hover {
+    background: #FFF1ED !important;
+}
+
+#result_list tbody td {
+    padding: 10px 13px !important;
+    border-bottom: 1px solid var(--border) !important;
+    vertical-align: middle !important;
+}
+
+/* ── 19. SIDEBAR FILTERS ── */
+#changelist-filter {
+    background: #fff !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 10px var(--shadow) !important;
+}
+
+#changelist-filter h2 {
+    background: linear-gradient(90deg, var(--deep-maroon) 0%, var(--blood) 100%) !important;
+    color: #fff !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.8px !important;
+    text-transform: uppercase !important;
+    padding: 10px 16px !important;
+    margin: 0 !important;
+}
+
+#changelist-filter h3 {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.2px !important;
+    color: var(--muted) !important;
+    padding: 12px 16px 4px !important;
+    margin: 0 !important;
+    border-top: 1px solid var(--border) !important;
+}
+
+#changelist-filter h3:first-of-type {
+    border-top: none !important;
+}
+
+#changelist-filter ul {
+    list-style: none !important;
+    padding: 4px 16px 12px !important;
+    margin: 0 !important;
+}
+
+#changelist-filter li {
+    padding: 3px 0 !important;
+}
+
+#changelist-filter a:link,
+#changelist-filter a:visited {
+    color: var(--charcoal) !important;
+    font-size: 13px !important;
+    transition: color 0.15s ease;
+}
+
+#changelist-filter a:hover {
+    color: var(--ember) !important;
+}
+
+#changelist-filter li.selected a:link,
+#changelist-filter li.selected a:visited {
+    color: var(--crimson) !important;
+    font-weight: 600 !important;
+}
+
+/* ── 20. PAGINATOR ── */
+.paginator {
+    font-size: 12px !important;
+    color: var(--muted) !important;
+    padding: 12px 0 !important;
+}
+
+/* Consistent box-sizing for both links and the current page indicator */
+.paginator a:link,
+.paginator a:visited,
+.paginator .this-page {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 30px !important;
+    padding: 4px 10px !important;
+    border-radius: var(--radius-sm) !important;
+    border: 1px solid var(--border) !important;
+    margin: 0 2px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+}
+
+.paginator a:link,
+.paginator a:visited {
+    color: var(--crimson) !important;
+    background: #fff !important;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
+}
+
+.paginator a:hover {
+    background: var(--crimson) !important;
+    color: #fff !important;
+    border-color: var(--crimson) !important;
+}
+
+.paginator .this-page {
+    background: var(--crimson) !important;
+    color: #fff !important;
+    border-color: var(--crimson) !important;
+    font-weight: 700 !important;
+}
+
+/* ── 21. MESSAGES / ALERTS ── */
+ul.messagelist {
+    padding: 0 !important;
+    margin: 0 0 20px !important;
+    list-style: none !important;
+}
+
+ul.messagelist li {
+    border-radius: var(--radius-sm) !important;
+    padding: 10px 16px 10px 18px !important;
+    margin-bottom: 8px !important;
+    font-weight: 500 !important;
+    font-size: 13px !important;
+    border-left-width: 4px !important;
+    border-left-style: solid !important;
+}
+
+ul.messagelist li.success {
+    background: #F0FDF4 !important;
+    border-left-color: #22C55E !important;
+    color: #15803D !important;
+}
+
+ul.messagelist li.error {
+    background: #FEF2F2 !important;
+    border-left-color: var(--ember) !important;
+    color: var(--deep-maroon) !important;
+}
+
+ul.messagelist li.warning {
+    background: #FFFBEB !important;
+    border-left-color: #F59E0B !important;
+    color: #92400E !important;
+}
+
+/* ── 22. INLINE GROUPS ── */
+.inline-group {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    overflow: hidden !important;
+    margin-bottom: 18px !important;
+    background: #fff !important;
+}
+
+/* ── 23. CALENDAR & CLOCK WIDGETS ── */
+.calendarbox,
+.clockbox {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    overflow: hidden !important;
+    box-shadow: 0 8px 24px var(--shadow-lg) !important;
+}
+
+.calendarbox h2,
+.clockbox h2,
+.module.calendar caption {
+    background: var(--deep-maroon) !important;
+    color: #fff !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+}
+
+.calendar td.today a {
+    color: var(--crimson) !important;
+    font-weight: 700 !important;
+}
+
+.calendar td.selected a {
+    background: var(--crimson) !important;
+    color: #fff !important;
+    border-radius: 50% !important;
+}
+
+/* ── 24. NAV SIDEBAR (Django 3.2+) ── */
+#nav-sidebar {
+    background: #fff !important;
+    border-right: 1px solid var(--border) !important;
+}
+
+.toggle-nav-sidebar {
+    border-color: var(--border) !important;
+    color: var(--muted) !important;
+}
+
+/* ── 25. ACTIONS BAR ── */
+.actions {
+    background: var(--cream) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 8px 12px !important;
+    margin-bottom: 10px !important;
+}
+
+/* ── 26. SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: #C9A9A4; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--crimson); }
 </style>
 {% endblock %}
 
 {% block branding %}
-<h1 id="site-name"><a href="{% url 'admin:index' %}">PCS Attendance Dashboard</a></h1>
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">PCS Attendance Dashboard</a>
+</h1>
 {% endblock %}

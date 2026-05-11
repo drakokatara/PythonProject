@@ -7,7 +7,6 @@ admin.site.site_title = "PCS Portal"
 admin.site.index_title = "Διαχείριση Προσωπικού & Παρουσιών"
 
 # ── Inline Διαχείριση ──
-# Επιτρέπει την προσθήκη παρουσιών απευθείας μέσα στην καρτέλα του υπαλλήλου
 class AttendanceInline(admin.TabularInline):
     model = Attendance
     extra = 1
