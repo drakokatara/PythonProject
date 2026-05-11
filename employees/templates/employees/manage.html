@@ -14,14 +14,17 @@
 
     <style>
         :root {
-            /* Light Theme */
             --bg: #F1F5F9; --surface: #FFFFFF; --text-main: #1E293B; --text-muted: #64748B;
             --brand: #991B1B; --brand-hover: #7F1D1D; --border: #E2E8F0;
             --topbar: #450A0A; --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+
+            /* Unified Data Colors */
+            --clr-office: #10b981;
+            --clr-remote: #0ea5e9;
+            --clr-leave: #f59e0b;
         }
 
         body.dark {
-            /* Dark Theme */
             --bg: #0F172A; --surface: #1E293B; --text-main: #F1F5F9; --text-muted: #94A3B8;
             --brand: #EF4444; --brand-hover: #F87171; --border: #334155;
             --topbar: #020617; --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
@@ -32,23 +35,20 @@
             font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.3s ease;
         }
 
-        /* Topbar & Branding */
         .topbar {
             background: var(--topbar); height: 65px; padding: 0 30px;
             display: flex; align-items: center; justify-content: space-between;
             position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border);
         }
-        .topbar-brand { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+        .topbar-brand { font-size: 22px; font-weight: 800; color: #fff; }
         .topbar-brand span { color: var(--brand); }
 
-        /* Layout */
         .app-container {
             display: grid; grid-template-columns: 300px 1fr; gap: 24px;
             padding: 30px; max-width: 1500px; margin: 0 auto;
         }
         @media (max-width: 1100px) { .app-container { grid-template-columns: 1fr; } }
 
-        /* Cards & Components */
         .glass-card {
             background: var(--surface); border: 1px solid var(--border);
             border-radius: 20px; box-shadow: var(--shadow); overflow: hidden;
@@ -59,48 +59,50 @@
             font-weight: 700; text-transform: uppercase; color: var(--text-muted);
         }
 
-        /* Buttons & Inputs */
-        .btn-action {
-            background: var(--brand); color: #fff; border: none; padding: 10px 20px;
-            border-radius: 12px; font-weight: 700; transition: 0.2s; width: 100%;
-        }
-        .btn-action:hover { background: var(--brand-hover); transform: translateY(-1px); }
-
         .form-control-custom {
             background: var(--bg); border: 1px solid var(--border); color: var(--text-main);
             border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; width: 100%;
         }
-        .form-control-custom:focus { border-color: var(--brand); outline: none; }
+        .btn-action {
+            background: var(--brand); color: #fff; border: none; padding: 10px;
+            border-radius: 12px; font-weight: 700; width: 100%; transition: 0.2s;
+        }
 
-        /* Table Design */
+        /* Status Dots - Updated Colors */
+        .status-dot {
+            width: 12px; height: 12px; border-radius: 50%; display: inline-block;
+            position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--surface);
+        }
+        .dot-OFFICE { background: var(--clr-office); box-shadow: 0 0 8px var(--clr-office); animation: pulse 2s infinite; }
+        .dot-REMOTE { background: var(--clr-remote); box-shadow: 0 0 5px var(--clr-remote); }
+        .dot-LEAVE, .dot-SICK { background: var(--clr-leave); }
+        .dot-NONE { background: var(--text-muted); opacity: 0.5; }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
         .custom-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        .custom-table th { color: var(--text-muted); font-size: 11px; text-transform: uppercase; padding: 10px 20px; }
         .data-row { background: var(--surface); transition: 0.2s; cursor: pointer; }
         .data-row td { padding: 15px 20px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         .data-row td:first-child { border-left: 1px solid var(--border); border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
         .data-row td:last-child { border-right: 1px solid var(--border); border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-        .data-row:hover { transform: scale(1.01); background: rgba(153, 27, 27, 0.03); }
 
-        /* Status Badges */
-        .badge-pill { padding: 6px 14px; border-radius: 30px; font-weight: 700; font-size: 11px; }
-        .status-ok { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-        .status-debt { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .progress-thin { height: 6px; background: var(--bg); border-radius: 10px; width: 100%; max-width: 100px; margin: 4px auto 0; overflow: hidden;}
+        .progress-bar-fill { height: 100%; transition: width 0.6s ease; border-radius: 10px; }
 
-        /* Theme Toggle Button */
         .theme-toggle {
             background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
             color: #fff; padding: 8px 16px; border-radius: 50px; cursor: pointer;
         }
-
-        .cal-container { display: none; padding: 20px; background: var(--bg); border-radius: 15px; margin: 10px 20px; }
-        .cal-container.open { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="light">
 
 <nav class="topbar">
-    <div class="topbar-brand"><span>PCS</span> Attendance Management</div>
+    <div class="topbar-brand"><span>PCS</span> Attendance</div>
     <div class="d-flex align-items-center gap-3">
         <a href="{% url 'export_attendance_excel' %}" class="btn theme-toggle" style="background: #10b981; border:none;">
             <i class="fas fa-file-excel"></i> Export
@@ -128,7 +130,7 @@
 
         <div class="glass-card">
             <div class="card-header-custom">Σύνοψη Σήμερα</div>
-            <div class="card-body">
+            <div class="card-body text-center">
                 <canvas id="todayPie" height="220"></canvas>
             </div>
         </div>
@@ -154,7 +156,7 @@
             <thead>
                 <tr>
                     <th>Υπάλληλος</th>
-                    <th class="text-center">Παρουσίες</th>
+                    <th class="text-center">Παρουσίες / Στόχος</th>
                     <th class="text-center">Κατάσταση</th>
                     <th></th>
                 </tr>
@@ -164,8 +166,11 @@
                 <tr class="data-row" onclick="toggleCalendar('{{ emp.id }}')">
                     <td>
                         <div class="d-flex align-items-center gap-3">
-                            <div style="width:40px; height:40px; border-radius:10px; background:var(--brand); color:#fff; display:grid; place-items:center; font-weight:800;">
-                                {{ emp.name|slice:":1" }}
+                            <div style="position: relative;">
+                                <div style="width:40px; height:40px; border-radius:10px; background:var(--brand); color:#fff; display:grid; place-items:center; font-weight:800;">
+                                    {{ emp.name|slice:":1"|upper }}
+                                </div>
+                                <span class="status-dot dot-{{ emp.today_status }}" title="Σήμερα: {{ emp.today_status }}"></span>
                             </div>
                             <div>
                                 <div style="font-weight:700;">{{ emp.name }}</div>
@@ -174,27 +179,25 @@
                         </div>
                     </td>
                     <td class="text-center">
-                        <span style="font-weight:800;">{{ emp.office }}</span><span style="color:var(--text-muted); font-size:12px;"> / 8</span>
+                        <div style="font-weight:800;">{{ emp.office }} <span style="color:var(--text-muted); font-size:12px;">/ 8</span></div>
+                        <div class="progress-thin">
+                            <div class="progress-bar-fill" style="width: {{ emp.progress }}%; background: {% if emp.is_ok %}#10b981{% else %}#f59e0b{% endif %};"></div>
+                        </div>
                     </td>
                     <td class="text-center">
                         {% if emp.is_ok %}
-                            <span class="badge-pill status-ok">ΕΝΤΑΞΕΙ</span>
+                            <span class="badge rounded-pill" style="background:rgba(16,185,129,0.1); color:#10b981; font-weight:700; padding:6px 12px;">ΕΝΤΑΞΕΙ</span>
                         {% else %}
-                            <span class="badge-pill status-debt">ΧΡΕΟΣ -{{ emp.debt }}</span>
+                            <span class="badge rounded-pill" style="background:rgba(239,68,68,0.1); color:#ef4444; font-weight:700; padding:6px 12px;">ΧΡΕΟΣ -{{ emp.debt }}</span>
                         {% endif %}
                     </td>
                     <td class="text-end">
-                        <button class="btn text-danger" onclick="confirmDelete('{{ emp.id }}','{{ emp.name }}')"><i class="fas fa-trash-alt"></i></button>
+                        <button class="btn text-danger" onclick="confirmDelete(event, '{{ emp.id }}','{{ emp.name }}')"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 </tr>
                 <tr id="cal-row-{{ emp.id }}" style="display:none;">
                     <td colspan="4">
-                        <div class="cal-container" id="container-{{ emp.id }}">
-                            <div class="d-flex justify-content-end mb-3">
-                                <button onclick="openStats('{{ emp.id }}')" class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-history"></i> Ιστορικό Περιόδου
-                                </button>
-                            </div>
+                        <div style="padding: 20px; background: var(--bg); border-radius: 15px; margin: 10px 20px;">
                             <div id="cal-{{ emp.id }}"></div>
                         </div>
                     </td>
@@ -210,48 +213,42 @@
     const grHolidays = JSON.parse('{{ holidays_events_json|safe }}');
     const cals = {};
 
-    // --- Search Logic ---
-    function doSearch() {
-        const query = document.getElementById('liveSearch').value.toLowerCase();
-        const filter = document.getElementById('debtFilter').value;
-        const rows = document.querySelectorAll('.data-row');
+    // Τα χρώματα που χρησιμοποιούμε παντού για συνέπεια
+    const COLORS = {
+        office: '#10b981',
+        remote: '#0ea5e9',
+        leave: '#f59e0b'
+    };
 
-        rows.forEach(row => {
-            const name = row.innerText.toLowerCase();
-            const hasDebt = row.querySelector('.status-debt') !== null;
-            const matchesQuery = name.includes(query);
-            const matchesFilter = filter === 'ALL' || (filter === 'DEBT' && hasDebt);
-
-            row.style.display = (matchesQuery && matchesFilter) ? "" : "none";
-        });
-    }
-
-    // --- Theme Logic ---
     function toggleTheme() {
         const body = document.body;
-        const icon = document.getElementById('theme-icon');
         body.classList.toggle('dark');
-        const isDark = body.classList.contains('dark');
-        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        localStorage.setItem('pcs_theme', isDark ? 'dark' : 'light');
-        location.reload(); // Reload για να ενημερωθούν τα χρώματα των Charts
+        localStorage.setItem('pcs_theme', body.classList.contains('dark') ? 'dark' : 'light');
+        location.reload();
     }
     if(localStorage.getItem('pcs_theme') === 'dark') document.body.classList.add('dark');
 
-    // --- Calendar Logic ---
+    function doSearch() {
+        const query = document.getElementById('liveSearch').value.toLowerCase();
+        const filter = document.getElementById('debtFilter').value;
+        document.querySelectorAll('.data-row').forEach(row => {
+            const name = row.innerText.toLowerCase();
+            const hasDebt = row.innerText.includes('ΧΡΕΟΣ');
+            row.style.display = (name.includes(query) && (filter === 'ALL' || (filter === 'DEBT' && hasDebt))) ? "" : "none";
+        });
+    }
+
     function toggleCalendar(id) {
         const row = document.getElementById(`cal-row-${id}`);
-        const container = document.getElementById(`container-${id}`);
         const isOpen = row.style.display === "table-row";
-
         document.querySelectorAll('[id^="cal-row-"]').forEach(r => r.style.display = "none");
-
         if (!isOpen) {
             row.style.display = "table-row";
-            container.classList.add('open');
             if (!cals[id]) {
                 const cal = new FullCalendar.Calendar(document.getElementById(`cal-${id}`), {
                     initialView: 'dayGridMonth', locale: 'el', height: 400,
+                    // Τα χρώματα των events στο ημερολόγιο τραβιούνται από το views.py
+                    // (βεβαιώσου ότι στο views.py έβαλες τα ίδια HEX codes)
                     events: (events[id] || []).concat(grHolidays),
                     dateClick: (info) => updateAttendance(id, info.dateStr)
                 });
@@ -260,32 +257,33 @@
         }
     }
 
-    // --- Charts ---
     document.addEventListener('DOMContentLoaded', () => {
         const isD = document.body.classList.contains('dark');
         const tColor = isD ? '#94A3B8' : '#64748B';
         const gridColor = isD ? '#334155' : '#E2E8F0';
 
+        // Πίτα - Updated Colors
         new Chart(document.getElementById('todayPie'), {
             type: 'doughnut',
             data: {
                 labels: ['Office', 'Remote', 'Leave'],
                 datasets: [{
                     data: [{{stats.today.office}}, {{stats.today.remote}}, {{stats.today.leave}}],
-                    backgroundColor: ['#991B1B', '#0ea5e9', '#10b981'],
+                    backgroundColor: [COLORS.office, COLORS.remote, COLORS.leave],
                     borderWidth: 0
                 }]
             },
             options: { plugins: { legend: { position: 'bottom', labels: { color: tColor } } }, cutout: '75%' }
         });
 
+        // Μπάρες - Updated Colors
         new Chart(document.getElementById('monthBar'), {
             type: 'bar',
             data: {
-                labels: ['Σύνολο Γραφείο', 'Σύνολο Remote', 'Άδειες'],
+                labels: ['Γραφείο', 'Remote', 'Άδειες'],
                 datasets: [{
                     data: [{{stats.month.office}}, {{stats.month.remote}}, {{stats.month.leave}}],
-                    backgroundColor: ['#991B1B', '#0ea5e9', '#10b981'],
+                    backgroundColor: [COLORS.office, COLORS.remote, COLORS.leave],
                     borderRadius: 8
                 }]
             },
@@ -299,9 +297,8 @@
         });
     });
 
-    // --- Utilities ---
-    function confirmDelete(id, name) {
-        event.stopPropagation();
+    function confirmDelete(e, id, name) {
+        e.stopPropagation();
         Swal.fire({
             title: 'Διαγραφή;', text: `Ο υπάλληλος ${name} θα αφαιρεθεί οριστικά.`,
             icon: 'warning', showCancelButton: true, confirmButtonColor: '#991B1B'
@@ -315,6 +312,7 @@
                     <option value="OFFICE">🏢 Γραφείο</option>
                     <option value="REMOTE">💻 Τηλεργασία</option>
                     <option value="LEAVE">✈️ Άδεια</option>
+                    <option value="SICK">🩺 Ασθένεια</option>
                    </select>`,
             showCancelButton: true
         }).then(res => {
