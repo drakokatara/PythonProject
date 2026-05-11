@@ -6,258 +6,813 @@
     <title>PCS | Attendance Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+        /* ═══════════════════════════
+           DESIGN TOKENS
+        ═══════════════════════════ */
         :root {
-            /* Light Mode Colors */
-            --pcs-navy:     #450A0A;
-            --pcs-red:      #991B1B;
-            --pcs-red-l:    #DC2626;
-            --pcs-white:    #FFFFFF;
-            --pcs-off:      #FEF2F2;
-            --pcs-border:   #FEE2E2;
-            --pcs-text:     #1F2937;
-            --pcs-muted:    #7F1D1D;
-            --pcs-danger:   #B91C1C;
-            --pcs-radius:   12px;
-            --card-bg:      #FFFFFF;
-            --table-hover:  #FFF5F5;
-            --cal-bg:       #FFFFFF;
+            --brand-darkest:  #3B0808;
+            --brand-dark:     #6B1212;
+            --brand-mid:      #991B1B;
+            --brand-bright:   #DC2626;
+            --brand-muted:    #7F1D1D;
+            --gold:           #C9974A;
+
+            --bg:             #F7F3F2;
+            --surface:        #FFFFFF;
+            --surface-raised: #FDFAFA;
+            --border:         #EDE0DE;
+            --border-strong:  #D9C5C2;
+
+            --text-primary:   #1A0F0F;
+            --text-secondary: #6B5050;
+            --text-muted:     #9C7B7B;
+
+            --success-bg:     #ECFDF5;
+            --success-text:   #065F46;
+            --success-border: #A7F3D0;
+            --err-bg:         #FFF1F1;
+            --err-text:       #991B1B;
+            --err-border:     #FECACA;
+
+            --radius-sm:  6px;
+            --radius-md:  10px;
+            --radius-lg:  14px;
+            --radius-xl:  20px;
+
+            --shadow-sm:  0 1px 3px rgba(100,20,20,0.07), 0 1px 2px rgba(100,20,20,0.04);
+            --shadow-md:  0 4px 12px rgba(100,20,20,0.09), 0 2px 4px rgba(100,20,20,0.04);
+            --shadow-lg:  0 12px 32px rgba(100,20,20,0.12), 0 4px 8px rgba(100,20,20,0.05);
         }
 
-        body.dark-mode {
-            /* Dark Mode Colors */
-            --pcs-navy:     #111827;
-            --pcs-red:      #EF4444;
-            --pcs-red-l:    #F87171;
-            --pcs-white:    #1F2937;
-            --pcs-off:      #111827;
-            --pcs-border:   #374151;
-            --pcs-text:     #F9FAFB;
-            --pcs-muted:    #9CA3AF;
-            --card-bg:      #1F2937;
-            --table-hover:  #111827;
-            --cal-bg:       #111827;
+        body.dark {
+            --bg:             #0F0A0A;
+            --surface:        #1C1212;
+            --surface-raised: #231616;
+            --border:         #2E1C1C;
+            --border-strong:  #3D2424;
+
+            --text-primary:   #F5EDED;
+            --text-secondary: #C9A8A8;
+            --text-muted:     #8F6464;
+
+            --brand-mid:      #EF4444;
+            --brand-bright:   #F87171;
+            --brand-muted:    #B45454;
+
+            --success-bg:     #052E1A;
+            --success-text:   #6EE7B7;
+            --success-border: #065F46;
+            --err-bg:         #2A0C0C;
+            --err-text:       #FCA5A5;
+            --err-border:     #7F1D1D;
+
+            --shadow-sm:  0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md:  0 4px 12px rgba(0,0,0,0.35);
+            --shadow-lg:  0 12px 32px rgba(0,0,0,0.45);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* ═══════════════════════════
+           RESET & BASE
+        ═══════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            background: var(--pcs-off);
-            font-family: 'Sora', sans-serif;
+            background: var(--bg);
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
             font-size: 14px;
-            color: var(--pcs-text);
-            transition: background 0.3s ease, color 0.3s ease;
+            color: var(--text-primary);
+            transition: background 0.25s ease, color 0.25s ease;
+            min-height: 100vh;
         }
 
+        /* ═══════════════════════════
+           TOPBAR
+        ═══════════════════════════ */
         .topbar {
-            background: var(--pcs-navy);
-            height: 64px;
-            padding: 0 40px;
+            background: var(--brand-darkest);
+            height: 60px;
+            padding: 0 36px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: sticky;
             top: 0;
             z-index: 200;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            /* subtle red glow line at bottom */
+            border-bottom: 1px solid rgba(220, 38, 38, 0.25);
         }
-        .topbar-left { display: flex; align-items: center; gap: 16px; }
-        .topbar-brand { font-size: 24px; font-weight: 800; color: #FFFFFF; letter-spacing: -0.5px; }
-        .topbar-brand span { color: var(--pcs-red-l); }
-        .topbar-module { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.7); }
 
-        .theme-toggle {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 6px 14px;
+        /* noise grain on topbar */
+        .topbar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative; z-index: 1;
+        }
+
+        .topbar-brand {
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-size: 22px;
+            font-weight: 400;
+            color: #fff;
+            letter-spacing: 0.2px;
+            line-height: 1;
+        }
+
+        .topbar-brand em {
+            font-style: italic;
+            color: #F87171;
+        }
+
+        .topbar-divider {
+            width: 1px;
+            height: 20px;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .topbar-module {
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.50);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative; z-index: 1;
+        }
+
+        .btn-theme {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.7);
+            padding: 6px 13px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 12px;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: 0.2s;
+            gap: 7px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
         }
 
-        .layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; padding: 28px 40px; max-width: 1440px; margin: 0 auto; }
-        @media (max-width: 1080px) { .layout { grid-template-columns: 1fr; } }
+        .btn-theme:hover {
+            background: rgba(255,255,255,0.13);
+            color: #fff;
+        }
 
-        .pcs-card { background: var(--card-bg); border: 1px solid var(--pcs-border); border-radius: var(--pcs-radius); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-        .pcs-card-head { padding: 14px 20px; border-bottom: 1px solid var(--pcs-border); display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--pcs-muted); }
-        .pcs-card-accent { border-top: 4px solid var(--pcs-red); }
+        /* ═══════════════════════════
+           LAYOUT
+        ═══════════════════════════ */
+        .layout {
+            display: grid;
+            grid-template-columns: 288px 1fr;
+            gap: 24px;
+            padding: 28px 36px;
+            max-width: 1480px;
+            margin: 0 auto;
+        }
 
-        .form-field { margin-bottom: 12px; }
-        .form-field label { font-size: 10px; font-weight: 700; color: var(--pcs-muted); text-transform: uppercase; margin-bottom: 5px; display: block; }
-        .form-field input { width: 100%; height: 40px; border: 1px solid var(--pcs-border); border-radius: 8px; padding: 0 12px; background: var(--cal-bg); color: var(--pcs-text); }
-        .btn-save { width: 100%; height: 40px; border: none; border-radius: 8px; background: var(--pcs-navy); color: #fff; font-weight: 600; cursor: pointer; }
-        body.dark-mode .btn-save { background: var(--pcs-red); }
+        @media (max-width: 1080px) {
+            .layout { grid-template-columns: 1fr; }
+        }
 
-        .pcs-table { width: 100%; border-collapse: collapse; }
-        .pcs-table thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--pcs-muted); padding: 14px 20px; background: var(--pcs-off); border-bottom: 1px solid var(--pcs-border); }
-        .pcs-table tbody tr.data-row { border-bottom: 1px solid var(--pcs-border); cursor: pointer; }
-        .pcs-table tbody tr.data-row:hover { background: var(--table-hover); }
-        .pcs-table td { padding: 16px 20px; color: var(--pcs-text); }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
 
-        .emp-avatar { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #7F1D1D 0%, #DC2626 100%); color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-right: 14px; }
-        .badge-pcs { padding: 5px 12px; border-radius: 100px; font-size: 11px; font-weight: 700; }
-        .badge-ok { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
-        .badge-err { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
-        body.dark-mode .badge-ok { background: #064E3B; color: #D1FAE5; border: none; }
-        body.dark-mode .badge-err { background: #7F1D1D; color: #FEE2E2; border: none; }
+        /* ═══════════════════════════
+           CARDS
+        ═══════════════════════════ */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s ease;
+        }
 
-        .stat-val { font-size: 13px; font-weight: 700; padding: 1px 10px; border-radius: 20px; }
-        .btn-pcs { background: var(--pcs-red); color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 13px; font-weight: 600; cursor: pointer; }
-        .cal-row { display: none; }
-        .cal-row.open { display: table-row; }
-        .cal-body { padding: 24px; background: var(--card-bg); border-top: 1px solid var(--pcs-border); }
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
 
-        .fc-day-sat, .fc-day-sun { background-color: rgba(0,0,0,0.05) !important; opacity: 0.6; }
-        body.dark-mode .fc { color: var(--pcs-text); }
-        body.dark-mode .fc-theme-standard td, body.dark-mode .fc-theme-standard th { border-color: var(--pcs-border); }
-        .btn-del { background: none; border: none; cursor: pointer; color: var(--pcs-border); }
-        .btn-del:hover { color: var(--pcs-danger); }
+        /* top accent stripe */
+        .card-accent {
+            border-top: 3px solid var(--brand-mid);
+        }
+
+        .card-head {
+            padding: 13px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            background: var(--surface-raised);
+        }
+
+        .card-head-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+        }
+
+        .card-head-icon {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-mid));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .card-body {
+            padding: 18px;
+        }
+
+        /* ═══════════════════════════
+           FORM
+        ═══════════════════════════ */
+        .form-group {
+            margin-bottom: 13px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 38px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0 11px;
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--brand-mid);
+            box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.12);
+        }
+
+        .btn-save {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-mid) 100%);
+            color: #fff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(100,20,20,0.2);
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        .btn-save:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+
+        .btn-save:active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ═══════════════════════════
+           STATS PANEL
+        ═══════════════════════════ */
+        .stats-section-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 9.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.3px;
+            color: var(--brand-mid);
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 4px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 0;
+            cursor: help;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-chip {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            background: var(--bg);
+            color: var(--brand-mid);
+            border: 1px solid var(--border);
+            min-width: 34px;
+            text-align: center;
+        }
+
+        .stat-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 2px dashed var(--border-strong);
+        }
+
+        .stat-total-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: var(--text-primary);
+        }
+
+        .stat-total-chip {
+            font-size: 12px;
+            font-weight: 800;
+            padding: 3px 12px;
+            border-radius: 20px;
+            background: var(--brand-darkest);
+            color: #fff;
+        }
+
+        body.dark .stat-total-chip {
+            background: var(--brand-mid);
+        }
+
+        /* ═══════════════════════════
+           MAIN TABLE
+        ═══════════════════════════ */
+        .emp-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .emp-table thead th {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            padding: 12px 20px;
+            background: var(--surface-raised);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .emp-table tbody tr.data-row {
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.12s ease;
+        }
+
+        .emp-table tbody tr.data-row:hover {
+            background: #FFF5F4;
+        }
+
+        body.dark .emp-table tbody tr.data-row:hover {
+            background: #1F1010;
+        }
+
+        .emp-table tbody tr.data-row:last-child {
+            border-bottom: none;
+        }
+
+        .emp-table td {
+            padding: 14px 20px;
+            vertical-align: middle;
+        }
+
+        /* ── Avatar ── */
+        .emp-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-bright) 100%);
+            color: #fff;
+            font-weight: 800;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .emp-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .emp-email {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        /* ── Office counter ── */
+        .office-counter {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .office-counter span {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* ── Badges ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .badge-ok {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid var(--success-border);
+        }
+
+        .badge-err {
+            background: var(--err-bg);
+            color: var(--err-text);
+            border: 1px solid var(--err-border);
+        }
+
+        /* ── Delete btn ── */
+        .btn-del {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--border-strong);
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .btn-del:hover {
+            background: var(--err-bg);
+            color: var(--brand-bright);
+        }
+
+        /* ── Report button ── */
+        .btn-report {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 7px 14px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: border-color 0.18s, color 0.18s, background 0.18s;
+        }
+
+        .btn-report:hover {
+            border-color: var(--brand-mid);
+            color: var(--brand-mid);
+            background: var(--bg);
+        }
+
+        /* ═══════════════════════════
+           CALENDAR EXPAND ROW
+        ═══════════════════════════ */
+        .cal-row {
+            display: none;
+        }
+
+        .cal-row.open {
+            display: table-row;
+        }
+
+        .cal-body {
+            padding: 22px 24px;
+            background: var(--surface-raised);
+            border-top: 1px solid var(--border);
+        }
+
+        .cal-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        /* FullCalendar dark mode tweaks */
+        body.dark .fc {
+            color: var(--text-primary);
+        }
+
+        body.dark .fc-theme-standard td,
+        body.dark .fc-theme-standard th {
+            border-color: var(--border);
+        }
+
+        body.dark .fc-theme-standard .fc-scrollgrid {
+            border-color: var(--border);
+        }
+
+        body.dark .fc-col-header-cell-cushion,
+        body.dark .fc-daygrid-day-number {
+            color: var(--text-secondary);
+        }
+
+        .fc-day-sat, .fc-day-sun {
+            background-color: rgba(0,0,0,0.03) !important;
+        }
+
+        body.dark .fc-day-sat,
+        body.dark .fc-day-sun {
+            background-color: rgba(255,255,255,0.02) !important;
+        }
+
+        /* ═══════════════════════════
+           SCROLLBAR
+        ═══════════════════════════ */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--brand-mid); }
+
+        /* ═══════════════════════════
+           MISC UTILITIES
+        ═══════════════════════════ */
+        .spacer-sm { height: 12px; }
     </style>
 </head>
 <body>
 
+<!-- ── TOPBAR ── -->
 <nav class="topbar">
     <div class="topbar-left">
-        <div class="topbar-brand"><span>P</span>CS</div>
-        <span class="topbar-module">Attendance Management</span>
+        <div class="topbar-brand"><em>P</em>CS</div>
+        <div class="topbar-divider"></div>
+        <div class="topbar-module">Attendance Management</div>
     </div>
-    <button class="theme-toggle" onclick="toggleTheme()">
-        <i id="theme-icon" class="fas fa-moon"></i>
-        <span id="theme-text">Dark Mode</span>
-    </button>
+    <div class="topbar-right">
+        <button class="btn-theme" onclick="toggleTheme()">
+            <i id="theme-icon" class="fas fa-moon" style="font-size:11px;"></i>
+            <span id="theme-text">Dark Mode</span>
+        </button>
+    </div>
 </nav>
 
+<!-- ── LAYOUT ── -->
 <div class="layout">
-    <aside style="display:flex; flex-direction:column; gap:20px;">
-        <div class="pcs-card pcs-card-accent">
-            <div class="pcs-card-head"><i class="fas fa-user-plus"></i>Νέα Εγγραφή</div>
-            <div style="padding:16px;">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+
+        <!-- New Employee Form -->
+        <div class="card card-accent">
+            <div class="card-head">
+                <div class="card-head-icon"><i class="fas fa-user-plus"></i></div>
+                <span class="card-head-label">Νέα Εγγραφή</span>
+            </div>
+            <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    <div class="form-field"><label>Ονοματεπώνυμο</label><input type="text" name="full_name" required></div>
-                    <div class="form-field"><label>Email</label><input type="email" name="email" required></div>
-                    <div class="form-field"><label>Ημερομηνία Πρόσληψης</label><input type="date" name="date_joined" required></div>
-                    <div class="form-field"><label>Χρέος (Ημέρες)</label><input type="number" name="initial_debt" value="0" min="0" required></div>
+                    <div class="form-group">
+                        <label class="form-label">Ονοματεπώνυμο</label>
+                        <input type="text" name="full_name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ημερομηνία Πρόσληψης</label>
+                        <input type="date" name="date_joined" class="form-input" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label">Χρέος (Ημέρες)</label>
+                        <input type="number" name="initial_debt" value="0" min="0" class="form-input" required>
+                    </div>
                     <button type="submit" class="btn-save">Αποθήκευση</button>
                 </form>
             </div>
         </div>
 
-        <div class="pcs-card pcs-card-accent">
-            <div class="pcs-card-head"><i class="fas fa-chart-line"></i>Στατιστικά Παρουσίας</div>
-            <div style="padding:14px 18px;">
-                <div style="font-size: 10px; font-weight: 800; color: var(--pcs-red); text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid var(--pcs-border); padding-bottom: 4px;">
-                    <i class="fas fa-calendar-day"></i> Σήμερα
+        <!-- Stats Panel -->
+        <div class="card card-accent">
+            <div class="card-head">
+                <div class="card-head-icon"><i class="fas fa-chart-line"></i></div>
+                <span class="card-head-label">Στατιστικά Παρουσίας</span>
+            </div>
+            <div class="card-body">
+
+                <!-- Today -->
+                <div class="stats-section-label">
+                    <i class="fas fa-calendar-day" style="font-size:9px;"></i>
+                    Σήμερα
                 </div>
-                <div class="stat-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; cursor: help;" title="{{ stats.today.names_office }}">
-                    <span>Γραφείο</span>
-                    <span class="stat-val" style="background: var(--pcs-off); color: var(--pcs-red);">{{ stats.today.office }}</span>
+                <div class="stat-row" title="{{ stats.today.names_office }}">
+                    <span class="stat-label">Γραφείο</span>
+                    <span class="stat-chip">{{ stats.today.office }}</span>
                 </div>
-                <div class="stat-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; cursor: help;" title="{{ stats.today.names_remote }}">
-                    <span>Τηλεργασία</span>
-                    <span class="stat-val" style="background: var(--pcs-off); color: var(--pcs-red);">{{ stats.today.remote }}</span>
+                <div class="stat-row" title="{{ stats.today.names_remote }}">
+                    <span class="stat-label">Τηλεργασία</span>
+                    <span class="stat-chip">{{ stats.today.remote }}</span>
                 </div>
-                <div class="stat-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; cursor: help;" title="{{ stats.today.names_leave }}">
-                    <span>Άδεια / Ασθ.</span>
-                    <span class="stat-val" style="background: var(--pcs-off); color: var(--pcs-red);">{{ stats.today.leave }}</span>
+                <div class="stat-row" title="{{ stats.today.names_leave }}">
+                    <span class="stat-label">Άδεια / Ασθ.</span>
+                    <span class="stat-chip">{{ stats.today.leave }}</span>
                 </div>
 
-                <div style="height: 15px;"></div>
+                <div class="spacer-sm"></div>
 
-                <div style="font-size: 10px; font-weight: 800; color: var(--pcs-red); text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid var(--pcs-border); padding-bottom: 4px;">
-                    <i class="fas fa-calendar-alt"></i> Τρέχων Μήνας
+                <!-- This Month -->
+                <div class="stats-section-label">
+                    <i class="fas fa-calendar-alt" style="font-size:9px;"></i>
+                    Τρέχων Μήνας
                 </div>
-                <div class="stat-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; cursor: help;" title="Υπάλληλοι: {{ stats.month.names_office }}">
-                    <span>Συν. Γραφείο</span>
-                    <span class="stat-val" style="background: var(--pcs-off); color: var(--pcs-red); border: 1px solid var(--pcs-border);">{{ stats.month.office }}</span>
+                <div class="stat-row" title="Υπάλληλοι: {{ stats.month.names_office }}">
+                    <span class="stat-label">Συν. Γραφείο</span>
+                    <span class="stat-chip">{{ stats.month.office }}</span>
                 </div>
-                <div class="stat-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; cursor: help;" title="Υπάλληλοι: {{ stats.month.names_remote }}">
-                    <span>Συν. Τηλεργασία</span>
-                    <span class="stat-val" style="background: var(--pcs-off); color: var(--pcs-red); border: 1px solid var(--pcs-border);">{{ stats.month.remote }}</span>
+                <div class="stat-row" title="Υπάλληλοι: {{ stats.month.names_remote }}">
+                    <span class="stat-label">Συν. Τηλεργασία</span>
+                    <span class="stat-chip">{{ stats.month.remote }}</span>
                 </div>
-                <div class="stat-row" style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; cursor: help;" title="Υπάλληλοι: {{ stats.month.names_leave }}">
-                    <span>Άδειες/Ασθ.</span>
-                    <span class="stat-val" style="background: var(--pcs-off); color: var(--pcs-red); border: 1px solid var(--pcs-border);">{{ stats.month.leave }}</span>
+                <div class="stat-row" title="Υπάλληλοι: {{ stats.month.names_leave }}">
+                    <span class="stat-label">Άδειες / Ασθ.</span>
+                    <span class="stat-chip">{{ stats.month.leave }}</span>
                 </div>
 
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 2px dashed var(--pcs-border); display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 700; font-size: 11px; color: var(--pcs-navy);">ΣΥΝΟΛΟ ΠΡΟΣΩΠΙΚΟΥ</span>
-                    <span class="stat-val" style="background: var(--pcs-navy); color: #fff;">{{ stats.total_emps }}</span>
+                <!-- Total -->
+                <div class="stat-total">
+                    <span class="stat-total-label">Σύνολο Προσωπικού</span>
+                    <span class="stat-total-chip">{{ stats.total_emps }}</span>
                 </div>
             </div>
         </div>
+
     </aside>
 
+    <!-- ── MAIN CONTENT ── -->
     <main>
-        <div class="pcs-card">
-            <div class="pcs-card-head"><i class="fas fa-users"></i>Λίστα Προσωπικού</div>
-            <table class="pcs-table">
+        <div class="card">
+            <div class="card-head">
+                <div class="card-head-icon"><i class="fas fa-users"></i></div>
+                <span class="card-head-label">Λίστα Προσωπικού</span>
+            </div>
+
+            <table class="emp-table">
                 <thead>
                     <tr>
                         <th>Υπάλληλος</th>
                         <th style="text-align:center;">Γραφείο (Μήνας)</th>
                         <th style="text-align:center;">Κατάσταση</th>
-                        <th style="width:48px;"></th>
+                        <th style="width:52px;"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for emp in employees %}
+
                     <tr class="data-row" onclick="toggleCal('{{ emp.id }}')">
+                        <!-- Employee Info -->
                         <td>
-                            <div style="display:flex; align-items:center;">
+                            <div style="display:flex; align-items:center; gap:13px;">
                                 <div class="emp-avatar">{{ emp.name|slice:":2"|upper }}</div>
-                                <div><div style="font-weight:600; color: var(--pcs-text);">{{ emp.name }}</div><div style="font-size:12px; color: var(--pcs-muted);">{{ emp.email }}</div></div>
+                                <div>
+                                    <div class="emp-name">{{ emp.name }}</div>
+                                    <div class="emp-email">{{ emp.email }}</div>
+                                </div>
                             </div>
                         </td>
-                        <td style="text-align:center; color: var(--pcs-text);"><b>{{ emp.office }}</b> / 8</td>
+
+                        <!-- Office count -->
                         <td style="text-align:center;">
-                            {% if emp.is_ok %}<span class="badge-pcs badge-ok">Εντάξει</span>
-                            {% else %}<span class="badge-pcs badge-err">Χρέος -{{ emp.debt }}</span>{% endif %}
+                            <span class="office-counter">{{ emp.office }} <span>/ 8</span></span>
                         </td>
-                        <td onclick="event.stopPropagation()"><button class="btn-del" onclick="confirmDel('{{ emp.id }}','{{ emp.name }}')"><i class="fas fa-trash-alt"></i></button></td>
+
+                        <!-- Status badge -->
+                        <td style="text-align:center;">
+                            {% if emp.is_ok %}
+                                <span class="badge badge-ok">
+                                    <i class="fas fa-check" style="font-size:9px;"></i>
+                                    Εντάξει
+                                </span>
+                            {% else %}
+                                <span class="badge badge-err">
+                                    <i class="fas fa-minus-circle" style="font-size:9px;"></i>
+                                    Χρέος −{{ emp.debt }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Delete -->
+                        <td onclick="event.stopPropagation()">
+                            <button class="btn-del" onclick="confirmDel('{{ emp.id }}','{{ emp.name }}')" title="Διαγραφή">
+                                <i class="fas fa-trash-alt" style="font-size:12px;"></i>
+                            </button>
+                        </td>
                     </tr>
+
+                    <!-- Calendar expand row -->
                     <tr id="cal-{{ emp.id }}" class="cal-row">
                         <td colspan="4" style="padding:0;">
                             <div class="cal-body">
-                                <div style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
-                                    <button class="btn-pcs" onclick="openRangeModal('{{ emp.id }}', '{{ emp.name }}')">
-                                        <i class="fas fa-file-alt"></i> Αναφορά ανά Διάστημα
+                                <div class="cal-toolbar">
+                                    <button class="btn-report" onclick="openRangeModal('{{ emp.id }}', '{{ emp.name }}')">
+                                        <i class="fas fa-file-alt" style="font-size:11px;"></i>
+                                        Αναφορά ανά Διάστημα
                                     </button>
                                 </div>
                                 <div id="calendar-{{ emp.id }}"></div>
                             </div>
                         </td>
                     </tr>
+
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </main>
-</div>
+
+</div><!-- .layout -->
 
 <script>
     const eventsData = { {% for emp in employees %}"{{ emp.id }}": {{ emp.events_json|safe }},{% endfor %} };
     const holidays = JSON.parse('{{ holidays_events_json|safe }}');
     const calendars = {};
 
+    /* ── Theme ── */
     document.addEventListener('DOMContentLoaded', () => {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark');
             updateThemeUI(true);
         }
     });
 
     function toggleTheme() {
-        const isDark = document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.toggle('dark');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
         updateThemeUI(isDark);
         location.reload();
@@ -275,43 +830,54 @@
         }
     }
 
+    /* ── Attendance modal ── */
     function openAttendanceModal(empId, dateStr, currentTitle = "") {
-        const isDark = document.body.classList.contains('dark-mode');
+        const isDark = document.body.classList.contains('dark');
         const selectedDate = new Date(dateStr);
         if (selectedDate.getDay() === 0 || selectedDate.getDay() === 6) return;
         if (holidays.some(h => h.start === dateStr)) return;
 
         Swal.fire({
             title: 'Διαχείριση Παρουσίας',
-            background: isDark ? '#1F2937' : '#fff',
-            color: isDark ? '#fff' : '#000',
+            background: isDark ? '#1C1212' : '#fff',
+            color: isDark ? '#F5EDED' : '#1A0F0F',
             html: `<select id="swal-work-type" class="form-select mt-2">
-                       <option value="OFFICE" ${currentTitle.includes('Γραφείο') ? 'selected' : ''}>🏢 Γραφείο</option>
-                       <option value="REMOTE" ${currentTitle.includes('Τηλεργασία') ? 'selected' : ''}>💻 Τηλεργασία</option>
-                       <option value="LEAVE" ${currentTitle.includes('Άδεια') ? 'selected' : ''}>✈️ Άδεια</option>
-                       <option value="SICK" ${currentTitle.includes('Ασθένεια') ? 'selected' : ''}>🩺 Ασθένεια</option>
+                       <option value="OFFICE"  ${currentTitle.includes('Γραφείο')   ? 'selected' : ''}>🏢 Γραφείο</option>
+                       <option value="REMOTE"  ${currentTitle.includes('Τηλεργασία')? 'selected' : ''}>💻 Τηλεργασία</option>
+                       <option value="LEAVE"   ${currentTitle.includes('Άδεια')     ? 'selected' : ''}>✈️ Άδεια</option>
+                       <option value="SICK"    ${currentTitle.includes('Ασθένεια')  ? 'selected' : ''}>🩺 Ασθένεια</option>
                    </select>`,
-            showCancelButton: true, confirmButtonText: 'Αποθήκευση', confirmButtonColor: '#991B1B',
+            showCancelButton: true,
+            confirmButtonText: 'Αποθήκευση',
+            confirmButtonColor: '#991B1B',
             preConfirm: () => document.getElementById('swal-work-type').value
         }).then((r) => {
             if (r.isConfirmed) {
                 fetch('/update-attendance-ajax/', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
                     body: JSON.stringify({ emp_id: empId, date: dateStr, work_type: r.value })
                 }).then(() => location.reload());
             }
         });
     }
 
+    /* ── Range report modal ── */
     function openRangeModal(empId, empName) {
-        const isDark = document.body.classList.contains('dark-mode');
+        const isDark = document.body.classList.contains('dark');
         Swal.fire({
             title: `Αναφορά: ${empName}`,
-            background: isDark ? '#1F2937' : '#fff',
-            color: isDark ? '#fff' : '#000',
-            html: `<div style="text-align:left;"><label style="font-size:11px;font-weight:700;">ΑΠΟ:</label><input type="date" id="range-start" class="form-control mb-2">
-                   <label style="font-size:11px;font-weight:700;">ΕΩΣ:</label><input type="date" id="range-end" class="form-control"></div>`,
-            showCancelButton: true, confirmButtonText: 'Υπολογισμός', confirmButtonColor: '#450A0A',
+            background: isDark ? '#1C1212' : '#fff',
+            color: isDark ? '#F5EDED' : '#1A0F0F',
+            html: `<div style="text-align:left;">
+                       <label style="font-size:11px;font-weight:700;">ΑΠΟ:</label>
+                       <input type="date" id="range-start" class="form-control mb-2">
+                       <label style="font-size:11px;font-weight:700;">ΕΩΣ:</label>
+                       <input type="date" id="range-end" class="form-control">
+                   </div>`,
+            showCancelButton: true,
+            confirmButtonText: 'Υπολογισμός',
+            confirmButtonColor: '#3B0808',
             preConfirm: () => {
                 const s = document.getElementById('range-start').value;
                 const e = document.getElementById('range-end').value;
@@ -321,35 +887,37 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 fetch(`/employee-stats/${empId}/?start=${result.value.start}&end=${result.value.end}`)
-                    .then(r => r.json()).then(data => {
+                    .then(r => r.json())
+                    .then(data => {
                         Swal.fire({
                             title: 'Αποτελέσματα',
-                            background: isDark ? '#1F2937' : '#fff',
-                            color: isDark ? '#fff' : '#000',
-                            html: `<div style="display:flex;justify-content:center;gap:10px;">
-                                    <div style="background:var(--pcs-off);padding:10px;border-radius:8px;border:1px solid var(--pcs-border);min-width:80px;">
-                                        <div style="font-size:18px;">🏢</div>
-                                        <div style="font-weight:800;color:var(--pcs-red);">${data.office}</div>
-                                        <div style="font-size:9px;font-weight:700;">ΓΡΑΦΕΙΟ</div>
+                            background: isDark ? '#1C1212' : '#fff',
+                            color: isDark ? '#F5EDED' : '#1A0F0F',
+                            html: `<div style="display:flex;justify-content:center;gap:10px;margin-top:8px;">
+                                    <div style="background:${isDark?'#231616':'#FFF5F4'};padding:14px 10px;border-radius:10px;border:1px solid ${isDark?'#2E1C1C':'#FEE2E2'};min-width:80px;text-align:center;">
+                                        <div style="font-size:20px;margin-bottom:6px;">🏢</div>
+                                        <div style="font-weight:800;font-size:20px;color:#991B1B;">${data.office}</div>
+                                        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9C7B7B;margin-top:4px;">ΓΡΑΦΕΙΟ</div>
                                     </div>
-                                    <div style="background:var(--pcs-off);padding:10px;border-radius:8px;border:1px solid var(--pcs-border);min-width:80px;">
-                                        <div style="font-size:18px;">💻</div>
-                                        <div style="font-weight:800;color:var(--pcs-red);">${data.remote}</div>
-                                        <div style="font-size:9px;font-weight:700;">ΤΗΛΕΡΓΑΣΙΑ</div>
+                                    <div style="background:${isDark?'#231616':'#FFF5F4'};padding:14px 10px;border-radius:10px;border:1px solid ${isDark?'#2E1C1C':'#FEE2E2'};min-width:80px;text-align:center;">
+                                        <div style="font-size:20px;margin-bottom:6px;">💻</div>
+                                        <div style="font-weight:800;font-size:20px;color:#991B1B;">${data.remote}</div>
+                                        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9C7B7B;margin-top:4px;">ΤΗΛΕΡΓΑΣΙΑ</div>
                                     </div>
-                                    <div style="background:var(--pcs-off);padding:10px;border-radius:8px;border:1px solid var(--pcs-border);min-width:80px;">
-                                        <div style="font-size:18px;">✈️</div>
-                                        <div style="font-weight:800;color:var(--pcs-red);">${data.leave}</div>
-                                        <div style="font-size:9px;font-weight:700;">ΑΔΕΙΕΣ</div>
+                                    <div style="background:${isDark?'#231616':'#FFF5F4'};padding:14px 10px;border-radius:10px;border:1px solid ${isDark?'#2E1C1C':'#FEE2E2'};min-width:80px;text-align:center;">
+                                        <div style="font-size:20px;margin-bottom:6px;">✈️</div>
+                                        <div style="font-weight:800;font-size:20px;color:#991B1B;">${data.leave}</div>
+                                        <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#9C7B7B;margin-top:4px;">ΑΔΕΙΕΣ</div>
                                     </div>
                                    </div>`,
-                            confirmButtonColor: '#450A0A'
+                            confirmButtonColor: '#3B0808'
                         });
                     });
             }
         });
     }
 
+    /* ── Toggle calendar row ── */
     function toggleCal(id) {
         const row = document.getElementById(`cal-${id}`);
         const isOpen = row.classList.contains('open');
@@ -358,28 +926,48 @@
             row.classList.add('open');
             if (!calendars[id]) {
                 const cal = new FullCalendar.Calendar(document.getElementById(`calendar-${id}`), {
-                    initialView: 'dayGridMonth', locale: 'el', height: 400,
+                    initialView: 'dayGridMonth',
+                    locale: 'el',
+                    height: 400,
                     events: (eventsData[id] || []).concat(holidays),
                     dateClick: (info) => openAttendanceModal(id, info.dateStr),
-                    eventClick: (info) => { if (!info.event.title.includes('🎉')) openAttendanceModal(id, info.event.startStr, info.event.title); }
+                    eventClick: (info) => {
+                        if (!info.event.title.includes('🎉'))
+                            openAttendanceModal(id, info.event.startStr, info.event.title);
+                    }
                 });
-                cal.render(); calendars[id] = true;
+                cal.render();
+                calendars[id] = true;
             }
         }
     }
 
+    /* ── Delete confirmation ── */
     function confirmDel(id, name) {
-        const isDark = document.body.classList.contains('dark-mode');
+        const isDark = document.body.classList.contains('dark');
         Swal.fire({
-            title: 'Διαγραφή;', text: `Οριστική διαγραφή του/της ${name};`, icon: 'warning',
-            background: isDark ? '#1F2937' : '#fff', color: isDark ? '#fff' : '#000',
-            showCancelButton: true, confirmButtonColor: '#B91C1C', confirmButtonText: 'Διαγραφή'
-        })
-        .then(r => { if (r.isConfirmed) {
-            const f = document.createElement('form'); f.method='POST'; f.action=`/delete-employee/${id}/`;
-            const c = document.createElement('input'); c.type='hidden'; c.name='csrfmiddlewaretoken'; c.value='{{ csrf_token }}';
-            f.appendChild(c); document.body.appendChild(f); f.submit();
-        }});
+            title: 'Διαγραφή;',
+            text: `Οριστική διαγραφή του/της ${name};`,
+            icon: 'warning',
+            background: isDark ? '#1C1212' : '#fff',
+            color: isDark ? '#F5EDED' : '#1A0F0F',
+            showCancelButton: true,
+            confirmButtonColor: '#DC2626',
+            confirmButtonText: 'Διαγραφή'
+        }).then(r => {
+            if (r.isConfirmed) {
+                const f = document.createElement('form');
+                f.method = 'POST';
+                f.action = `/delete-employee/${id}/`;
+                const c = document.createElement('input');
+                c.type = 'hidden';
+                c.name = 'csrfmiddlewaretoken';
+                c.value = '{{ csrf_token }}';
+                f.appendChild(c);
+                document.body.appendChild(f);
+                f.submit();
+            }
+        });
     }
 </script>
 </body>
