@@ -28,6 +28,7 @@
 
         body { background-color: var(--bg); color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.3s ease; }
 
+        /* Topbar */
         .topbar {
             background: var(--topbar); height: 65px; padding: 0 30px;
             display: flex; align-items: center; justify-content: space-between;
@@ -36,12 +37,14 @@
         .topbar-brand { font-size: 22px; font-weight: 800; color: #fff; }
         .topbar-brand span { color: var(--brand); }
 
+        /* Layout */
         .app-container {
             display: grid; grid-template-columns: 320px 1fr; gap: 24px;
             padding: 30px; max-width: 1550px; margin: 0 auto;
         }
         @media (max-width: 1100px) { .app-container { grid-template-columns: 1fr; } }
 
+        /* Cards */
         .glass-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; }
         .card-header-custom { padding: 15px 20px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
 
@@ -58,10 +61,7 @@
         .btn-action { background: var(--brand); color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: 800; width: 100%; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;}
         .btn-action:hover { background: var(--brand-hover); transform: translateY(-2px); }
 
-        .filter-section { background: var(--surface); padding: 20px; border-radius: 18px; border: 1px solid var(--border); display: flex; gap: 15px; align-items: center; margin-bottom: 20px; }
-        .search-wrapper { position: relative; flex: 1; }
-        .search-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-
+        /* Status Dot */
         .status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--surface); }
         .dot-OFFICE { background: var(--clr-office); box-shadow: 0 0 8px var(--clr-office); animation: pulse 2s infinite; }
         .dot-REMOTE { background: var(--clr-remote); }
@@ -70,6 +70,7 @@
 
         @keyframes pulse { 0% { transform: scale(0.95); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { transform: scale(0.95); } }
 
+        /* Table */
         .custom-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
         .data-row { background: var(--surface); transition: 0.2s; cursor: pointer; }
         .data-row td { padding: 15px 20px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
@@ -83,13 +84,16 @@
         .fc-day-sat, .fc-day-sun, .is-holiday { background-color: rgba(0, 0, 0, 0.04) !important; cursor: not-allowed !important; }
         .theme-toggle { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 16px; border-radius: 50px; cursor: pointer; }
 
-        /* Report Button Style */
         .btn-range {
             background: var(--bg); border: 1px solid var(--border); color: var(--text-main);
             padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700;
             transition: 0.2s; cursor: pointer; margin-bottom: 10px;
         }
         .btn-range:hover { border-color: var(--brand); color: var(--brand); }
+
+        .filter-section { background: var(--surface); padding: 20px; border-radius: 18px; border: 1px solid var(--border); display: flex; gap: 15px; align-items: center; margin-bottom: 20px; }
+        .search-wrapper { position: relative; flex: 1; }
+        .search-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
     </style>
 </head>
 <body class="light">
@@ -115,7 +119,7 @@
                     <div class="input-group-custom"><input type="text" name="full_name" class="form-control-custom" placeholder="Ονοματεπώνυμο" required><i class="fas fa-user"></i></div>
                     <div class="input-group-custom"><input type="email" name="email" class="form-control-custom" placeholder="Email" required><i class="fas fa-envelope"></i></div>
                     <div class="input-group-custom"><input type="date" name="date_joined" id="todayDate" class="form-control-custom" required><i class="fas fa-calendar-check"></i></div>
-                    <div class="input-group-custom"><input type="number" name="initial_debt" value="Αρχικό χρέος" class="form-control-custom" placeholder="Αρχικό Χρέος"><i class="fas fa-minus-circle"></i></div>
+                    <div class="input-group-custom"><input type="number" name="initial_debt" value="0" class="form-control-custom" placeholder="Αρχικό Χρέος"><i class="fas fa-minus-circle"></i></div>
                     <button type="submit" class="btn-action"><i class="fas fa-user-plus"></i> Προσθήκη</button>
                 </form>
             </div>
@@ -215,14 +219,7 @@
     function openRangeModal(empId, empName) {
         Swal.fire({
             title: `Αναφορά: ${empName}`,
-            html: `
-                <div class="text-start">
-                    <label class="small fw-bold">ΑΠΟ:</label>
-                    <input type="date" id="range-start" class="form-control mb-2">
-                    <label class="small fw-bold">ΕΩΣ:</label>
-                    <input type="date" id="range-end" class="form-control">
-                </div>
-            `,
+            html: `<div class="text-start"><label class="small fw-bold">ΑΠΟ:</label><input type="date" id="range-start" class="form-control mb-2"><label class="small fw-bold">ΕΩΣ:</label><input type="date" id="range-end" class="form-control"></div>`,
             showCancelButton: true, confirmButtonText: 'Υπολογισμός', confirmButtonColor: '#991B1B',
             preConfirm: () => {
                 const start = document.getElementById('range-start').value;
@@ -236,22 +233,7 @@
                 .then(r => r.json()).then(data => {
                     Swal.fire({
                         title: 'Αποτελέσματα Περιόδου',
-                        html: `
-                            <div class="d-flex justify-content-around mt-3">
-                                <div class="text-center">
-                                    <div class="h4 mb-0" style="color:var(--clr-office)">${data.office}</div>
-                                    <div class="small fw-bold text-muted">ΓΡΑΦΕΙΟ</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="h4 mb-0" style="color:var(--clr-remote)">${data.remote}</div>
-                                    <div class="small fw-bold text-muted">REMOTE</div>
-                                </div>
-                                <div class="text-center">
-                                    <div class="h4 mb-0" style="color:var(--clr-leave)">${data.leave}</div>
-                                    <div class="small fw-bold text-muted">ΑΔΕΙΕΣ</div>
-                                </div>
-                            </div>
-                        `,
+                        html: `<div class="d-flex justify-content-around mt-3"><div class="text-center"><div class="h4 mb-0" style="color:var(--clr-office)">${data.office}</div><div class="small fw-bold text-muted">ΓΡΑΦΕΙΟ</div></div><div class="text-center"><div class="h4 mb-0" style="color:var(--clr-remote)">${data.remote}</div><div class="small fw-bold text-muted">REMOTE</div></div><div class="text-center"><div class="h4 mb-0" style="color:var(--clr-leave)">${data.leave}</div><div class="small fw-bold text-muted">ΑΔΕΙΕΣ</div></div></div>`,
                         confirmButtonColor: '#991B1B'
                     });
                 });
@@ -267,7 +249,6 @@
              Swal.fire({ icon: 'error', title: 'Μη εργάσιμη ημέρα', confirmButtonColor: '#991B1B' });
              return;
         }
-
         Swal.fire({
             title: 'Διαχείριση Παρουσίας',
             html: `<select id="swal-type" class="form-select">
@@ -289,6 +270,33 @@
         });
     }
 
+    function confirmDelete(e, id, name) {
+        e.stopPropagation();
+        Swal.fire({
+            title: 'Διαγραφή;',
+            text: `Ο υπάλληλος ${name} θα αφαιρεθεί οριστικά.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#991B1B',
+            cancelButtonColor: '#64748B',
+            confirmButtonText: 'Ναι, διαγραφή',
+            cancelButtonText: 'Ακύρωση'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/delete-employee/${id}/`;
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = '{{ csrf_token }}';
+                form.appendChild(csrfInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const isD = document.body.classList.contains('dark');
         const tColor = isD ? '#94A3B8' : '#64748B';
@@ -296,8 +304,6 @@
         new Chart(document.getElementById('todayPie'), { type: 'doughnut', data: { labels: ['Office', 'Remote', 'Leave'], datasets: [{ data: [{{stats.today.office}}, {{stats.today.remote}}, {{stats.today.leave}}], backgroundColor: [COLORS.office, COLORS.remote, COLORS.leave], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom', labels: { color: tColor } } }, cutout: '75%' } });
         new Chart(document.getElementById('monthBar'), { type: 'bar', data: { labels: ['Γραφείο', 'Remote', 'Άδειες'], datasets: [{ data: [{{stats.month.office}}, {{stats.month.remote}}, {{stats.month.leave}}], backgroundColor: [COLORS.office, COLORS.remote, COLORS.leave], borderRadius: 8 }] }, options: { scales: { y: { grid: { color: gridColor }, ticks: { color: tColor } }, x: { grid: { display: false }, ticks: { color: tColor } } }, plugins: { legend: { display: false } } } });
     });
-
-    function confirmDelete(e, id, name) { e.stopPropagation(); Swal.fire({ title: 'Διαγραφή;', text: `${name} θα διαγραφεί οριστικά.`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#991B1B' }).then(res => res.isConfirmed && (location.href = `/delete-employee/${id}/`)); }
 </script>
 </body>
 </html>
