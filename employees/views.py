@@ -12,7 +12,7 @@ from openpyxl.styles import Font, Alignment, PatternFill
 from .models import Employee, Attendance
 from .forms import EmployeeForm
 
-# 1. Βοηθητική συνάρτηση για τις Αργίες (Πρέπει να είναι στην αρχή)
+# 1. Βοηθητική συνάρτηση για τις Αργίες
 def get_greek_holidays():
     """Επιστρέφει τις ελληνικές αργίες για το τρέχον έτος."""
     gr_holidays = holidays.Greece(years=date.today().year)
@@ -40,21 +40,24 @@ def manage_employees(request):
     form = EmployeeForm()
     today = date.today()
 
-    # Φέρνουμε τους υπαλλήλους και τις παρουσίες τους με 1 query (prefetch_related)
+    # Φέρνουμε τους υπαλλήλους και τις παρουσίες τους
     employees_qs = Employee.objects.prefetch_related('attendance_set').all()
     gr_holidays, holiday_events = get_greek_holidays()
 
     data = []
-    # Χρώματα για το ημερολόγιο (Frontend)
+    # Ενιαία χρώματα για το ημερολόγιο
     colors = {
         'OFFICE': '#10b981',
         'REMOTE': '#0ea5e9',
         'LEAVE': '#f59e0b',
-        'SICK': '#F59eOb'
+        'SICK': '#f59e0b'
     }
+
+    total_debt_accumulator = 0
 
     for emp in employees_qs:
         report = emp.get_monthly_report()
+        total_debt_accumulator += report['debt']
 
         # --- Quick Status Logic (Για το Dot Παρουσίας) ---
         today_att = emp.attendance_set.filter(date=today).first()
@@ -79,8 +82,8 @@ def manage_employees(request):
             'total': report['total_days'],
             'is_ok': report['is_ok'],
             'debt': report['debt'],
-            'today_status': today_status,   # Για το Dot
-            'progress': progress_percent,   # Για την Μπάρα Προόδου
+            'today_status': today_status,
+            'progress': progress_percent,
             'monthly_remaining': report['monthly_remaining'],
             'events_json': json.dumps(events_list)
         })
@@ -97,10 +100,14 @@ def manage_employees(request):
     names_today_remote = [a.employee.full_name for a in today_atts.filter(work_type='REMOTE')]
     names_today_leave = [a.employee.full_name for a in today_atts.filter(work_type__in=['LEAVE', 'SICK'])]
 
-    # Στατιστικά Μήνα (Unique ονόματα για το hover tooltips)
+    # Στατιστικά Μήνα
     names_month_office = sorted(list(set([a.employee.full_name for a in current_month_atts.filter(work_type='OFFICE')])))
     names_month_remote = sorted(list(set([a.employee.full_name for a in current_month_atts.filter(work_type='REMOTE')])))
     names_month_leave = sorted(list(set([a.employee.full_name for a in current_month_atts.filter(work_type__in=['LEAVE', 'SICK'])])))
+
+    # Υπολογισμός Presence Rate (%)
+    total_emp_count = len(data)
+    presence_rate = (len(names_today_office) / total_emp_count * 100) if total_emp_count > 0 else 0
 
     stats_summary = {
         'today': {
@@ -119,7 +126,9 @@ def manage_employees(request):
             'names_remote': ", ".join(names_month_remote) or "Κανένας",
             'names_leave': ", ".join(names_month_leave) or "Κανένας",
         },
-        'total_emps': employees_qs.count()
+        'total_count': total_emp_count,
+        'total_debt_sum': total_debt_accumulator,
+        'presence_rate': round(presence_rate, 1)
     }
 
     return render(request, 'employees/manage.html', {
@@ -162,12 +171,17 @@ def update_attendance_ajax(request):
             if selected_date in gr_holidays:
                 return JsonResponse({'status': 'error', 'message': f'Η ημέρα είναι αργία: {gr_holidays.get(selected_date)}'}, status=400)
 
-            attendance, created = Attendance.objects.update_or_create(
-                employee_id=emp_id,
-                date=selected_date,
-                defaults={'work_type': new_type}
-            )
-            return JsonResponse({'status': 'success', 'action': 'created' if created else 'updated'})
+            # Διαγραφή αν επιλεγεί DELETE, αλλιώς update_or_create
+            if new_type == 'DELETE':
+                Attendance.objects.filter(employee_id=emp_id, date=selected_date).delete()
+                return JsonResponse({'status': 'success', 'action': 'deleted'})
+            else:
+                attendance, created = Attendance.objects.update_or_create(
+                    employee_id=emp_id,
+                    date=selected_date,
+                    defaults={'work_type': new_type}
+                )
+                return JsonResponse({'status': 'success', 'action': 'created' if created else 'updated'})
 
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -175,7 +189,7 @@ def update_attendance_ajax(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=400)
 
 
-# 5. Στατιστικά για συγκεκριμένο εύρος ημερομηνιών
+# 5. Στατιστικά για εύρος ημερομηνιών
 def employee_range_stats(request, employee_id):
     start_date = request.GET.get('start')
     end_date = request.GET.get('end')
@@ -229,3 +243,29 @@ def export_attendance_excel(request):
     response['Content-Disposition'] = 'attachment; filename="Attendance_Report.xlsx"'
     wb.save(response)
     return response
+
+
+@csrf_exempt
+def bulk_update_attendance(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            employee_ids = data.get('employee_ids', [])
+            work_type = data.get('work_type')
+            selected_date = date.today()  # Ή μπορείς να δέχεσαι ημερομηνία από το UI
+
+            if not employee_ids or not work_type:
+                return JsonResponse({'status': 'error', 'message': 'Λείπουν δεδομένα'}, status=400)
+
+            # Μαζική ενημέρωση/δημιουργία
+            for emp_id in employee_ids:
+                Attendance.objects.update_or_create(
+                    employee_id=emp_id,
+                    date=selected_date,
+                    defaults={'work_type': work_type}
+                )
+
+            return JsonResponse({'status': 'success', 'count': len(employee_ids)})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=400)
