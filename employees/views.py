@@ -8,10 +8,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
-import os
 from io import BytesIO
-from datetime import date
-from django.http import HttpResponse
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
@@ -25,7 +22,6 @@ from .forms import EmployeeForm
 
 # 1. Βοηθητική συνάρτηση για τις Αργίες
 def get_greek_holidays():
-    """Επιστρέφει τις ελληνικές αργίες για το τρέχον έτος."""
     gr_holidays = holidays.Greece(years=date.today().year)
     events = [{
         'title': f"🎉 {name}",
@@ -39,7 +35,6 @@ def get_greek_holidays():
 
 # 2. Η Κεντρική View του Dashboard
 def manage_employees(request):
-    # --- Χειρισμός Φόρμας Προσθήκης Νέου Υπαλλήλου ---
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
         if form.is_valid():
@@ -51,12 +46,10 @@ def manage_employees(request):
     form = EmployeeForm()
     today = date.today()
 
-    # Φέρνουμε τους υπαλλήλους και τις παρουσίες τους
     employees_qs = Employee.objects.prefetch_related('attendance_set').all()
     gr_holidays, holiday_events = get_greek_holidays()
 
     data = []
-    # Ενιαία χρώματα για το ημερολόγιο
     colors = {
         'OFFICE': '#10b981',
         'REMOTE': '#0ea5e9',
@@ -70,18 +63,15 @@ def manage_employees(request):
         report = emp.get_monthly_report()
         total_debt_accumulator += report['debt']
 
-        # --- Quick Status Logic (Για το Dot Παρουσίας) ---
         today_att = emp.attendance_set.filter(date=today).first()
         today_status = today_att.work_type if today_att else 'NONE'
 
-        # Προετοιμασία λίστας γεγονότων για το FullCalendar
         events_list = [{
             'title': a.get_work_type_display(),
             'start': a.date.strftime('%Y-%m-%d'),
             'color': colors.get(a.work_type, '#6c757d')
         } for a in emp.attendance_set.all()]
 
-        # --- Progress Bar Calculation (Στόχος 8 ημέρες) ---
         progress_percent = min(100, int((report['office_days'] / 8) * 100))
 
         data.append({
@@ -99,24 +89,20 @@ def manage_employees(request):
             'events_json': json.dumps(events_list)
         })
 
-    # --- Υπολογισμός Γενικών Στατιστικών Dashboard ---
     current_month_atts = Attendance.objects.filter(
         date__year=today.year,
         date__month=today.month
     ).select_related('employee')
 
-    # Στατιστικά Σήμερα
     today_atts = current_month_atts.filter(date=today)
     names_today_office = [a.employee.full_name for a in today_atts.filter(work_type='OFFICE')]
     names_today_remote = [a.employee.full_name for a in today_atts.filter(work_type='REMOTE')]
     names_today_leave = [a.employee.full_name for a in today_atts.filter(work_type__in=['LEAVE', 'SICK'])]
 
-    # Στατιστικά Μήνα
     names_month_office = sorted(list(set([a.employee.full_name for a in current_month_atts.filter(work_type='OFFICE')])))
     names_month_remote = sorted(list(set([a.employee.full_name for a in current_month_atts.filter(work_type='REMOTE')])))
     names_month_leave = sorted(list(set([a.employee.full_name for a in current_month_atts.filter(work_type__in=['LEAVE', 'SICK'])])))
 
-    # Υπολογισμός Presence Rate (%)
     total_emp_count = len(data)
     presence_rate = (len(names_today_office) / total_emp_count * 100) if total_emp_count > 0 else 0
 
@@ -173,16 +159,13 @@ def update_attendance_ajax(request):
 
             selected_date = date.fromisoformat(date_str)
 
-            # Έλεγχος για Σαββατοκύριακο
             if selected_date.weekday() in [5, 6]:
                 return JsonResponse({'status': 'error', 'message': 'Δεν επιτρέπονται καταχωρήσεις Σαββατοκύριακα!'}, status=400)
 
-            # Έλεγχος για Αργίες
             gr_holidays = holidays.Greece(years=selected_date.year)
             if selected_date in gr_holidays:
                 return JsonResponse({'status': 'error', 'message': f'Η ημέρα είναι αργία: {gr_holidays.get(selected_date)}'}, status=400)
 
-            # Διαγραφή αν επιλεγεί DELETE, αλλιώς update_or_create
             if new_type == 'DELETE':
                 Attendance.objects.filter(employee_id=emp_id, date=selected_date).delete()
                 return JsonResponse({'status': 'success', 'action': 'deleted'})
@@ -257,8 +240,6 @@ def export_attendance_excel(request):
 
 
 def export_attendance_pdf(request):
-    # --- 1. ΕΓΓΡΑΦΗ ΓΡΑΜΜΑΤΟΣΕΙΡΑΣ ---
-    # Βεβαιώσου ότι τα αρχεία .ttf υπάρχουν στο σωστό path
     try:
         pdfmetrics.registerFont(TTFont('GreekFont', 'DejaVuSans.ttf'))
         pdfmetrics.registerFont(TTFont('GreekFontBold', 'DejaVuSans-Bold.ttf'))
@@ -280,12 +261,11 @@ def export_attendance_pdf(request):
         title=f"Αναφορά Παρουσιών {month_name}",
     )
 
-    # --- 2. ΧΡΩΜΑΤΑ & ΣΤΥΛ ---
-    brand_red = colors.HexColor('#881337')  # Πιο βαθύ, επαγγελματικό κόκκινο
-    light_red = colors.HexColor('#FFF1F2')  # Πολύ απαλό κόκκινο για το background
-    red_text = colors.HexColor('#9F1239')  # Έντονο κόκκινο για το κείμενο χρέους
-    green_bg = colors.HexColor('#F0FDF4')  # Πολύ απαλό πράσινο
-    green_text = colors.HexColor('#166534')  # Έντονο πράσινο για το "ΕΝΤΑΞΕΙ"
+    brand_red = colors.HexColor('#881337')
+    light_red = colors.HexColor('#FFF1F2')
+    red_text = colors.HexColor('#9F1239')
+    green_bg = colors.HexColor('#F0FDF4')
+    green_text = colors.HexColor('#166534')
     muted = colors.HexColor('#64748B')
     border_c = colors.HexColor('#E2E8F0')
     row_alt = colors.HexColor('#F8FAFC')
@@ -296,15 +276,12 @@ def export_attendance_pdf(request):
     sub_style = ParagraphStyle('Sub', fontName=font_main, fontSize=10,
                                textColor=muted, alignment=TA_LEFT, spaceAfter=2)
 
-    # Στυλ για τα ονόματα (Αριστερή στοίχιση για ευκολότερη ανάγνωση)
     name_style = ParagraphStyle('Name', fontName=font_main, fontSize=10,
                                 textColor=colors.black, alignment=TA_LEFT, leftIndent=6)
 
-    # Στυλ για τα νούμερα (Κεντραρισμένα)
     num_style = ParagraphStyle('Num', fontName=font_main, fontSize=10,
                                textColor=colors.black, alignment=TA_CENTER)
 
-    # Στυλ για την Κατάσταση
     ok_style = ParagraphStyle('OK', fontName=font_bold, fontSize=9,
                               textColor=green_text, alignment=TA_CENTER)
     debt_style = ParagraphStyle('Debt', fontName=font_bold, fontSize=9,
@@ -312,13 +289,11 @@ def export_attendance_pdf(request):
 
     story = []
 
-    # --- 3. HEADER ---
     story.append(Paragraph("PCS Attendance Management", title_style))
     story.append(Paragraph(f"Μηνιαία Αναφορά Παρουσιών — {month_name}", sub_style))
     story.append(Paragraph(f"Εκτυπώθηκε: {today.strftime('%d/%m/%Y')}", sub_style))
     story.append(Spacer(1, 0.6 * cm))
 
-    # --- 4. SUMMARY TABLE ---
     employees = Employee.objects.all()
     total_debt = sum(emp.get_cumulative_debt() for emp in employees)
     emp_count = employees.count()
@@ -343,15 +318,12 @@ def export_attendance_pdf(request):
     story.append(summary_table)
     story.append(Spacer(1, 1 * cm))
 
-    # --- 5. MAIN TABLE ---
-    # Ρύθμιση στηλών: Το όνομα παίρνει τον περισσότερο χώρο
     col_widths = [6.5 * cm, 2.8 * cm, 2.8 * cm, 2.8 * cm, 3.5 * cm]
     headers = ['Ονοματεπώνυμο', 'Γραφείο', 'Τηλεργασία', 'Άδειες', 'Κατάσταση']
     table_data = [headers]
 
     for emp in employees:
         report = emp.get_monthly_report()
-        # Μετατροπή ονόματος σε Title Case (π.χ. Νίκος Παπαδόπουλος)
         display_name = emp.full_name.title()
 
         if report['is_ok']:
@@ -369,7 +341,6 @@ def export_attendance_pdf(request):
 
     main_table = Table(table_data, colWidths=col_widths, repeatRows=1)
 
-    # Δυναμικό Styling
     row_styles = [
         ('BACKGROUND', (0, 0), (-1, 0), brand_red),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -382,11 +353,9 @@ def export_attendance_pdf(request):
     ]
 
     for i in range(1, len(table_data)):
-        # Zebra stripes
         bg = row_alt if i % 2 == 0 else colors.white
         row_styles.append(('BACKGROUND', (0, i), (-1, i), bg))
 
-        # Χρωματισμός τελευταίου κελιού (Κατάσταση)
         emp_report = employees[i - 1].get_monthly_report()
         if emp_report['is_ok']:
             row_styles.append(('BACKGROUND', (4, i), (4, i), green_bg))
@@ -396,7 +365,6 @@ def export_attendance_pdf(request):
     main_table.setStyle(TableStyle(row_styles))
     story.append(main_table)
 
-    # --- 6. FOOTER ---
     story.append(Spacer(1, 0.8 * cm))
     story.append(Paragraph(
         f"* Η αναφορά αφορά τον μήνα {month_name}. Ελάχιστη απαίτηση: 8 ημέρες φυσικής παρουσίας στο γραφείο.",
@@ -423,7 +391,6 @@ def bulk_update_attendance(request):
             if not employee_ids or not work_type:
                 return JsonResponse({'status': 'error', 'message': 'Λείπουν δεδομένα'}, status=400)
 
-            # Μαζική ενημέρωση/δημιουργία
             for emp_id in employee_ids:
                 Attendance.objects.update_or_create(
                     employee_id=emp_id,
