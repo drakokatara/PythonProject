@@ -252,7 +252,7 @@ def bulk_update_attendance(request):
             data = json.loads(request.body)
             employee_ids = data.get('employee_ids', [])
             work_type = data.get('work_type')
-            selected_date = date.today()  # Ή μπορείς να δέχεσαι ημερομηνία από το UI
+            selected_date = date.today()
 
             if not employee_ids or not work_type:
                 return JsonResponse({'status': 'error', 'message': 'Λείπουν δεδομένα'}, status=400)

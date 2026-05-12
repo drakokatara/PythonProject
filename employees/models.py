@@ -1,21 +1,19 @@
 from django.db import models
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
-import holidays
+import holidays as hols
+from math import ceil
 
 
 def _count_required_office_days(from_day, to_day):
-
-    weeks = 0
-    curr = from_day
-    while curr <= to_day:
-        if curr.weekday() < 5:  # Δευτέρα έως Παρασκευή
-            if curr.weekday() == 0 or curr == from_day:
-                weeks += 1
-        curr += timedelta(days=1)
-
-    required = (weeks * 2)
-    return max(0, min(8, required))  # Μέγιστο 8 ημέρες το μήνα
+    gr_holidays = hols.Greece(years=from_day.year)
+    workdays = sum(
+        1 for i in range((to_day - from_day).days + 1)
+        if (d := from_day + timedelta(days=i)).weekday() < 5
+        and d not in gr_holidays
+    )
+    weeks = ceil(workdays / 5)
+    return max(0, min(8, weeks * 2))
 
 
 class Employee(models.Model):

@@ -25,7 +25,7 @@
             --brand: #EF4444; --brand-hover: #F87171; --border: #334155;
             --topbar: #020617; --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
         }
-        body { background-color: var(--bg); color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.3s ease; padding-bottom: 80px; }
+        body { background-color: var(--bg); color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; padding-bottom: 80px; }
         .topbar { background: var(--topbar); height: 70px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); }
         .topbar-brand { font-size: 22px; font-weight: 800; color: #fff; text-decoration: none; }
         .topbar-brand span { color: var(--brand); }
@@ -55,6 +55,11 @@
         .search-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
         .form-control-custom { width: 100%; padding: 10px 15px 10px 40px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text-main); outline: none; }
 
+        /* Empty State */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+        .empty-state p { font-weight: 600; font-size: 15px; }
+
         /* Bulk Actions Toolbar */
         .bulk-toolbar {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
@@ -71,6 +76,12 @@
     </style>
 </head>
 <body class="light">
+
+<!-- Config για URLs — αποφεύγουμε hardcoded paths στο JS -->
+<div id="app-config"
+     data-update-url="{% url 'update_attendance_ajax' %}"
+     data-bulk-url="{% url 'bulk_update' %}"
+     style="display:none;"></div>
 
 <nav class="topbar">
     <a href="#" class="topbar-brand"><span>PCS</span> Attendance Management</a>
@@ -132,7 +143,11 @@
 
     <div class="filter-section">
         <div class="search-wrapper"><i class="fas fa-search"></i><input type="text" id="liveSearch" class="form-control-custom" placeholder="Αναζήτηση..." onkeyup="doSearch()"></div>
-        <select id="debtFilter" class="form-control-custom" style="width: 180px; padding-left: 15px;" onchange="doSearch()"><option value="ALL">🔍 Όλοι</option><option value="OK">✅ Εντάξει</option><option value="DEBT">⚠️ Με Χρέος</option></select>
+        <select id="debtFilter" class="form-control-custom" style="width: 180px; padding-left: 15px;" onchange="doSearch()">
+            <option value="ALL">🔍 Όλοι</option>
+            <option value="OK">✅ Εντάξει</option>
+            <option value="DEBT">⚠️ Με Χρέος</option>
+        </select>
     </div>
 
     <div class="glass-card">
@@ -146,9 +161,12 @@
                     <th class="pe-4 text-end">Ενέργειες</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="employeeTableBody">
                 {% for emp in employees %}
-                <tr class="data-row" data-id="{{ emp.id }}" onclick="toggleCalendar('{{ emp.id }}')">
+                <tr class="data-row"
+                    data-id="{{ emp.id }}"
+                    data-debt="{% if emp.is_ok %}false{% else %}true{% endif %}"
+                    onclick="toggleCalendar('{{ emp.id }}')">
                     <td class="ps-4" onclick="event.stopPropagation()">
                         <input type="checkbox" class="form-check-input emp-checkbox" value="{{ emp.id }}">
                     </td>
@@ -168,57 +186,130 @@
                         <div style="font-weight:800;">{{ emp.office }} <span style="color:var(--text-muted); font-size:12px;">/ 8</span></div>
                         <div class="progress-thin"><div class="progress-bar-fill" style="width: {{ emp.progress }}%; background: {% if emp.is_ok %}#10b981{% else %}#f59e0b{% endif %};"></div></div>
                     </td>
-                    <td class="text-center">
-                        {% if emp.is_ok %}<span class="badge rounded-pill" style="background:rgba(16,185,129,0.1); color:#10b981; font-weight:700; padding:6px 12px;">ΕΝΤΑΞΕΙ</span>
-                        {% else %}<span class="badge rounded-pill" style="background:rgba(239,68,68,0.1); color:#ef4444; font-weight:700; padding:6px 12px;">ΧΡΕΟΣ -{{ emp.debt }}</span>{% endif %}
+                    <td class="text-center" id="status-badge-{{ emp.id }}">
+                        {% if emp.is_ok %}
+                            <span class="badge rounded-pill" style="background:rgba(16,185,129,0.1); color:#10b981; font-weight:700; padding:6px 12px;">ΕΝΤΑΞΕΙ</span>
+                        {% else %}
+                            <span class="badge rounded-pill" style="background:rgba(239,68,68,0.1); color:#ef4444; font-weight:700; padding:6px 12px;">ΧΡΕΟΣ -{{ emp.debt }}</span>
+                        {% endif %}
                     </td>
                     <td class="pe-4 text-end">
                         <button class="btn text-danger" onclick="confirmDelete(event, '{{ emp.id }}','{{ emp.name }}')"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 </tr>
-                <tr id="cal-row-{{ emp.id }}" style="display:none;"><td colspan="5"><div style="padding: 20px; background: var(--bg); border-radius: 15px; margin: 10px 20px;"><div id="cal-{{ emp.id }}"></div></div></td></tr>
+                <tr id="cal-row-{{ emp.id }}" style="display:none;">
+                    <td colspan="5">
+                        <div style="padding: 20px; background: var(--bg); border-radius: 15px; margin: 10px 20px;">
+                            <div id="cal-{{ emp.id }}"></div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fas fa-users-slash"></i>
+                            <p>Δεν υπάρχουν υπάλληλοι. Προσθέστε τον πρώτο!</p>
+                        </div>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- Empty state για search/filter -->
+        <div id="noResultsState" class="empty-state" style="display:none;">
+            <i class="fas fa-search"></i>
+            <p>Δεν βρέθηκαν αποτελέσματα για την αναζήτησή σας.</p>
+        </div>
     </div>
 </div>
 
+<!-- Modal Προσθήκης Υπαλλήλου -->
 <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg"><div class="modal-header"><h5 class="modal-title fw-800">Νέα Εγγραφή</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form method="post">{% csrf_token %}<div class="mb-3"><label class="small fw-bold">Ονοματεπώνυμο</label><input type="text" name="full_name" class="form-control" required></div><div class="mb-3"><label class="small fw-bold">Email</label><input type="email" name="email" class="form-control" required></div><div class="mb-3"><label class="small fw-bold">Ημερομηνία Πρόσληψης</label><input type="date" name="date_joined" id="todayDate" class="form-control" required></div><div class="mb-4"><label class="small fw-bold">Χρέος</label><input type="number" name="initial_debt" value="0" class="form-control"></div><button type="submit" class="btn w-100 py-3 text-white fw-bold" style="background: var(--brand); border-radius: 12px;">Εγγραφή</button></form></div></div></div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title fw-800">Νέα Εγγραφή</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3"><label class="small fw-bold">Ονοματεπώνυμο</label><input type="text" name="full_name" class="form-control" required></div>
+                    <div class="mb-3"><label class="small fw-bold">Email</label><input type="email" name="email" class="form-control" required></div>
+                    <div class="mb-3"><label class="small fw-bold">Ημερομηνία Πρόσληψης</label><input type="date" name="date_joined" id="todayDate" class="form-control" required></div>
+                    <div class="mb-4"><label class="small fw-bold">Χρέος</label><input type="number" name="initial_debt" value="0" class="form-control"></div>
+                    <button type="submit" class="btn w-100 py-3 text-white fw-bold" style="background: var(--brand); border-radius: 12px;">Εγγραφή</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    const events = { {% for emp in employees %}"{{emp.id}}": {{emp.events_json|safe}},{% endfor %} };
+    // ── Config ──────────────────────────────────────────────────────────────
+    const appConfig = document.getElementById('app-config').dataset;
+    const UPDATE_URL = appConfig.updateUrl;
+    const BULK_URL   = appConfig.bulkUrl;
+
+    const events     = { {% for emp in employees %}"{{emp.id}}": {{emp.events_json|safe}},{% endfor %} };
     const grHolidays = JSON.parse('{{ holidays_events_json|safe }}');
-    const COLORS = { office: '#10b981', remote: '#0ea5e9', leave: '#f59e0b' };
+    const COLORS     = { office: '#10b981', remote: '#0ea5e9', leave: '#f59e0b' };
 
     document.getElementById('todayDate').valueAsDate = new Date();
 
-    // Theme Logic
+    // ── Theme ────────────────────────────────────────────────────────────────
+    // Εφαρμόζουμε το αποθηκευμένο theme χωρίς reload
+    (function applyStoredTheme() {
+        const saved = localStorage.getItem('pcs_theme');
+        if (saved === 'dark') {
+            document.body.classList.add('dark');
+            document.body.classList.remove('light');
+            const icon = document.getElementById('theme-icon-dropdown');
+            if (icon) icon.className = 'fas fa-sun';
+        }
+    })();
+
     function toggleTheme() {
-        const body = document.body; body.classList.toggle('dark');
-        const isDark = body.classList.contains('dark');
+        const body  = document.body;
+        const isDark = body.classList.toggle('dark');
+        body.classList.toggle('light', !isDark);
         localStorage.setItem('pcs_theme', isDark ? 'dark' : 'light');
         document.getElementById('theme-icon-dropdown').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        location.reload();
+        // Ενημερώνουμε τα ανοιχτά calendars ώστε να πάρουν το νέο theme
+        Object.values(calInstances).forEach(cal => cal.render());
     }
-    if(localStorage.getItem('pcs_theme') === 'dark') document.body.classList.add('dark');
 
-    // Search Logic
+    // ── Search & Filter ──────────────────────────────────────────────────────
     function doSearch() {
         const q = document.getElementById('liveSearch').value.toLowerCase();
         const f = document.getElementById('debtFilter').value;
+        let visibleCount = 0;
+
         document.querySelectorAll('.data-row').forEach(row => {
-            const name = row.innerText.toLowerCase();
-            const debt = row.innerText.includes('ΧΡΕΟΣ');
-            row.style.display = (name.includes(q) && (f === 'ALL' || (f === 'OK' && !debt) || (f === 'DEBT' && debt))) ? "" : "none";
+            const name    = row.querySelector('td:nth-child(2)').innerText.toLowerCase();
+            // Χρήση data-debt attribute αντί innerText parsing
+            const hasDebt = row.dataset.debt === 'true';
+            const matchQ  = name.includes(q);
+            const matchF  = f === 'ALL' || (f === 'OK' && !hasDebt) || (f === 'DEBT' && hasDebt);
+            const show    = matchQ && matchF;
+
+            row.style.display = show ? '' : 'none';
+            // Κρύβουμε και το calendar row αν κρύβεται ο υπάλληλος
+            const calRow = document.getElementById(`cal-row-${row.dataset.id}`);
+            if (calRow) calRow.style.display = 'none';
+
+            if (show) visibleCount++;
         });
+
+        document.getElementById('noResultsState').style.display = visibleCount === 0 ? 'block' : 'none';
     }
 
-    // Checkbox & Bulk Logic
-    const selectAll = document.getElementById('selectAll');
-    const checkboxes = document.querySelectorAll('.emp-checkbox');
-    const bulkToolbar = document.getElementById('bulkToolbar');
+    // ── Checkboxes & Bulk ────────────────────────────────────────────────────
+    const selectAll    = document.getElementById('selectAll');
+    const checkboxes   = document.querySelectorAll('.emp-checkbox');
+    const bulkToolbar  = document.getElementById('bulkToolbar');
     const selectedCountSpan = document.getElementById('selectedCount');
 
     function updateToolbar() {
@@ -229,7 +320,7 @@
 
     selectAll.addEventListener('change', () => {
         checkboxes.forEach(cb => {
-            if(cb.closest('tr').style.display !== 'none') cb.checked = selectAll.checked;
+            if (cb.closest('tr').style.display !== 'none') cb.checked = selectAll.checked;
         });
         updateToolbar();
     });
@@ -249,62 +340,150 @@
             text: `Θέλετε να ορίσετε ${type} για ${ids.length} υπαλλήλους σήμερα;`,
             icon: 'question', showCancelButton: true, confirmButtonColor: '#991B1B'
         }).then(res => {
-            if(res.isConfirmed) {
-                fetch('/bulk-update/', {
+            if (res.isConfirmed) {
+                fetch(BULK_URL, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{csrf_token}}'},
-                    body: JSON.stringify({employee_ids: ids, work_type: type})
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify({ employee_ids: ids, work_type: type })
                 }).then(() => location.reload());
             }
         });
     }
 
-    // Calendar Toggle
+    // ── Calendar ─────────────────────────────────────────────────────────────
+    const calInstances = {};
+
     function toggleCalendar(id) {
-        const row = document.getElementById(`cal-row-${id}`);
-        const isOpen = row.style.display === "table-row";
-        document.querySelectorAll('[id^="cal-row-"]').forEach(r => r.style.display = "none");
+        const row    = document.getElementById(`cal-row-${id}`);
+        const isOpen = row.style.display === 'table-row';
+
+        // Κλείνουμε όλα τα ανοιχτά calendars
+        document.querySelectorAll('[id^="cal-row-"]').forEach(r => r.style.display = 'none');
+
         if (!isOpen) {
-            row.style.display = "table-row";
-            new FullCalendar.Calendar(document.getElementById(`cal-${id}`), {
-                initialView: 'dayGridMonth', locale: 'el', height: 400,
-                events: (events[id] || []).concat(grHolidays),
-                dateClick: (info) => updateAttendance(id, info.dateStr),
-                eventClick: (info) => !info.event.title.includes('🎉') && updateAttendance(id, info.event.startStr, info.event.title)
-            }).render();
+            row.style.display = 'table-row';
+
+            if (!calInstances[id]) {
+                // Δημιουργία instance μόνο την πρώτη φορά
+                calInstances[id] = new FullCalendar.Calendar(document.getElementById(`cal-${id}`), {
+                    initialView: 'dayGridMonth',
+                    locale: 'el',
+                    height: 400,
+                    events: (events[id] || []).concat(grHolidays),
+                    dateClick:  (info) => updateAttendance(id, info.dateStr),
+                    eventClick: (info) => !info.event.title.includes('🎉') && updateAttendance(id, info.event.startStr, info.event.title)
+                });
+                calInstances[id].render();
+            } else {
+                // Διορθώνει rendering αν άλλαξε layout ή theme
+                calInstances[id].updateSize();
+            }
         }
     }
 
-    // Update Attendance logic (Keep same as before)
-    function updateAttendance(id, date, cur = "") {
-        if ([0,6].includes(new Date(date).getDay()) || grHolidays.find(h => h.start === date)) return Swal.fire({ icon: 'error', title: 'Μη εργάσιμη ημέρα' });
+    // ── Update Attendance ────────────────────────────────────────────────────
+    function updateAttendance(id, dateStr, cur = '') {
+        const dateObj = new Date(dateStr + 'T00:00:00'); // Αποφεύγουμε timezone offset
+        if ([0, 6].includes(dateObj.getDay()) || grHolidays.find(h => h.start === dateStr)) {
+            return Swal.fire({ icon: 'error', title: 'Μη εργάσιμη ημέρα', text: 'Δεν επιτρέπονται καταχωρήσεις.' });
+        }
         Swal.fire({
             title: 'Καταχώρηση',
-            html: `<select id="swal-type" class="form-select"><option value="OFFICE">🏢 Γραφείο</option><option value="REMOTE">💻 Τηλεργασία</option><option value="LEAVE">✈️ Άδεια</option><option value="DELETE">❌ Διαγραφή</option></select>`,
-            showCancelButton: true, confirmButtonColor: '#991B1B'
-        }).then(res => res.isConfirmed && fetch('/update-attendance-ajax/', {
-            method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{csrf_token}}'},
-            body: JSON.stringify({emp_id: id, date: date, work_type: document.getElementById('swal-type').value})
-        }).then(() => location.reload()));
+            html: `<select id="swal-type" class="form-select">
+                     <option value="OFFICE">🏢 Γραφείο</option>
+                     <option value="REMOTE">💻 Τηλεργασία</option>
+                     <option value="LEAVE">✈️ Άδεια</option>
+                     <option value="DELETE">❌ Διαγραφή</option>
+                   </select>`,
+            showCancelButton: true,
+            confirmButtonColor: '#991B1B'
+        }).then(res => {
+            if (!res.isConfirmed) return;
+            const workType = document.getElementById('swal-type').value;
+            fetch(UPDATE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({ emp_id: id, date: dateStr, work_type: workType })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Ενημερώνουμε μόνο το calendar — χωρίς full reload
+                    const newColor = { OFFICE: '#10b981', REMOTE: '#0ea5e9', LEAVE: '#f59e0b', SICK: '#f59e0b' }[workType];
+                    const cal = calInstances[id];
+                    if (cal) {
+                        // Αφαιρούμε παλιό event αν υπάρχει
+                        cal.getEvents().forEach(ev => {
+                            if (ev.startStr === dateStr && !ev.title.includes('🎉')) ev.remove();
+                        });
+                        // Προσθέτουμε νέο event αν δεν είναι DELETE
+                        if (workType !== 'DELETE') {
+                            const labels = { OFFICE: 'Στο Γραφείο', REMOTE: 'Τηλεργασία', LEAVE: 'Άδεια', SICK: 'Ασθένεια' };
+                            cal.addEvent({ title: labels[workType], start: dateStr, color: newColor });
+                        }
+                    }
+                    // Μόνο το summary χρειάζεται reload — τα στατιστικά αλλάζουν
+                    // Αν θέλεις να αποφύγεις και αυτό, χρειάζεται AJAX endpoint για debt
+                    location.reload();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Σφάλμα', text: data.message });
+                }
+            })
+            .catch(() => Swal.fire({ icon: 'error', title: 'Σφάλμα σύνδεσης' }));
+        });
     }
 
+    // ── Delete Employee ──────────────────────────────────────────────────────
     function confirmDelete(e, id, name) {
         e.stopPropagation();
-        Swal.fire({ title: 'Διαγραφή;', text: name, icon: 'warning', showCancelButton: true, confirmButtonColor: '#991B1B' }).then(r => {
+        Swal.fire({
+            title: 'Διαγραφή;',
+            text: name,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#991B1B'
+        }).then(r => {
             if (r.isConfirmed) {
-                const f = document.createElement('form'); f.method = 'POST'; f.action = `/delete-employee/${id}/`;
-                const i = document.createElement('input'); i.type = 'hidden'; i.name = 'csrfmiddlewaretoken'; i.value = '{{ csrf_token }}';
-                f.appendChild(i); document.body.appendChild(f); f.submit();
+                const f = document.createElement('form');
+                f.method = 'POST';
+                f.action = `/delete-employee/${id}/`;
+                const i = document.createElement('input');
+                i.type = 'hidden'; i.name = 'csrfmiddlewaretoken'; i.value = '{{ csrf_token }}';
+                f.appendChild(i);
+                document.body.appendChild(f);
+                f.submit();
             }
         });
     }
 
-    // Charts Initialization
+    // ── Charts ───────────────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
-        const isD = document.body.classList.contains('dark');
+        const isD   = document.body.classList.contains('dark');
         const tColor = isD ? '#94A3B8' : '#64748B';
-        new Chart(document.getElementById('todayPie'), { type: 'doughnut', data: { labels: ['Office', 'Remote', 'Leave'], datasets: [{ data: [{{stats.today.office}}, {{stats.today.remote}}, {{stats.today.leave}}], backgroundColor: [COLORS.office, COLORS.remote, COLORS.leave], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom', labels: { color: tColor } } }, cutout: '75%' } });
-        new Chart(document.getElementById('monthBar'), { type: 'bar', data: { labels: ['Γραφείο', 'Remote', 'Άδειες'], datasets: [{ data: [{{stats.month.office}}, {{stats.month.remote}}, {{stats.month.leave}}], backgroundColor: [COLORS.office, COLORS.remote, COLORS.leave], borderRadius: 8 }] }, options: { scales: { y: { grid: { color: isD ? '#334155' : '#E2E8F0' }, ticks: { color: tColor } }, x: { grid: { display: false }, ticks: { color: tColor } } }, plugins: { legend: { display: false } } } });
+
+        new Chart(document.getElementById('todayPie'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Office', 'Remote', 'Leave'],
+                datasets: [{ data: [{{ stats.today.office }}, {{ stats.today.remote }}, {{ stats.today.leave }}], backgroundColor: [COLORS.office, COLORS.remote, COLORS.leave], borderWidth: 0 }]
+            },
+            options: { plugins: { legend: { position: 'bottom', labels: { color: tColor } } }, cutout: '75%' }
+        });
+
+        new Chart(document.getElementById('monthBar'), {
+            type: 'bar',
+            data: {
+                labels: ['Γραφείο', 'Remote', 'Άδειες'],
+                datasets: [{ data: [{{ stats.month.office }}, {{ stats.month.remote }}, {{ stats.month.leave }}], backgroundColor: [COLORS.office, COLORS.remote, COLORS.leave], borderRadius: 8 }]
+            },
+            options: {
+                scales: {
+                    y: { grid: { color: isD ? '#334155' : '#E2E8F0' }, ticks: { color: tColor } },
+                    x: { grid: { display: false }, ticks: { color: tColor } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
     });
 </script>
 </body>
