@@ -20,7 +20,6 @@ from reportlab.pdfbase.ttfonts import TTFont
 from .models import Employee, Attendance
 from .forms import EmployeeForm
 
-# 1. Βοηθητική συνάρτηση για τις Αργίες
 def get_greek_holidays():
     gr_holidays = holidays.Greece(years=date.today().year)
     events = [{
@@ -32,8 +31,6 @@ def get_greek_holidays():
     } for d, name in gr_holidays.items()]
     return gr_holidays, events
 
-
-# 2. Η Κεντρική View του Dashboard
 def manage_employees(request):
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
@@ -136,8 +133,6 @@ def manage_employees(request):
         'holidays_events_json': json.dumps(holiday_events),
     })
 
-
-# 3. Διαγραφή Υπαλλήλου
 @require_POST
 def delete_employee(request, employee_id):
     emp = get_object_or_404(Employee, id=employee_id)
@@ -146,8 +141,6 @@ def delete_employee(request, employee_id):
     messages.success(request, f"✅ Ο/Η {name} διαγράφηκε επιτυχώς.")
     return redirect('manage_employees')
 
-
-# 4. Ενημέρωση Παρουσίας μέσω AJAX (Ημερολόγιο)
 @csrf_exempt
 def update_attendance_ajax(request):
     if request.method == 'POST':
@@ -182,8 +175,6 @@ def update_attendance_ajax(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=400)
 
-
-# 5. Στατιστικά για εύρος ημερομηνιών
 def employee_range_stats(request, employee_id):
     start_date = request.GET.get('start')
     end_date = request.GET.get('end')
@@ -195,8 +186,6 @@ def employee_range_stats(request, employee_id):
     stats = employee.get_stats_for_range(start_date, end_date)
     return JsonResponse(stats)
 
-
-# 6. Εξαγωγή σε Excel
 def export_attendance_excel(request):
     wb = Workbook()
     ws = wb.active
@@ -237,7 +226,6 @@ def export_attendance_excel(request):
     response['Content-Disposition'] = 'attachment; filename="Attendance_Report.xlsx"'
     wb.save(response)
     return response
-
 
 def export_attendance_pdf(request):
     try:
