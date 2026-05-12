@@ -92,6 +92,7 @@
         <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addEmployeeModal"><i class="fas fa-user-plus"></i> Νέα Εγγραφή</a></li>
             <li><a class="dropdown-item" href="{% url 'export_attendance_excel' %}"><i class="fas fa-file-excel"></i> Εξαγωγή σε Excel</a></li>
+            <li><a class="dropdown-item" href="{% url 'export_attendance_pdf' %}"><i class="fas fa-file-pdf"></i> Εξαγωγή σε PDF</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#" onclick="toggleTheme()"><i id="theme-icon-dropdown" class="fas fa-moon"></i> Αλλαγή Θέματος</a></li>
         </ul>
@@ -104,6 +105,7 @@
     <button class="bulk-btn" onclick="applyBulk('OFFICE')">🏢 Office</button>
     <button class="bulk-btn" onclick="applyBulk('REMOTE')">💻 Remote</button>
     <button class="bulk-btn" onclick="applyBulk('LEAVE')">✈️ Leave</button>
+    <button class="bulk-btn" onclick="applyBulk('SICK')">🩺 Ασθένεια</button>
     <button class="bulk-btn" onclick="applyBulk('DELETE')" style="border-color: #ef4444; color: #f87171;">❌ Reset</button>
     <button class="btn btn-sm text-white-50" onclick="deselectAll()"><i class="fas fa-times"></i></button>
 </div>

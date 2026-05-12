@@ -9,6 +9,15 @@ from django.views.decorators.csrf import csrf_exempt
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
 
+# ReportLab για PDF export
+from io import BytesIO
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import cm
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
+
 from .models import Employee, Attendance
 from .forms import EmployeeForm
 
@@ -242,6 +251,142 @@ def export_attendance_excel(request):
     )
     response['Content-Disposition'] = 'attachment; filename="Attendance_Report.xlsx"'
     wb.save(response)
+    return response
+
+
+# 7. Εξαγωγή σε PDF
+def export_attendance_pdf(request):
+    today = date.today()
+    month_name = today.strftime('%B %Y')
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=1.5*cm, leftMargin=1.5*cm,
+        topMargin=2*cm, bottomMargin=2*cm,
+        title=f"Αναφορά Παρουσιών {month_name}",
+    )
+
+    # ── Styles ───────────────────────────────────────────────────────────────
+    brand_red  = colors.HexColor('#991B1B')
+    light_red  = colors.HexColor('#FEE2E2')
+    green      = colors.HexColor('#065F46')
+    green_bg   = colors.HexColor('#D1FAE5')
+    red_txt    = colors.HexColor('#991B1B')
+    muted      = colors.HexColor('#64748B')
+    border_c   = colors.HexColor('#E2E8F0')
+    row_alt    = colors.HexColor('#F8FAFC')
+
+    title_style = ParagraphStyle('Title', fontName='Helvetica-Bold', fontSize=20,
+                                 textColor=brand_red, alignment=TA_LEFT, spaceAfter=4)
+    sub_style   = ParagraphStyle('Sub', fontName='Helvetica', fontSize=10,
+                                 textColor=muted, alignment=TA_LEFT, spaceAfter=2)
+    ok_style    = ParagraphStyle('OK', fontName='Helvetica-Bold', fontSize=9,
+                                 textColor=green, alignment=TA_CENTER)
+    debt_style  = ParagraphStyle('Debt', fontName='Helvetica-Bold', fontSize=9,
+                                 textColor=red_txt, alignment=TA_CENTER)
+    cell_style  = ParagraphStyle('Cell', fontName='Helvetica', fontSize=9,
+                                 textColor=colors.HexColor('#1E293B'), alignment=TA_CENTER)
+
+    story = []
+
+    # ── Header ───────────────────────────────────────────────────────────────
+    story.append(Paragraph("PCS Attendance Management", title_style))
+    story.append(Paragraph(f"Μηνιαία Αναφορά Παρουσιών — {month_name}", sub_style))
+    story.append(Paragraph(f"Εκτυπώθηκε: {today.strftime('%d/%m/%Y')}", sub_style))
+    story.append(Spacer(1, 0.5*cm))
+
+    # ── Summary row ──────────────────────────────────────────────────────────
+    employees = Employee.objects.all()
+    total_debt = sum(emp.get_cumulative_debt() for emp in employees)
+    emp_count  = employees.count()
+    ok_count   = sum(1 for emp in employees if emp.get_cumulative_debt() == 0)
+
+    summary_data = [
+        ['Σύνολο Υπαλλήλων', 'Εντάξει', 'Με Χρέος', 'Συνολικό Χρέος'],
+        [str(emp_count), str(ok_count), str(emp_count - ok_count), f"{total_debt} ημ."],
+    ]
+    summary_table = Table(summary_data, colWidths=[4*cm, 4*cm, 4*cm, 4*cm])
+    summary_table.setStyle(TableStyle([
+        ('BACKGROUND',   (0,0), (-1,0), brand_red),
+        ('TEXTCOLOR',    (0,0), (-1,0), colors.white),
+        ('FONTNAME',     (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE',     (0,0), (-1,-1), 9),
+        ('ALIGN',        (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN',       (0,0), (-1,-1), 'MIDDLE'),
+        ('ROWBACKGROUNDS',(0,1), (-1,-1), [colors.white]),
+        ('GRID',         (0,0), (-1,-1), 0.5, border_c),
+        ('TOPPADDING',   (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING',(0,0), (-1,-1), 6),
+        ('ROUNDEDCORNERS', [4]),
+    ]))
+    story.append(summary_table)
+    story.append(Spacer(1, 0.6*cm))
+
+    # ── Main Table ───────────────────────────────────────────────────────────
+    col_widths = [5.5*cm, 3*cm, 3*cm, 2.5*cm, 3*cm]
+    headers = ['Ονοματεπώνυμο', 'Γραφείο', 'Τηλεργασία', 'Άδειες/Ασθ.', 'Κατάσταση']
+    table_data = [headers]
+
+    for emp in employees:
+        report = emp.get_monthly_report()
+        if report['is_ok']:
+            status = Paragraph('ΕΝΤΆΞΕΙ', ok_style)
+        else:
+            status = Paragraph(f"ΧΡΕΟΣ -{report['debt']}", debt_style)
+
+        table_data.append([
+            Paragraph(emp.full_name, cell_style),
+            Paragraph(str(report['office_days']), cell_style),
+            Paragraph(str(report['remote_days']), cell_style),
+            Paragraph(str(report['leave_days']), cell_style),
+            status,
+        ])
+
+    main_table = Table(table_data, colWidths=col_widths, repeatRows=1)
+
+    row_styles = []
+    for i in range(1, len(table_data)):
+        bg = row_alt if i % 2 == 0 else colors.white
+        row_styles.append(('BACKGROUND', (0,i), (-1,i), bg))
+        # Χρωματισμός κελιού κατάστασης
+        emp_report = employees[i-1].get_monthly_report()
+        if emp_report['is_ok']:
+            row_styles.append(('BACKGROUND', (4,i), (4,i), green_bg))
+        else:
+            row_styles.append(('BACKGROUND', (4,i), (4,i), light_red))
+
+    main_table.setStyle(TableStyle([
+        # Header
+        ('BACKGROUND',    (0,0), (-1,0), brand_red),
+        ('TEXTCOLOR',     (0,0), (-1,0), colors.white),
+        ('FONTNAME',      (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE',      (0,0), (-1,-1), 9),
+        ('ALIGN',         (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+        ('GRID',          (0,0), (-1,-1), 0.5, border_c),
+        ('TOPPADDING',    (0,0), (-1,-1), 7),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 7),
+        ('LEFTPADDING',   (0,0), (-1,-1), 6),
+        ('RIGHTPADDING',  (0,0), (-1,-1), 6),
+        *row_styles,
+    ]))
+    story.append(main_table)
+
+    # ── Footer note ──────────────────────────────────────────────────────────
+    story.append(Spacer(1, 0.5*cm))
+    story.append(Paragraph(
+        f"* Αναφορά για τον τρέχοντα μήνα ({month_name}). Απαίτηση: 8 ημέρες γραφείου/μήνα.",
+        ParagraphStyle('Note', fontName='Helvetica', fontSize=7, textColor=muted)
+    ))
+
+    doc.build(story)
+    buffer.seek(0)
+
+    filename = f"Attendance_{today.strftime('%Y_%m')}.pdf"
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 
 
