@@ -114,33 +114,55 @@
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="glass-card p-3 d-flex align-items-center gap-3">
-                <div style="background: rgba(153, 27, 27, 0.1); color: var(--brand); padding: 12px; border-radius: 12px;"><i class="fas fa-users fa-lg"></i></div>
-                <div><div class="small text-muted fw-bold">ΥΠΑΛΛΗΛΟΙ</div><div class="h4 mb-0 fw-800">{{ stats.total_count }}</div></div>
+                <div class="stat-icon stat-icon--brand"><i class="fas fa-users fa-lg"></i></div>
+                <div>
+                    <div class="small text-muted fw-bold">ΥΠΑΛΛΗΛΟΙ</div>
+                    <div class="h4 mb-0 fw-800">{{ stats.total_count }}</div>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="glass-card p-3 d-flex align-items-center gap-3">
-                <div style="background: rgba(16, 185, 129, 0.1); color: var(--clr-office); padding: 12px; border-radius: 12px;"><i class="fas fa-building fa-lg"></i></div>
-                <div><div class="small text-muted fw-bold">ΠΑΡΟΥΣΙΑ ΣΗΜΕΡΑ</div><div class="h4 mb-0 fw-800">{{ stats.presence_rate }}%</div></div>
+                <div class="stat-icon stat-icon--office"><i class="fas fa-building fa-lg"></i></div>
+                <div>
+                    <div class="small text-muted fw-bold">ΠΑΡΟΥΣΙΑ ΣΗΜΕΡΑ</div>
+                    <div class="h4 mb-0 fw-800">{{ stats.presence_rate }}%</div>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="glass-card p-3 d-flex align-items-center gap-3">
-                <div style="background: rgba(245, 158, 11, 0.1); color: var(--clr-leave); padding: 12px; border-radius: 12px;"><i class="fas fa-exclamation-triangle fa-lg"></i></div>
-                <div><div class="small text-muted fw-bold">ΣΥΝΟΛΙΚΟ ΧΡΕΟΣ</div><div class="h4 mb-0 fw-800">{{ stats.total_debt_sum }} <span class="small">ημ.</span></div></div>
+                <div class="stat-icon stat-icon--leave"><i class="fas fa-exclamation-triangle fa-lg"></i></div>
+                <div>
+                    <div class="small text-muted fw-bold">ΣΥΝΟΛΙΚΟ ΧΡΕΟΣ</div>
+                    <div class="h4 mb-0 fw-800">{{ stats.total_debt_sum }} <span class="small">ημ.</span></div>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="glass-card p-3 d-flex align-items-center gap-3">
-                <div style="background: rgba(14, 165, 233, 0.1); color: var(--clr-remote); padding: 12px; border-radius: 12px;"><i class="fas fa-laptop-house fa-lg"></i></div>
-                <div><div class="small text-muted fw-bold">REMOTE ΣΗΜΕΡΑ</div><div class="h4 mb-0 fw-800">{{ stats.today.remote }}</div></div>
+                <div class="stat-icon stat-icon--remote"><i class="fas fa-laptop-house fa-lg"></i></div>
+                <div>
+                    <div class="small text-muted fw-bold">REMOTE ΣΗΜΕΡΑ</div>
+                    <div class="h4 mb-0 fw-800">{{ stats.today.remote }}</div>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="row g-4 mb-4">
-        <div class="col-lg-8"><div class="glass-card"><div class="card-header-custom">Ανάλυση Μήνα</div><div class="card-body"><canvas id="monthBar" height="120"></canvas></div></div></div>
-        <div class="col-lg-4"><div class="glass-card"><div class="card-header-custom">Παρουσίες Σήμερα</div><div class="card-body text-center"><canvas id="todayPie" height="200"></canvas></div></div></div>
+        <div class="col-lg-8">
+            <div class="glass-card">
+                <div class="card-header-custom">Ανάλυση Μήνα</div>
+                <div class="card-body"><canvas id="monthBar" height="120"></canvas></div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="glass-card">
+                <div class="card-header-custom">Παρουσίες Σήμερα</div>
+                <div class="card-body text-center"><canvas id="todayPie" height="200"></canvas></div>
+            </div>
+        </div>
     </div>
 
     <div class="filter-section">

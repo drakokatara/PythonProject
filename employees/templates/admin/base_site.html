@@ -1,241 +1,294 @@
 {% extends "admin/base.html" %}
+{% load i18n %}
 
 {% block title %}{{ title }} | PCS Admin{% endblock %}
 
 {% block extrastyle %}
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-/* ═══════════════════════════════════════════════
-   PCS ADMIN — Custom Theme
-   ───────────────────────────────────────────────
-   PALETTE
-   --deep-maroon : #450A0A   (darkest)
-   --blood       : #7F1D1D   (mid-dark)
-   --crimson     : #991B1B   (primary brand)
-   --ember       : #DC2626   (bright accent)
-   --gold        : #D4A854   (luxe accent)
-   --soft-bg     : #FFF8F5   (page background)
-   --cream       : #FDF5F0   (surface light)
-   --border      : #E8D5CF   (dividers)
-   --charcoal    : #1C1C1C   (primary text)
-   --muted       : #6B5B58   (secondary text)
-═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   PCS ADMIN — Dark Command Center Theme
+   Matches manage.html palette exactly
+   ═══════════════════════════════════════════════════ */
 
-/* ── 1. CSS VARIABLES ── */
 :root {
-    --deep-maroon : #450A0A;
-    --blood       : #7F1D1D;
-    --crimson     : #991B1B;
-    --ember       : #DC2626;
-    --gold        : #D4A854;
-    --soft-bg     : #FFF8F5;
-    --cream       : #FDF5F0;
-    --border      : #E8D5CF;
-    --charcoal    : #1C1C1C;
-    --muted       : #6B5B58;
-    --shadow      : rgba(69, 10, 10, 0.10);
-    --shadow-lg   : rgba(69, 10, 10, 0.22);
-    --focus-ring  : rgba(153, 27, 27, 0.18);
-    --radius      : 8px;
-    --radius-sm   : 5px;
+    /* Exact same variables as manage.html */
+    --bg:           #0F172A;
+    --surface:      #1E293B;
+    --surface2:     #162032;
+    --text-main:    #F1F5F9;
+    --text-muted:   #94A3B8;
+    --brand:        #991B1B;
+    --brand-light:  #EF4444;
+    --brand-glow:   rgba(153, 27, 27, 0.35);
+    --border:       #334155;
+    --border-light: #2D3F55;
+    --topbar:       #020617;
+    --shadow:       0 4px 24px rgba(0,0,0,0.4);
+    --shadow-sm:    0 2px 8px rgba(0,0,0,0.25);
+    --clr-office:   #10b981;
+    --clr-remote:   #0ea5e9;
+    --clr-leave:    #f59e0b;
+    --clr-success:  #10b981;
+    --clr-error:    #EF4444;
+    --clr-warning:  #f59e0b;
+    --radius:       16px;
+    --radius-sm:    10px;
+    --radius-xs:    6px;
 }
 
-/* ── 2. BASE ── */
-*, *::before, *::after { box-sizing: border-box; }
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
 
 body {
-    font-family: 'DM Sans', sans-serif !important;
-    background: var(--soft-bg) !important;
-    color: var(--charcoal) !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    background: var(--bg) !important;
+    color: var(--text-main) !important;
     font-size: 14px !important;
     line-height: 1.6 !important;
+    min-height: 100vh;
 }
 
-/* ── 3. LINKS — low specificity, component overrides win ── */
+/* Subtle grid background like a command center */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(51,65,85,0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(51,65,85,0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--brand); }
+
+/* ── LINKS ── */
 a:link, a:visited {
-    color: var(--crimson);
+    color: var(--clr-remote);
     text-decoration: none;
-    transition: color 0.15s ease;
+    transition: color 0.15s;
 }
-a:hover {
-    color: var(--ember);
-    text-decoration: none;
-}
+a:hover { color: var(--brand-light); }
 
-/* ── 4. HEADER ── */
+/* ══════════════════════════════════════════════
+   HEADER / TOPBAR — identical to manage.html
+   ══════════════════════════════════════════════ */
 #header {
-    background: linear-gradient(
-        135deg,
-        var(--deep-maroon) 0%,
-        var(--blood)       55%,
-        var(--crimson)     100%
-    ) !important;
-    padding: 0 28px !important;
-    height: 64px !important;
+    background: var(--topbar) !important;
+    height: 70px !important;
+    padding: 0 32px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    box-shadow: 0 4px 20px var(--shadow-lg) !important;
-    position: relative !important;
-    overflow: hidden !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    border-bottom: 1px solid var(--border) !important;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.5) !important;
 }
 
-/* subtle noise texture overlay */
-#header::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-    pointer-events: none;
-}
-
-/* gold separator line */
+/* Red accent line at the very bottom of header */
 #header::after {
     content: '';
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent 0%, var(--gold) 40%, var(--gold) 60%, transparent 100%);
-    opacity: 0.7;
+    background: linear-gradient(90deg, transparent 0%, var(--brand) 30%, var(--brand-light) 70%, transparent 100%);
 }
 
-/* ── 5. BRANDING ── */
+/* ── BRANDING ── */
 #branding h1 {
-    font-family: 'Playfair Display', Georgia, serif !important;
-    font-size: 21px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.3px !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
     color: #fff !important;
+    letter-spacing: -0.3px !important;
     margin: 0 !important;
     line-height: 1 !important;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.25) !important;
-    position: relative; z-index: 1;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
 #branding h1 a:link,
-#branding h1 a:visited {
-    color: #fff !important;
-    transition: color 0.2s ease;
+#branding h1 a:visited { color: #fff !important; }
+#branding h1 a:hover   { color: var(--brand-light) !important; }
+
+/* PCS in brand red like manage.html */
+#branding h1 a::before {
+    content: 'PCS ';
+    color: var(--brand-light);
 }
 
-#branding h1 a:hover {
-    color: var(--gold) !important;
-}
-
-/* ── 6. USER TOOLS ── */
+/* ── USER TOOLS ── */
 #user-tools {
-    font-family: 'DM Sans', sans-serif !important;
+    font-family: 'Space Mono', monospace !important;
     font-size: 11px !important;
-    font-weight: 500 !important;
-    letter-spacing: 0.8px !important;
-    text-transform: uppercase !important;
-    color: rgba(255,255,255,0.80) !important;
-    position: relative; z-index: 1;
+    color: var(--text-muted) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
 }
 
 #user-tools a:link,
 #user-tools a:visited {
-    color: rgba(255,255,255,0.80) !important;
-    border-bottom: 1px solid transparent;
-    padding-bottom: 1px;
-    transition: color 0.2s ease, border-color 0.2s ease;
+    color: var(--text-muted) !important;
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    padding: 6px 14px !important;
+    border-radius: 10px !important;
+    font-weight: 400 !important;
+    transition: all 0.2s !important;
 }
 
 #user-tools a:hover {
-    color: var(--gold) !important;
-    border-color: var(--gold) !important;
+    color: #fff !important;
+    background: var(--brand) !important;
+    border-color: var(--brand) !important;
 }
 
-/* ── 7. BREADCRUMBS ── */
+/* ══════════════════════════════════════════════
+   BREADCRUMBS
+   ══════════════════════════════════════════════ */
 div.breadcrumbs {
-    background: var(--cream) !important;
-    padding: 9px 28px !important;
+    background: var(--surface2) !important;
     border-bottom: 1px solid var(--border) !important;
-    font-size: 12px !important;
-    font-weight: 500 !important;
-    color: var(--muted) !important;
+    padding: 10px 32px !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: 11px !important;
+    color: var(--text-muted) !important;
+    position: relative;
+    z-index: 1;
 }
 
 div.breadcrumbs a:link,
-div.breadcrumbs a:visited {
-    color: var(--crimson) !important;
-    transition: color 0.15s ease;
-}
-div.breadcrumbs a:hover {
-    color: var(--ember) !important;
-}
+div.breadcrumbs a:visited { color: var(--clr-remote) !important; }
+div.breadcrumbs a:hover   { color: var(--brand-light) !important; }
 
-/* ── 8. LAYOUT ── */
-/* #content is the outermost wrapper — pad here only */
+/* ══════════════════════════════════════════════
+   LAYOUT
+   ══════════════════════════════════════════════ */
+#content-main,
 #content {
-    padding: 28px !important;
+    padding: 28px 32px !important;
+    position: relative;
+    z-index: 1;
 }
 
-/* ── 9. PAGE TITLE ── */
+/* Page title */
 #content h1 {
-    font-family: 'Playfair Display', Georgia, serif !important;
-    font-size: 24px !important;
-    font-weight: 700 !important;
-    color: var(--deep-maroon) !important;
-    border-bottom: 2px solid var(--border) !important;
-    padding-bottom: 12px !important;
-    margin-top: 0 !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    border-bottom: 1px solid var(--border) !important;
+    padding-bottom: 14px !important;
     margin-bottom: 24px !important;
+    letter-spacing: -0.3px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
 }
 
-/* ── 10. MODULE CARDS ── */
+#content h1::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(180deg, var(--brand-light), var(--brand));
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════
+   MODULE CARDS — glass-card style
+   ══════════════════════════════════════════════ */
 .module {
+    background: var(--surface) !important;
     border: 1px solid var(--border) !important;
     border-radius: var(--radius) !important;
+    box-shadow: var(--shadow-sm) !important;
     overflow: hidden !important;
-    box-shadow: 0 2px 10px var(--shadow) !important;
-    margin-bottom: 22px !important;
-    background: #fff !important;
-    transition: box-shadow 0.2s ease !important;
+    margin-bottom: 24px !important;
+    transition: box-shadow 0.2s, border-color 0.2s !important;
 }
 
 .module:hover {
-    box-shadow: 0 5px 20px var(--shadow-lg) !important;
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 1px var(--brand), var(--shadow) !important;
 }
 
 .module h2,
 .module caption,
 .inline-group h2 {
-    background: linear-gradient(90deg, var(--deep-maroon) 0%, var(--blood) 100%) !important;
-    color: #fff !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 10.5px !important;
+    background: rgba(0,0,0,0.25) !important;
+    color: var(--text-muted) !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: 10px !important;
     font-weight: 700 !important;
-    letter-spacing: 1.5px !important;
+    letter-spacing: 2px !important;
     text-transform: uppercase !important;
-    padding: 10px 16px !important;
-    border: none !important;
+    padding: 12px 18px !important;
+    border-bottom: 1px solid var(--border) !important;
     margin: 0 !important;
 }
 
-/* ── 11. FIELDSETS ── */
-fieldset {
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-    padding: 20px !important;
-    margin-bottom: 18px !important;
-    background: #fff !important;
+/* ── APP INDEX CARDS (homepage) ── */
+.app-list .module {
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s !important;
 }
 
-fieldset > h2,
-fieldset.module h2 {
-    margin: -20px -20px 18px !important;
+.app-list .module:hover {
+    transform: translateY(-2px) !important;
+}
+
+/* ══════════════════════════════════════════════
+   DASHBOARD — Recent Actions
+   ══════════════════════════════════════════════ */
+#content-related {
+    position: relative;
+    z-index: 1;
+}
+
+#content-related .module {
+    background: var(--surface) !important;
+}
+
+/* ══════════════════════════════════════════════
+   FORM FIELDS
+   ══════════════════════════════════════════════ */
+fieldset {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    padding: 22px !important;
+    margin-bottom: 20px !important;
+}
+
+fieldset > h2 {
+    margin: -22px -22px 20px !important;
     border-radius: var(--radius) var(--radius) 0 0 !important;
 }
 
 .help {
-    font-size: 12px !important;
-    color: var(--muted) !important;
+    color: var(--text-muted) !important;
+    font-size: 11px !important;
     font-style: italic !important;
 }
 
-/* ── 12. FORM FIELDS ── */
+label {
+    color: var(--text-muted) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
 input[type="text"],
 input[type="password"],
 input[type="email"],
@@ -245,423 +298,560 @@ input[type="tel"],
 input[type="search"],
 textarea,
 select {
-    border: 1.5px solid var(--border) !important;
+    background: var(--bg) !important;
+    border: 1px solid var(--border) !important;
     border-radius: var(--radius-sm) !important;
-    padding: 8px 11px !important;
-    font-family: 'DM Sans', sans-serif !important;
+    color: var(--text-main) !important;
+    padding: 10px 14px !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-size: 13px !important;
-    color: var(--charcoal) !important;
-    background: #fff !important;
     outline: none !important;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+    width: 100% !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
 }
 
-input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="email"]:focus,
-input[type="number"]:focus,
-input[type="url"]:focus,
-input[type="tel"]:focus,
-input[type="search"]:focus,
+input:focus,
 textarea:focus,
 select:focus {
-    border-color: var(--crimson) !important;
-    box-shadow: 0 0 0 3px var(--focus-ring) !important;
-    outline: none !important;
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 3px var(--brand-glow) !important;
 }
 
 input[type="checkbox"] {
-    accent-color: var(--crimson) !important;
-    width: 15px !important;
-    height: 15px !important;
+    accent-color: var(--brand-light) !important;
+    width: 16px !important;
+    height: 16px !important;
     cursor: pointer !important;
 }
 
-/* ── 13. SEARCH BAR ── */
+/* ── SEARCH ── */
 #searchbar,
 #changelist-search input[type="search"],
 #changelist-search input[type="text"] {
-    border: 1.5px solid var(--border) !important;
-    border-radius: 20px !important;
-    padding: 7px 14px !important;
-    width: 280px !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 13px !important;
-    background: #fff !important;
-    outline: none !important;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+    background: var(--bg) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    color: var(--text-main) !important;
+    padding: 9px 16px !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    width: 300px !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
 }
 
 #searchbar:focus,
 #changelist-search input:focus {
-    border-color: var(--crimson) !important;
-    box-shadow: 0 0 0 3px var(--focus-ring) !important;
+    border-color: var(--brand) !important;
+    box-shadow: 0 0 0 3px var(--brand-glow) !important;
 }
 
-/* ── 14. BUTTONS ── */
+/* ══════════════════════════════════════════════
+   BUTTONS — matches manage.html style
+   ══════════════════════════════════════════════ */
 .button,
 input[type="submit"],
-input[type="button"] {
-    background: linear-gradient(135deg, var(--deep-maroon) 0%, var(--crimson) 100%) !important;
+input[type="button"],
+.submit-row input {
+    background: var(--brand) !important;
     color: #fff !important;
     border: none !important;
     border-radius: var(--radius-sm) !important;
-    padding: 8px 18px !important;
-    font-family: 'DM Sans', sans-serif !important;
+    padding: 10px 22px !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-size: 13px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.3px !important;
+    font-weight: 700 !important;
     cursor: pointer !important;
-    box-shadow: 0 2px 8px var(--shadow) !important;
-    /* Explicit properties — never 'transition: all' to avoid conflicts */
-    transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease !important;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s !important;
+    box-shadow: 0 2px 8px var(--brand-glow) !important;
 }
 
 .button:hover,
 input[type="submit"]:hover,
 input[type="button"]:hover {
-    background: linear-gradient(135deg, var(--blood) 0%, var(--ember) 100%) !important;
-    box-shadow: 0 4px 14px var(--shadow-lg) !important;
+    background: var(--brand-light) !important;
     transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px var(--brand-glow) !important;
 }
 
 .button:active,
-input[type="submit"]:active,
-input[type="button"]:active {
+input[type="submit"]:active {
     transform: translateY(0) !important;
-    box-shadow: 0 1px 4px var(--shadow) !important;
 }
 
-.button.default,
-input[type="submit"].default {
-    background: linear-gradient(135deg, var(--crimson) 0%, var(--ember) 100%) !important;
-}
-
-/* ── 15. DELETE LINK — declared AFTER .button to win specificity ── */
+/* Delete link */
 a.deletelink,
 a.deletelink:link,
 a.deletelink:visited {
     background: transparent !important;
-    color: var(--ember) !important;
-    border: 1.5px solid var(--ember) !important;
+    color: var(--clr-error) !important;
+    border: 1px solid var(--clr-error) !important;
     border-radius: var(--radius-sm) !important;
-    box-shadow: none !important;
-    padding: 6px 16px !important;
+    padding: 8px 18px !important;
     font-size: 13px !important;
-    font-weight: 600 !important;
-    transform: none !important;
-    transition: background 0.18s ease, color 0.18s ease !important;
+    font-weight: 700 !important;
+    transition: all 0.2s !important;
+    box-shadow: none !important;
 }
 
 a.deletelink:hover {
-    background: var(--ember) !important;
+    background: var(--clr-error) !important;
     color: #fff !important;
-    transform: none !important;
-    box-shadow: none !important;
+    box-shadow: 0 4px 14px rgba(239,68,68,0.35) !important;
 }
 
-/* ── 16. SUBMIT ROW ── */
+/* ── SUBMIT ROW ── */
 .submit-row {
-    background: var(--cream) !important;
+    background: var(--surface2) !important;
     border-top: 1px solid var(--border) !important;
     border-radius: 0 0 var(--radius) var(--radius) !important;
-    padding: 12px 18px !important;
+    padding: 14px 20px !important;
     display: flex !important;
     align-items: center !important;
-    gap: 10px !important;
+    gap: 12px !important;
     flex-wrap: wrap !important;
 }
 
-/* ── 17. OBJECT TOOLS ── */
+/* ── OBJECT TOOLS ── */
 ul.object-tools {
-    margin: 0 0 16px !important;
+    margin: 0 0 18px !important;
     padding: 0 !important;
+    list-style: none !important;
 }
 
-ul.object-tools li {
-    display: inline-block !important;
-    margin-left: 8px !important;
-}
+ul.object-tools li { display: inline-block !important; margin-left: 8px !important; }
 
 ul.object-tools a:link,
 ul.object-tools a:visited {
-    background: linear-gradient(135deg, var(--deep-maroon) 0%, var(--crimson) 100%) !important;
-    color: #fff !important;
-    border-radius: 20px !important;
-    padding: 6px 16px !important;
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-main) !important;
+    border-radius: 12px !important;
+    padding: 7px 18px !important;
     font-size: 11px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.6px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
     text-transform: uppercase !important;
-    box-shadow: 0 2px 8px var(--shadow) !important;
-    transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease !important;
+    transition: all 0.2s !important;
+    font-family: 'Space Mono', monospace !important;
 }
 
 ul.object-tools a:hover {
-    background: linear-gradient(135deg, var(--blood) 0%, var(--ember) 100%) !important;
-    box-shadow: 0 4px 14px var(--shadow-lg) !important;
+    background: var(--brand) !important;
+    border-color: var(--brand) !important;
     color: #fff !important;
-    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 14px var(--brand-glow) !important;
 }
 
-/* ── 18. CHANGELIST TABLE ── */
+/* ══════════════════════════════════════════════
+   CHANGELIST TABLE — same as manage.html rows
+   ══════════════════════════════════════════════ */
 #result_list {
-    border-collapse: separate !important;
-    border-spacing: 0 !important;
     width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 6px !important;
 }
 
 #result_list thead th {
-    background: var(--cream) !important;
-    color: var(--muted) !important;
-    font-size: 10.5px !important;
+    background: transparent !important;
+    color: var(--text-muted) !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: 10px !important;
     font-weight: 700 !important;
-    letter-spacing: 1.1px !important;
+    letter-spacing: 1.5px !important;
     text-transform: uppercase !important;
-    border-bottom: 2px solid var(--border) !important;
-    padding: 11px 13px !important;
+    padding: 10px 16px !important;
+    border-bottom: 1px solid var(--border) !important;
 }
 
 #result_list thead th a:link,
-#result_list thead th a:visited {
-    color: var(--muted) !important;
-    transition: color 0.15s ease;
-}
+#result_list thead th a:visited { color: var(--text-muted) !important; }
+#result_list thead th a:hover   { color: var(--brand-light) !important; }
 
-#result_list thead th a:hover {
-    color: var(--crimson) !important;
-}
-
+/* Rows styled exactly like manage.html data-row */
 #result_list tbody tr {
-    transition: background 0.12s ease !important;
+    background: var(--surface) !important;
+    transition: transform 0.15s, background 0.15s !important;
+    cursor: pointer !important;
 }
 
-#result_list tbody tr:nth-child(even) {
-    background: #FDF8F7 !important;
+#result_list tbody tr td {
+    padding: 14px 16px !important;
+    border-top: 1px solid var(--border) !important;
+    border-bottom: 1px solid var(--border) !important;
+    vertical-align: middle !important;
+    color: var(--text-main) !important;
+}
+
+#result_list tbody tr td:first-child {
+    border-left: 1px solid var(--border) !important;
+    border-top-left-radius: 12px !important;
+    border-bottom-left-radius: 12px !important;
+}
+
+#result_list tbody tr td:last-child {
+    border-right: 1px solid var(--border) !important;
+    border-top-right-radius: 12px !important;
+    border-bottom-right-radius: 12px !important;
 }
 
 #result_list tbody tr:hover {
-    background: #FFF1ED !important;
+    transform: scale(1.002) !important;
+    background: rgba(153, 27, 27, 0.06) !important;
+    border-color: var(--brand) !important;
 }
 
-#result_list tbody td {
-    padding: 10px 13px !important;
-    border-bottom: 1px solid var(--border) !important;
-    vertical-align: middle !important;
+#result_list tbody tr:hover td {
+    border-color: rgba(153,27,27,0.3) !important;
 }
 
-/* ── 19. SIDEBAR FILTERS ── */
+/* th checkboxes */
+#result_list thead th.action-checkbox-column,
+#result_list tbody td.action-checkbox {
+    padding-left: 16px !important;
+}
+
+/* table links */
+#result_list tbody td a:link,
+#result_list tbody td a:visited {
+    color: var(--text-main) !important;
+    font-weight: 600 !important;
+}
+
+#result_list tbody td a:hover {
+    color: var(--brand-light) !important;
+}
+
+/* ══════════════════════════════════════════════
+   SIDEBAR FILTERS
+   ══════════════════════════════════════════════ */
 #changelist-filter {
-    background: #fff !important;
+    background: var(--surface) !important;
     border: 1px solid var(--border) !important;
     border-radius: var(--radius) !important;
     overflow: hidden !important;
-    box-shadow: 0 2px 10px var(--shadow) !important;
 }
 
 #changelist-filter h2 {
-    background: linear-gradient(90deg, var(--deep-maroon) 0%, var(--blood) 100%) !important;
-    color: #fff !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 10px !important;
+    background: rgba(0,0,0,0.3) !important;
+    color: var(--text-muted) !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: 9px !important;
     font-weight: 700 !important;
-    letter-spacing: 1.8px !important;
+    letter-spacing: 2px !important;
     text-transform: uppercase !important;
-    padding: 10px 16px !important;
-    margin: 0 !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid var(--border) !important;
 }
 
 #changelist-filter h3 {
-    font-size: 10px !important;
+    font-size: 9px !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
-    letter-spacing: 1.2px !important;
-    color: var(--muted) !important;
-    padding: 12px 16px 4px !important;
-    margin: 0 !important;
+    letter-spacing: 1.5px !important;
+    color: var(--text-muted) !important;
+    padding: 14px 16px 6px !important;
     border-top: 1px solid var(--border) !important;
-}
-
-#changelist-filter h3:first-of-type {
-    border-top: none !important;
+    font-family: 'Space Mono', monospace !important;
 }
 
 #changelist-filter ul {
     list-style: none !important;
-    padding: 4px 16px 12px !important;
-    margin: 0 !important;
-}
-
-#changelist-filter li {
-    padding: 3px 0 !important;
+    padding: 4px 16px 14px !important;
 }
 
 #changelist-filter a:link,
 #changelist-filter a:visited {
-    color: var(--charcoal) !important;
+    color: var(--text-muted) !important;
     font-size: 13px !important;
-    transition: color 0.15s ease;
+    transition: color 0.15s !important;
 }
 
-#changelist-filter a:hover {
-    color: var(--ember) !important;
+#changelist-filter a:hover { color: var(--brand-light) !important; }
+
+#changelist-filter li.selected a {
+    color: var(--brand-light) !important;
+    font-weight: 700 !important;
 }
 
-#changelist-filter li.selected a:link,
-#changelist-filter li.selected a:visited {
-    color: var(--crimson) !important;
-    font-weight: 600 !important;
-}
-
-/* ── 20. PAGINATOR ── */
+/* ══════════════════════════════════════════════
+   PAGINATOR
+   ══════════════════════════════════════════════ */
 .paginator {
+    color: var(--text-muted) !important;
     font-size: 12px !important;
-    color: var(--muted) !important;
-    padding: 12px 0 !important;
+    padding: 14px 0 !important;
+    font-family: 'Space Mono', monospace !important;
 }
 
-/* Consistent box-sizing for both links and the current page indicator */
 .paginator a:link,
 .paginator a:visited,
 .paginator .this-page {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    min-width: 30px !important;
-    padding: 4px 10px !important;
+    min-width: 32px !important;
+    padding: 5px 11px !important;
     border-radius: var(--radius-sm) !important;
     border: 1px solid var(--border) !important;
     margin: 0 2px !important;
     font-size: 12px !important;
-    font-weight: 500 !important;
+    background: var(--surface) !important;
+    transition: all 0.15s !important;
 }
 
 .paginator a:link,
-.paginator a:visited {
-    color: var(--crimson) !important;
-    background: #fff !important;
-    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
-}
+.paginator a:visited { color: var(--text-main) !important; }
 
 .paginator a:hover {
-    background: var(--crimson) !important;
+    background: var(--brand) !important;
+    border-color: var(--brand) !important;
     color: #fff !important;
-    border-color: var(--crimson) !important;
 }
 
 .paginator .this-page {
-    background: var(--crimson) !important;
+    background: var(--brand) !important;
+    border-color: var(--brand) !important;
     color: #fff !important;
-    border-color: var(--crimson) !important;
     font-weight: 700 !important;
 }
 
-/* ── 21. MESSAGES / ALERTS ── */
+/* ══════════════════════════════════════════════
+   MESSAGES / ALERTS
+   ══════════════════════════════════════════════ */
 ul.messagelist {
-    padding: 0 !important;
-    margin: 0 0 20px !important;
     list-style: none !important;
+    padding: 0 !important;
+    margin-bottom: 24px !important;
 }
 
 ul.messagelist li {
     border-radius: var(--radius-sm) !important;
-    padding: 10px 16px 10px 18px !important;
+    padding: 12px 18px !important;
     margin-bottom: 8px !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     font-size: 13px !important;
-    border-left-width: 4px !important;
-    border-left-style: solid !important;
+    border: 1px solid transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+ul.messagelist li::before {
+    font-size: 16px;
+    flex-shrink: 0;
 }
 
 ul.messagelist li.success {
-    background: #F0FDF4 !important;
-    border-left-color: #22C55E !important;
-    color: #15803D !important;
+    background: rgba(16,185,129,0.1) !important;
+    border-color: rgba(16,185,129,0.3) !important;
+    color: var(--clr-success) !important;
 }
+ul.messagelist li.success::before { content: '✓'; }
 
 ul.messagelist li.error {
-    background: #FEF2F2 !important;
-    border-left-color: var(--ember) !important;
-    color: var(--deep-maroon) !important;
+    background: rgba(239,68,68,0.1) !important;
+    border-color: rgba(239,68,68,0.3) !important;
+    color: var(--clr-error) !important;
 }
+ul.messagelist li.error::before { content: '✕'; }
 
 ul.messagelist li.warning {
-    background: #FFFBEB !important;
-    border-left-color: #F59E0B !important;
-    color: #92400E !important;
+    background: rgba(245,158,11,0.1) !important;
+    border-color: rgba(245,158,11,0.3) !important;
+    color: var(--clr-leave) !important;
 }
+ul.messagelist li.warning::before { content: '⚠'; }
 
-/* ── 22. INLINE GROUPS ── */
-.inline-group {
+/* ══════════════════════════════════════════════
+   ACTIONS BAR
+   ══════════════════════════════════════════════ */
+.actions {
+    background: var(--surface) !important;
     border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-    overflow: hidden !important;
-    margin-bottom: 18px !important;
-    background: #fff !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 10px 14px !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
 }
 
-/* ── 23. CALENDAR & CLOCK WIDGETS ── */
-.calendarbox,
-.clockbox {
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-    overflow: hidden !important;
-    box-shadow: 0 8px 24px var(--shadow-lg) !important;
+.actions select {
+    width: auto !important;
+    padding: 6px 12px !important;
 }
 
-.calendarbox h2,
-.clockbox h2,
-.module.calendar caption {
-    background: var(--deep-maroon) !important;
-    color: #fff !important;
-    font-family: 'DM Sans', sans-serif !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    letter-spacing: 1px !important;
-    text-transform: uppercase !important;
+/* ══════════════════════════════════════════════
+   NAV SIDEBAR (Django 3.2+)
+   ══════════════════════════════════════════════ */
+#nav-sidebar {
+    background: var(--surface2) !important;
+    border-right: 1px solid var(--border) !important;
+    position: relative;
+    z-index: 1;
 }
 
-.calendar td.today a {
-    color: var(--crimson) !important;
+#nav-sidebar .current-app .section:link,
+#nav-sidebar .current-app .section:visited {
+    color: var(--brand-light) !important;
     font-weight: 700 !important;
 }
 
+.toggle-nav-sidebar {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-muted) !important;
+    border-radius: var(--radius-xs) !important;
+    transition: all 0.2s !important;
+}
+
+.toggle-nav-sidebar:hover {
+    background: var(--brand) !important;
+    border-color: var(--brand) !important;
+    color: #fff !important;
+}
+
+/* ══════════════════════════════════════════════
+   CALENDAR & DATE WIDGETS
+   ══════════════════════════════════════════════ */
+.calendarbox,
+.clockbox {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow) !important;
+    overflow: hidden !important;
+}
+
+.calendarbox h2,
+.clockbox h2 {
+    background: var(--topbar) !important;
+    color: var(--text-main) !important;
+    font-family: 'Space Mono', monospace !important;
+    font-size: 10px !important;
+    letter-spacing: 1.5px !important;
+    text-transform: uppercase !important;
+    padding: 10px 14px !important;
+}
+
+.calendar td a { color: var(--text-main) !important; }
+.calendar td.today a { color: var(--brand-light) !important; font-weight: 700 !important; }
 .calendar td.selected a {
-    background: var(--crimson) !important;
+    background: var(--brand) !important;
     color: #fff !important;
     border-radius: 50% !important;
 }
 
-/* ── 24. NAV SIDEBAR (Django 3.2+) ── */
-#nav-sidebar {
-    background: #fff !important;
-    border-right: 1px solid var(--border) !important;
-}
-
-.toggle-nav-sidebar {
-    border-color: var(--border) !important;
-    color: var(--muted) !important;
-}
-
-/* ── 25. ACTIONS BAR ── */
-.actions {
-    background: var(--cream) !important;
+/* ══════════════════════════════════════════════
+   INLINE GROUPS
+   ══════════════════════════════════════════════ */
+.inline-group {
+    background: var(--surface) !important;
     border: 1px solid var(--border) !important;
-    border-radius: var(--radius-sm) !important;
-    padding: 8px 12px !important;
-    margin-bottom: 10px !important;
+    border-radius: var(--radius) !important;
+    overflow: hidden !important;
+    margin-bottom: 20px !important;
 }
 
-/* ── 26. SCROLLBAR ── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--cream); }
-::-webkit-scrollbar-thumb { background: #C9A9A4; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--crimson); }
+/* ══════════════════════════════════════════════
+   DASHBOARD INDEX — App tiles
+   ══════════════════════════════════════════════ */
+#content-main .module table th,
+#content-main .module table td {
+    padding: 10px 16px !important;
+    border-bottom: 1px solid var(--border) !important;
+    color: var(--text-main) !important;
+}
+
+#content-main .module table th {
+    color: var(--text-muted) !important;
+    font-weight: 600 !important;
+}
+
+/* App caption on index */
+#content-main .module caption {
+    text-align: left !important;
+}
+
+/* App model links on index */
+#content-main .module table td a:link,
+#content-main .module table td a:visited {
+    color: var(--text-main) !important;
+    font-weight: 600 !important;
+}
+
+#content-main .module table td a:hover {
+    color: var(--brand-light) !important;
+}
+
+/* Add / Change links */
+.addlink::before { content: '+ '; color: var(--clr-success); }
+.changelink::before { content: '✎ '; }
+.deletelink-td a { color: var(--clr-error) !important; }
+
+/* Recent actions */
+#recent-actions-module .actionlist {
+    list-style: none !important;
+    padding: 8px 0 !important;
+}
+
+#recent-actions-module .actionlist li {
+    padding: 8px 16px !important;
+    border-bottom: 1px solid var(--border) !important;
+    font-size: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+#recent-actions-module .actionlist li:last-child {
+    border-bottom: none !important;
+}
+
+/* ══════════════════════════════════════════════
+   MISC
+   ══════════════════════════════════════════════ */
+p.paginator, .paginator { padding: 10px 0 !important; }
+
+.errornote {
+    background: rgba(239,68,68,0.1) !important;
+    border: 1px solid rgba(239,68,68,0.3) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--clr-error) !important;
+    padding: 12px 16px !important;
+    font-weight: 600 !important;
+    margin-bottom: 16px !important;
+}
+
+.errorlist {
+    color: var(--clr-error) !important;
+    list-style: none !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    margin-top: 4px !important;
+}
+
+/* ══════════════════════════════════════════════
+   LOAD ANIMATION — staggered fade like manage.html
+   ══════════════════════════════════════════════ */
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+#content-main > *, #content > * {
+    animation: fadeSlideUp 0.4s ease both;
+}
+
+#content-main > *:nth-child(1), #content > *:nth-child(1) { animation-delay: 0.05s; }
+#content-main > *:nth-child(2), #content > *:nth-child(2) { animation-delay: 0.10s; }
+#content-main > *:nth-child(3), #content > *:nth-child(3) { animation-delay: 0.15s; }
+#content-main > *:nth-child(4), #content > *:nth-child(4) { animation-delay: 0.20s; }
+#content-main > *:nth-child(5), #content > *:nth-child(5) { animation-delay: 0.25s; }
 </style>
 {% endblock %}
 
 {% block branding %}
 <h1 id="site-name">
-    <a href="{% url 'admin:index' %}">PCS Attendance Dashboard</a>
+    <a href="{% url 'admin:index' %}">Attendance Management</a>
 </h1>
 {% endblock %}
