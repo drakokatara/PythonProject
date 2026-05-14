@@ -175,17 +175,6 @@ def update_attendance_ajax(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid method'}, status=400)
 
-def employee_range_stats(request, employee_id):
-    start_date = request.GET.get('start')
-    end_date = request.GET.get('end')
-
-    if not start_date or not end_date:
-        return JsonResponse({'error': 'Απαιτείται ημερομηνία έναρξης και λήξης'}, status=400)
-
-    employee = get_object_or_404(Employee, id=employee_id)
-    stats = employee.get_stats_for_range(start_date, end_date)
-    return JsonResponse(stats)
-
 def export_attendance_excel(request):
     wb = Workbook()
     ws = wb.active
