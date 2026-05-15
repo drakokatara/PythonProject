@@ -1,12 +1,12 @@
 from django.db import models
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
-import holidays as hols
+import holidays
 from math import ceil
 
 
 def _count_required_office_days(from_day, to_day):
-    gr_holidays = hols.Greece(years=from_day.year)
+    gr_holidays = holidays.Greece(years=from_day.year)
     workdays = sum(
         1 for i in range((to_day - from_day).days + 1)
         if (d := from_day + timedelta(days=i)).weekday() < 5
