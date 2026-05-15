@@ -16,63 +16,207 @@
     <style>
         :root {
             --bg: #F1F5F9; --surface: #FFFFFF; --text-main: #1E293B; --text-muted: #64748B;
+            --text-heading: #0F172A;
             --brand: #991B1B; --brand-hover: #7F1D1D; --border: #E2E8F0;
             --topbar: #450A0A; --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            --clr-office: #10b981; --clr-remote: #0ea5e9; --clr-leave: #f59e0b;
+            --clr-office: #059669; --clr-remote: #0284c7; --clr-leave: #d97706;
+            --input-bg: #F8FAFC;
         }
         body.dark {
-            --bg: #0F172A; --surface: #1E293B; --text-main: #F1F5F9; --text-muted: #94A3B8;
-            --brand: #EF4444; --brand-hover: #F87171; --border: #334155;
-            --topbar: #020617; --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+            /* Φόντα — 3 επίπεδα βάθους για ιεραρχία */
+            --bg: #0D1117;
+            --surface: #161B22;
+            --surface-raised: #1C2333;
+
+            /* Κείμενο — υψηλό contrast σε όλες τις βαθμίδες */
+            --text-main: #E6EDF3;
+            --text-muted: #8B949E;
+            --text-heading: #F0F6FC;
+
+            /* Brand — πιο ζεστό κόκκινο, ορατό σε σκούρο φόντο */
+            --brand: #F87171;
+            --brand-hover: #FCA5A5;
+
+            /* Borders — λεπτές αλλά ορατές */
+            --border: #30363D;
+            --border-strong: #484F58;
+
+            /* Topbar — βαθύ μαύρο */
+            --topbar: #010409;
+
+            /* Shadow — έντονη για αίσθηση βάθους */
+            --shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+
+            /* Χρώματα status — φωτεινότερα για dark */
+            --clr-office: #34D399;
+            --clr-remote: #38BDF8;
+            --clr-leave: #FBB43A;
+
+            /* Input φόντο */
+            --input-bg: #0D1117;
         }
-        body { background-color: var(--bg); color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; padding-bottom: 80px; }
+
+        /* ── Global transitions ───────────────────────────────────────────── */
+        *, *::before, *::after { transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease; }
+
+        body { background-color: var(--bg); color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 80px; }
+
+        /* ── Topbar ───────────────────────────────────────────────────────── */
         .topbar { background: var(--topbar); height: 70px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); }
         .topbar-brand { font-size: 22px; font-weight: 800; color: #fff; text-decoration: none; }
         .topbar-brand span { color: var(--brand); }
-        .nav-dropdown .btn-nav { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 20px; border-radius: 12px; font-weight: 600; transition: 0.2s; }
+        .nav-dropdown .btn-nav { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 20px; border-radius: 12px; font-weight: 600; transition: background 0.2s; }
+        .nav-dropdown .btn-nav:hover { background: rgba(255,255,255,0.15); }
+
+        /* ── Dropdown ─────────────────────────────────────────────────────── */
         .dropdown-menu { border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow); padding: 10px; background: var(--surface); }
-        .dropdown-item { border-radius: 8px; padding: 10px 15px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        body.dark .dropdown-menu { border-color: var(--border-strong, #484F58); }
+        .dropdown-item { border-radius: 8px; padding: 10px 15px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .dropdown-item:hover { background: var(--bg); color: var(--brand); }
+
+        /* ── Layout ───────────────────────────────────────────────────────── */
         .app-container { max-width: 1450px; margin: 0 auto; padding: 30px; }
+
+        /* ── Cards ────────────────────────────────────────────────────────── */
         .glass-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; }
-        .card-header-custom { padding: 15px 20px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+        body.dark .glass-card { background: var(--surface); border-color: var(--border); }
+        .card-header-custom { padding: 15px 20px; background: rgba(0,0,0,0.03); border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.6px; }
+        body.dark .card-header-custom { background: rgba(255,255,255,0.03); color: #8B949E; }
+
+        /* ── KPI stat cards — icon circles ───────────────────────────────── */
+        .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex-shrink: 0; }
+        .stat-icon--office { background: rgba(5,150,105,0.12); color: var(--clr-office); }
+        .stat-icon--brand  { background: rgba(153,27,27,0.12); color: var(--brand); }
+        .stat-icon--remote { background: rgba(2,132,199,0.12); color: var(--clr-remote); }
+        .stat-icon--leave  { background: rgba(217,119,6,0.12); color: var(--clr-leave); }
+        body.dark .stat-icon--office { background: rgba(52,211,153,0.12); }
+        body.dark .stat-icon--brand  { background: rgba(248,113,113,0.12); }
+        body.dark .stat-icon--remote { background: rgba(56,189,248,0.12); }
+        body.dark .stat-icon--leave  { background: rgba(251,180,58,0.12); }
+
+        /* KPI labels & values */
+        .glass-card .small.text-muted { color: var(--text-muted) !important; font-size: 11px; letter-spacing: 0.4px; }
+        body.dark .glass-card .small.text-muted { color: #8B949E !important; }
+        .glass-card .h4 { color: var(--text-heading); }
+        body.dark .glass-card .h4 { color: #F0F6FC; }
+
+        /* ── Table ────────────────────────────────────────────────────────── */
         .custom-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        .data-row { background: var(--surface); transition: 0.2s; cursor: pointer; }
-        .data-row td { padding: 15px 20px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .custom-table thead th { color: var(--text-muted); font-size: 12px; font-weight: 700; padding: 0 20px 6px; }
+        body.dark .custom-table thead th { color: #8B949E; }
+        .data-row { background: var(--surface); transition: transform 0.15s ease, background 0.15s ease; cursor: pointer; }
+        body.dark .data-row { background: var(--surface); }
+        .data-row td { padding: 15px 20px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); color: var(--text-main); }
+        body.dark .data-row td { border-color: var(--border); }
         .data-row td:first-child { border-left: 1px solid var(--border); border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
         .data-row td:last-child { border-right: 1px solid var(--border); border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-        .data-row:hover { transform: scale(1.005); background: rgba(153, 27, 27, 0.02); }
+        .data-row:hover { transform: scale(1.004); background: rgba(248,113,113,0.04) !important; }
+        body.dark .data-row:hover { background: rgba(248,113,113,0.06) !important; }
+
+        /* Employee name & email */
+        .data-row [style*="font-weight:700"] { color: var(--text-heading); }
+        body.dark .data-row [style*="font-weight:700"] { color: #E6EDF3; }
+        .data-row [style*="font-size:11px"] { color: var(--text-muted) !important; }
+        body.dark .data-row [style*="font-size:11px"] { color: #8B949E !important; }
+
+        /* Παρουσίες / Στόχος */
+        body.dark .data-row [style*="font-weight:800"] { color: #F0F6FC; }
+        body.dark .data-row span[style*="color:var(--text-muted)"] { color: #6E7681 !important; }
+
+        /* ── Status dot ───────────────────────────────────────────────────── */
         .status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; position: absolute; bottom: -2px; right: -2px; border: 2px solid var(--surface); }
         .dot-OFFICE { background: var(--clr-office); box-shadow: 0 0 8px var(--clr-office); animation: pulse 2s infinite; }
         .dot-REMOTE { background: var(--clr-remote); }
         .dot-LEAVE, .dot-SICK { background: var(--clr-leave); }
-        .dot-NONE { background: var(--text-muted); opacity: 0.5; }
-        @keyframes pulse { 0% { transform: scale(0.95); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); } 100% { transform: scale(0.95); } }
+        .dot-NONE { background: var(--text-muted); opacity: 0.4; }
+        @keyframes pulse { 0% { transform: scale(0.95); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(52,211,153,0); } 100% { transform: scale(0.95); } }
+
+        /* ── Progress bar ─────────────────────────────────────────────────── */
         .progress-thin { height: 6px; background: var(--bg); border-radius: 10px; width: 100px; margin: 4px auto 0; overflow: hidden; }
+        body.dark .progress-thin { background: #0D1117; }
         .progress-bar-fill { height: 100%; transition: width 0.6s ease; border-radius: 10px; }
+
+        /* ── Filter section ───────────────────────────────────────────────── */
         .filter-section { background: var(--surface); padding: 15px 20px; border-radius: 18px; border: 1px solid var(--border); display: flex; gap: 15px; align-items: center; margin-bottom: 20px; }
         .search-wrapper { position: relative; flex: 1; }
         .search-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .form-control-custom { width: 100%; padding: 10px 15px 10px 40px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text-main); outline: none; }
+        .form-control-custom { width: 100%; padding: 10px 15px 10px 40px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text-main); outline: none; font-family: inherit; }
+        body.dark .form-control-custom { background: #0D1117; color: #E6EDF3; border-color: #30363D; }
+        body.dark .form-control-custom::placeholder { color: #6E7681; }
 
-        /* Empty State */
+        /* ── Form controls (Bootstrap) in dark ───────────────────────────── */
+        body.dark .form-control,
+        body.dark .form-control-sm,
+        body.dark select.form-control { background-color: #0D1117 !important; color: #E6EDF3 !important; border-color: #30363D !important; }
+        body.dark .form-control:focus,
+        body.dark .form-control-sm:focus { border-color: #F87171 !important; box-shadow: 0 0 0 3px rgba(248,113,113,0.15) !important; }
+        body.dark input[type="date"] { color-scheme: dark; }
+
+        /* ── Checkbox ─────────────────────────────────────────────────────── */
+        .form-check-input:checked { background-color: var(--brand); border-color: var(--brand); }
+        body.dark .form-check-input { background-color: #161B22; border-color: #484F58; }
+        body.dark .form-check-input:checked { background-color: #F87171; border-color: #F87171; }
+
+        /* ── Empty State ──────────────────────────────────────────────────── */
         .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-        .empty-state i { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; opacity: 0.25; }
         .empty-state p { font-weight: 600; font-size: 15px; }
 
-        /* Bulk Actions Toolbar */
+        /* ── Modal ────────────────────────────────────────────────────────── */
+        body.dark .modal-content { background: #161B22; border: 1px solid #30363D; color: #E6EDF3; }
+        body.dark .modal-header { border-bottom-color: #30363D; }
+        body.dark .btn-close { filter: invert(1) brightness(0.7); }
+        body.dark label.small.fw-bold { color: #8B949E; }
+
+        /* ── Bulk toolbar ─────────────────────────────────────────────────── */
         .bulk-toolbar {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: var(--topbar); color: white; padding: 15px 30px; border-radius: 20px;
-            display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            z-index: 2000; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 2000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .bulk-toolbar.active { transform: translateX(-50%) translateY(0); }
-        .bulk-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 15px; border-radius: 10px; font-weight: 600; font-size: 13px; }
-        .bulk-btn:hover { background: white; color: var(--topbar); }
+        .bulk-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); color: #F0F6FC; padding: 5px 15px; border-radius: 10px; font-weight: 600; font-size: 13px; transition: background 0.15s; }
+        .bulk-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
 
-        .form-check-input:checked { background-color: var(--brand); border-color: var(--brand); }
+        /* ── Range stats panel in dark ────────────────────────────────────── */
+        body.dark [id^="range-result-"] > div > div { border-color: rgba(255,255,255,0.08) !important; }
+        body.dark #range-val-office { color: #34D399 !important; }
+        body.dark #range-val-remote { color: #38BDF8 !important; }
+        body.dark #range-val-leave  { color: #FBB43A !important; }
+
+        /* ── FullCalendar dark overrides ──────────────────────────────────── */
+        body.dark .fc { color: #E6EDF3; }
+        body.dark .fc-theme-standard td,
+        body.dark .fc-theme-standard th,
+        body.dark .fc-theme-standard .fc-scrollgrid { border-color: #30363D; }
+        body.dark .fc-col-header-cell-cushion,
+        body.dark .fc-daygrid-day-number { color: #C9D1D9 !important; text-decoration: none; }
+        body.dark .fc-day-today { background: rgba(248,113,113,0.08) !important; }
+        body.dark .fc-button-primary { background: #F87171 !important; border-color: #F87171 !important; color: #fff !important; }
+        body.dark .fc-button-primary:disabled { opacity: 0.5; }
+        body.dark .fc-toolbar-title { color: #F0F6FC; font-size: 16px; }
+        body.dark .fc-daygrid-day { background: transparent; }
+        body.dark .fc-day-other .fc-daygrid-day-number { color: #484F58 !important; }
+
+        /* ── Utility ──────────────────────────────────────────────────────── */
         .fw-800 { font-weight: 800; }
+        body.dark .text-muted { color: #8B949E !important; }
+        body.dark .vr { border-color: #484F58; opacity: 0.5; }
+        /* ── SweetAlert2 dark mode ────────────────────────────────────────── */
+        body.dark .swal2-popup { background: #161B22 !important; color: #E6EDF3 !important; border: 1px solid #30363D; }
+        body.dark .swal2-title { color: #F0F6FC !important; }
+        body.dark .swal2-html-container { color: #C9D1D9 !important; }
+        body.dark .swal2-input,
+        body.dark .swal2-select { background: #0D1117 !important; color: #E6EDF3 !important; border-color: #30363D !important; }
+        body.dark .swal2-cancel { background: #21262D !important; color: #C9D1D9 !important; border: 1px solid #30363D !important; }
+        body.dark .swal2-cancel:hover { background: #30363D !important; }
+        body.dark .swal2-icon.swal2-warning { border-color: #FBB43A !important; color: #FBB43A !important; }
+        body.dark .swal2-icon.swal2-error { border-color: #F87171 !important; color: #F87171 !important; }
+        body.dark .swal2-icon.swal2-question { border-color: #38BDF8 !important; color: #38BDF8 !important; }
+        body.dark .swal2-icon.swal2-success { border-color: #34D399 !important; color: #34D399 !important; }
+        body.dark .swal2-icon.swal2-success [class^='swal2-success-line'] { background: #34D399 !important; }
+        body.dark .swal2-icon.swal2-success .swal2-success-ring { border-color: rgba(52,211,153,0.3) !important; }
     </style>
 </head>
 <body class="light">
@@ -229,8 +373,7 @@
                 <tr id="cal-row-{{ emp.id }}" style="display:none;">
                     <td colspan="5">
                         <div style="padding: 20px; background: var(--bg); border-radius: 15px; margin: 10px 20px;">
-
-                            <!-- Date Range Stats Panel -->
+                              <!-- Date Range Stats Panel -->
                             <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 16px;">
                                 <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 12px;">
                                     <i class="fas fa-filter me-1"></i> Στατιστικά για χρονικό διάστημα
@@ -358,7 +501,6 @@
         body.classList.toggle('light', !isDark);
         localStorage.setItem('pcs_theme', isDark ? 'dark' : 'light');
         document.getElementById('theme-icon-dropdown').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        // Ενημερώνουμε τα ανοιχτά calendars ώστε να πάρουν το νέο theme
         Object.values(calInstances).forEach(cal => cal.render());
     }
 
@@ -568,8 +710,6 @@
         })
         .catch(() => Swal.fire({ icon: 'error', title: 'Σφάλμα σύνδεσης', confirmButtonColor: '#991B1B' }));
     }
-
-
     document.addEventListener('DOMContentLoaded', () => {
         const isD   = document.body.classList.contains('dark');
         const tColor = isD ? '#94A3B8' : '#64748B';
