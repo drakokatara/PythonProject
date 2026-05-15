@@ -75,16 +75,6 @@ class Employee(models.Model):
             'monthly_remaining': max(0, 8 - office_days),
         }
 
-    def get_stats_for_range(self, start_date, end_date):
-
-        attendances = self.attendance_set.filter(date__range=[start_date, end_date])
-
-        return {
-            'office': attendances.filter(work_type='OFFICE').count(),
-            'remote': attendances.filter(work_type='REMOTE').count(),
-            'leave': attendances.filter(work_type__in=['LEAVE', 'SICK']).count(),
-        }
-
 
 class Attendance(models.Model):
     WORK_TYPE_CHOICES = [
@@ -101,11 +91,6 @@ class Attendance(models.Model):
         choices=WORK_TYPE_CHOICES,
         verbose_name="Τύπος Εργασίας"
     )
-
-    class Meta:
-        unique_together = ('employee', 'date')
-        verbose_name = "Παρουσία"
-        verbose_name_plural = "Παρουσίες"
 
     def __str__(self):
         return f"{self.employee.full_name} - {self.date} ({self.get_work_type_display()})"
