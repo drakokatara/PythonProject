@@ -7,5 +7,6 @@ urlpatterns = [
     path('update-attendance-ajax/', views.update_attendance_ajax, name='update_attendance_ajax'),
     path('export-excel/', views.export_attendance_excel, name='export_attendance_excel'),
     path('export-pdf/', views.export_attendance_pdf, name='export_attendance_pdf'),
+    path('attendance-range-stats/', views.attendance_range_stats, name='attendance_range_stats'),
     path('bulk-update/', views.bulk_update_attendance, name='bulk_update')
 ]

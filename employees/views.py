@@ -357,6 +357,38 @@ def export_attendance_pdf(request):
     return response
 
 @csrf_exempt
+def attendance_range_stats(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error'}, status=400)
+    try:
+        data       = json.loads(request.body)
+        emp_id     = data.get('emp_id')
+        date_from  = date.fromisoformat(data.get('date_from'))
+        date_to    = date.fromisoformat(data.get('date_to'))
+
+        if date_from > date_to:
+            return JsonResponse({'status': 'error', 'message': 'Η αρχή πρέπει να είναι πριν το τέλος.'}, status=400)
+
+        emp = get_object_or_404(Employee, id=emp_id)
+        qs  = emp.attendance_set.filter(date__gte=date_from, date__lte=date_to)
+
+        office = qs.filter(work_type='OFFICE').count()
+        remote = qs.filter(work_type='REMOTE').count()
+        leave  = qs.filter(work_type__in=['LEAVE', 'SICK']).count()
+        total  = office + remote + leave
+
+        return JsonResponse({
+            'status': 'success',
+            'office': office,
+            'remote': remote,
+            'leave':  leave,
+            'total':  total,
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@csrf_exempt
 def bulk_update_attendance(request):
     if request.method == 'POST':
         try:
